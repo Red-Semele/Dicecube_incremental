@@ -30,7 +30,7 @@ var gameData = {
   diceRollInterval: 1000,
   diceRollIntervalUpgradeRatio: 100,
   furthestDiceReached: 0,
-  diceDimension: 1, //Altering this can increease the size of the cube, it is the length of the cube.
+  diceDimension: 6, //Altering this can increease the size of the cube, it is the length of the cube.
   prestigeLinePoints: 0,
   prestigeSquarePoints: 0,
   prestigeCubePoints: 0,
