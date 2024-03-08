@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="styles.css">
+    <title>Dice cube incremental</title>
+  </head>
+  <body>
+    <p id="dicePoints" class="dice-points">0 Dice points</p>
+    <p id="linePoints" class="line-points">0 Line points</p>
+    <p id="diceProgress" class="dice-progress">Currently reached no dice in dicecube</p>
+    <p id="diceProgress2" class="dice-progress2">Not started yet</p>
+    <p id="diceComboSystem" class="dice-combosystem">No combo currently</p>
+    <div id="navigateButtons">
+      <button onclick="tab('rollDiceMenu')">Go to Roll dice</button>
+      <button onclick="tab('shopMenu')">Go to Shop</button>
+      <button onclick="tab('prestigeMenu')" id="prestigeDiceMenu" title="Click here to go to Prestige menu">Go to Prestige menu</button>
+    </div>
+    <div id="rollDiceMenu">
+      <button onclick="rollDice()">Roll dice</button>
+    </div>
+    <div id="shopMenu">
+      <!--<button onclick="buydicePointsPerClick()" id="perClickUpgrade">Upgrade Pickaxe (Currently Level 1) Cost: 10 dicePoints</button>-->
+      <button onclick="upgradeDice()" id="diceSideUpgrade">Upgrade Dice (Currently d6) Cost: 50 dicePoints</button>
+      <button onclick="buyDice()" id="diceAmountUpgrade">Buy extra dice(Currently 1) Cost: 100 dicePoints</button>
+      <button onclick="upgradeDiceRollInterval()" id="diceRollInterval"> Increase automatic dice-roll speed by 100ms (Currently 1000ms) Cost: 200 dicePoints</button>
+      <!--Give the upgrades below the correct filler text.-->
+      <button onclick="lineUpgradeDecreaseUpgradeCostRatios()" id="decreaseUpgradeCostRatios"> Decrease the speed at which regular upgrades' cost grows Cost: 1 LP</button>
+      <button onclick="lineUpgradeOnlineDiceRoller()" id="onlineDiceRoller"> On-line dice roller: Roll twice as many dice with the power of technology Cost: 5 LP</button>
+      <button onclick="lineUpgradeDecreasedWaitingLine()" id="decreasedWaitingLine"> Decreased waiting line: Improve the formula that calculates how close you can get to 0 with the automatic dice roll interval Cost: 1 LP</button>
+      <button onclick="squareUpgradeSquaredRootSales()" id="squaredRootSales"> Squared root sales: Apply a squared root to the price of all normal upgrades  Cost: 1 SP</button>
+    </div>
+    <div id="prestigeMenu">
+      <button onclick="prestigeLine()" id="linePrestige"  title="Sacrifice all your regular upgrades and dice-points to gain Line-points">Line prestige (for 0 LP)"</button>
+      <button onclick="prestigeSquare()" id="squarePrestige"  title="Sacrifice all your regular upgrades, dice-points, line upgrades and Line-points to gain Square-points">Square prestige (for 0 SP)</button>
+      <button onclick="prestigeCube()" id="cubePrestige" title="Sacrifice all your regular upgrades, dice-points, line upgrades and line-points and square upgrades and quare-points for Cube-points">Cube prestige (for 0 CP)</button>
+    </div>
+    <script src="main.js" charset="utf-8" type="text/javascript"></script>
+  </body>
+</html>
