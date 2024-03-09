@@ -177,66 +177,59 @@ function buydicePointsPerClick() { //Change this upgrade into something else, pr
 }
 
 function buyDice() { //Add an upgrade once you have atleast 2 dice that lets you use combo's, for example, when the dice is a 6 and the other dice is also a 6 both of them get times two the points.
-  if (gameData.squaredRootSalesActivated === true) {
-    if (gameData.dicePoints >= Math.sqrt(gameData.diceAmountUpgradeCost)) {
-      gameData.dicePoints -= Math.sqrt(gameData.diceAmountUpgradeCost);
-      gameData.diceCount += 1;
-      gameData.diceAmountUpgradeCost *= gameData.diceAmountUpgradeCostRatio;
-      updateAll();
-    }
-  } else { //TODO: For some reason all upgrades when they are not math.sqrt can't be bought, when the square root sales upgrade is bought this problem is fixed. is it because it's the first buyable upgrade of the three in here?
-    if (gameData.dicePoints >= gameData.diceAmountUpgradeCost) {
-      gameData.dicePoints -= gameData.diceAmountUpgradeCost;
-      gameData.diceCount += 1;
-      gameData.diceAmountUpgradeCost *= gameData.diceAmountUpgradeCostRatio;
-      updateAll();
-    }
+  bulkBuy("diceAmountUpgrade", "dicePoints");
+  var upgradeType = "diceAmountUpgrade"; // Define the upgrade type
+  var currencyType = "dicePoints"; // Define the currency type
+
+  var quantityPurchased = bulkBuy(upgradeType + "Cost", currencyType); // Call bulkBuy function to buy the upgrade and get the quantity purchased
+
+  // Increment dice count based on the quantity purchased
+  if (quantityPurchased > 0) {
+    gameData.diceCount += quantityPurchased; // Increment dice count by the quantity purchased
   }
+
+  updateAll(); // Update the game interface
 }
+  //if (gameData.squaredRootSalesActivated === true) {
+   // if (gameData.dicePoints >= Math.sqrt(gameData.diceAmountUpgradeCost)) {
+      //gameData.dicePoints -= Math.sqrt(gameData.diceAmountUpgradeCost);
+      //gameData.diceCount += 1;
+      //gameData.diceAmountUpgradeCost *= gameData.diceAmountUpgradeCostRatio;
+      //updateAll();
+    //}
+  //} else { //TODO: For some reason all upgrades when they are not math.sqrt can't be bought, when the square root sales upgrade is bought this problem is fixed. is it because it's the first buyable upgrade of the three in here?
+    //if (gameData.dicePoints >= gameData.diceAmountUpgradeCost) {
+      //gameData.dicePoints -= gameData.diceAmountUpgradeCost;
+      
+      //gameData.diceAmountUpgradeCost *= gameData.diceAmountUpgradeCostRatio;
+      //updateAll();
+    //}
+  //}
+//}
 
 function upgradeDice() { //TODO: For some reason this upgrade is now the only one that is fully unaffected by whatever bug it is that stops me from buying regular upgrades
-  if (gameData.squaredRootSalesActivated === true) {
-    if (gameData.dicePoints >= Math.sqrt(gameData.diceSideUpgradeCost)) {
-      gameData.dicePoints -= Math.sqrt(gameData.diceSideUpgradeCost);
-      gameData.diceSides += 2; // Upgrade to d8
-      gameData.diceSideUpgradeCost *= gameData.diceSideUpgradeCostRatio;
-      updateAll();
-    }
-  } else {
-    if (gameData.dicePoints >= gameData.diceSideUpgradeCost) {
-      gameData.dicePoints -= gameData.diceSideUpgradeCost;
-      gameData.diceSides += 2; // Upgrade to d8
-      gameData.diceSideUpgradeCost *= gameData.diceSideUpgradeCostRatio;
-      updateAll();
+      bulkBuy("diceSideUpgrade", "dicePoints");
+      if (quantityPurchased > 0) {
+        gameData.diceSides += (quantityPurchased * 2); // Increment dice count by the quantity purchased
       }
+      updateAll();
     }
-  }
+  
 
 
 
 function upgradeDiceRollInterval() {
+  bulkBuy("diceRollIntervalUpgrade", "dicePoints");
   //When the interval gets reset everything freezes and the automatic rolls just stop. Find a way to fix that.
-  if (gameData.squaredRootSalesActivated === true) {
-    if (gameData.dicePoints >= Math.sqrt(gameData.diceRollIntervalUpgradeCost)) {
-      gameData.dicePoints -= Math.sqrt(gameData.diceRollIntervalUpgradeCost);
+  if (quantityPurchased > 0) {
+    for (let i = 0; i < quantityPurchased; i++) {
       gameData.diceRollInterval -= gameData.diceRollIntervalUpgradeRatio;
       gameData.diceRollIntervalUpgradeRatio *= gameData.diceRollIntervalDecrease;
-      clearInterval(mainGameLoop); //It's this piece that kind of blocks things.
-      mainGameLoop = setInterval(mainGameLoopFunction, gameData.diceRollInterval); //The porblem here seems to be that "mainGameLoopfunction does not exist."
       gameData.diceRollIntervalUpgradeCost *= gameData.diceRollIntervalUpgradeCostRatio;
-      updateAll();
     }
-  } else {
-    if (gameData.dicePoints >= gameData.diceRollIntervalUpgradeCost) {
-      gameData.dicePoints -= gameData.diceRollIntervalUpgradeCost;
-      gameData.diceRollInterval -= gameData.diceRollIntervalUpgradeRatio;
-      gameData.diceRollIntervalUpgradeRatio *= gameData.diceRollIntervalDecrease;
-      clearInterval(mainGameLoop); //It's this piece that kind of blocks things.
-      mainGameLoop = setInterval(mainGameLoopFunction, gameData.diceRollInterval); //The porblem here seems to be that "mainGameLoopfunction does not exist."
-      gameData.diceRollIntervalUpgradeCost *= gameData.diceRollIntervalUpgradeCostRatio;
-      updateAll();
-      }
-    }
+    clearInterval(mainGameLoop);
+    mainGameLoop = setInterval(mainGameLoopFunction, gameData.diceRollInterval);
+    updateAll();
   }
 
 
@@ -406,6 +399,29 @@ function squareUpgradeSquaredRootSales() {
 
     //Add one for Cubepointsupgrades aswell
   
+}
+
+function bulkBuy(upgradeType, currencyType) {
+  var quantity = parseInt(document.getElementById("quantityPicker").value); // Get selected quantity
+  var upgradeCost = gameData[upgradeType + "Cost"];
+  var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
+  var upgradeIncrement = 1; // Default increment value
+
+  
+
+  
+
+  var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, quantity) - 1) / (upgradeCostRatio - 1); // Calculate total cost
+  if (gameData.squaredRootSalesActivated === true) {
+    totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
+  }
+
+  if (gameData[currencyType] >= totalCost) {
+    gameData[currencyType] -= totalCost; // Deduct cost from the specified currency
+    gameData[upgradeType] += upgradeIncrement * quantity; // Increment the upgrade count
+    gameData[upgradeType + "Cost"] *= Math.pow(upgradeCostRatio, quantity); // Adjust the upgrade cost
+    return quantity;
+  }
 }
 
 // go to a tab for the first time, so not all show
