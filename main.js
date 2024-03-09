@@ -20,7 +20,7 @@ var gameData = {
   dicePointsPerClickCost: 10,
   diceSideUpgradeCost: 50,
   diceAmountUpgradeCost: 100, //Rename this and all the other instances of it to diceCountUpgradeCost
-  diceRollIntervalUpgradeCost: 1,
+  diceRollIntervalUpgradeCost: 200,
   dicePointsPerClickCostRatio: 1.25,
   diceSideUpgradeCostRatio: 1.25,
   diceAmountUpgradeCostRatio: 1.25,
@@ -328,7 +328,6 @@ function lineUpgradeOnlineDiceRoller() {
 
 function lineUpgradeDecreasedWaitingLine() {
   if (gameData.prestigeLinePoints >= Math.floor(gameData.decreasedWaitingLineCost)) {
-    gameData.onlineDiceRollerActivated = true
     gameData.prestigeLinePoints -= Math.floor(gameData.decreasedWaitingLineCost)
     gameData.decreasedWaitingLineCost *= gameData.decreasedWaitingLineCostRatio
     gameData.diceRollIntervalDecrease *= 1.50

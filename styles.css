@@ -2,6 +2,10 @@
     color: red;
   }
 
+.upgrade-section {
+  margin-bottom: 20px; /* Adjust the space between sections as needed */
+}
+
   body { /* no . means element type */
     text-align: center; /* text-align centers text AND children */
   }
