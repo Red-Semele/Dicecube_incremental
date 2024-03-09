@@ -48,7 +48,8 @@ var gameData = {
   decreaseUpgradeCostRatiosCostRatio: 2,
   squaredRootSalesCost: 1,
   decreasedWaitingLineCost: 1,
-  decreasedWaitingLineCostRatio: 1.15
+  decreasedWaitingLineCostRatio: 1.15,
+  quantity: 0
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
 }
@@ -178,15 +179,14 @@ function buydicePointsPerClick() { //Change this upgrade into something else, pr
 
 function buyDice() { //Add an upgrade once you have atleast 2 dice that lets you use combo's, for example, when the dice is a 6 and the other dice is also a 6 both of them get times two the points.
   bulkBuy("diceAmountUpgrade", "dicePoints");
-  var upgradeType = "diceAmountUpgrade"; // Define the upgrade type
-  var currencyType = "dicePoints"; // Define the currency type
-
-  var quantityPurchased = bulkBuy(upgradeType + "Cost", currencyType); // Call bulkBuy function to buy the upgrade and get the quantity purchased
-
-  // Increment dice count based on the quantity purchased
-  if (quantityPurchased > 0) {
-    gameData.diceCount += quantityPurchased; // Increment dice count by the quantity purchased
+  update("diceComboSystem", gameData.quantity);
+  
+  if (gameData.quantity > 0) {
+    gameData.diceCount += gameData.quantity; // Increment dice count by the gameData.quantity purchased
   }
+    
+
+  
 
   updateAll(); // Update the game interface
 }
@@ -209,10 +209,11 @@ function buyDice() { //Add an upgrade once you have atleast 2 dice that lets you
 
 function upgradeDice() { //TODO: For some reason this upgrade is now the only one that is fully unaffected by whatever bug it is that stops me from buying regular upgrades
       bulkBuy("diceSideUpgrade", "dicePoints");
-      if (quantityPurchased > 0) {
-        gameData.diceSides += (quantityPurchased * 2); // Increment dice count by the quantity purchased
+      if (gameData.quantity > 0) {
+        gameData.diceSides += (gameData.quantity * 2); // Increment dice count by the gameData.quantity purchased
+        updateAll();
       }
-      updateAll();
+      
     }
   
 
@@ -221,16 +222,16 @@ function upgradeDice() { //TODO: For some reason this upgrade is now the only on
 function upgradeDiceRollInterval() {
   bulkBuy("diceRollIntervalUpgrade", "dicePoints");
   //When the interval gets reset everything freezes and the automatic rolls just stop. Find a way to fix that.
-  if (quantityPurchased > 0) {
-    for (let i = 0; i < quantityPurchased; i++) {
+  if (gameData.quantity > 0) {
+    for (let i = 0; i < gameData.quantity; i++) {
       gameData.diceRollInterval -= gameData.diceRollIntervalUpgradeRatio;
       gameData.diceRollIntervalUpgradeRatio *= gameData.diceRollIntervalDecrease;
-      gameData.diceRollIntervalUpgradeCost *= gameData.diceRollIntervalUpgradeCostRatio;
     }
     clearInterval(mainGameLoop);
     mainGameLoop = setInterval(mainGameLoopFunction, gameData.diceRollInterval);
     updateAll();
   }
+}
 
 
 var mainGameLoop = window.setInterval(mainGameLoopFunction, gameData.diceRollInterval);
@@ -243,6 +244,7 @@ function mainGameLoopFunction() {
   updateAll();
 
 }
+
 
 var saveGameLoop = window.setInterval(function() {
   localStorage.setItem('diceCubeSave', JSON.stringify(gameData));
@@ -320,39 +322,40 @@ function prestigeCube() {
 }
 
 function lineUpgradeOnlineDiceRoller() {
-  if (gameData.prestigeLinePoints >= Math.floor(gameData.onlineDiceRollerCost)) {
+  bulkBuy("onlineDiceRoller", "prestigeLinePoints");
+  //When the interval gets reset everything freezes and the automatic rolls just stop. Find a way to fix that.
+  if (gameData.quantity > 0) {
+    gameData.onlineDiceRollerCount += gameData.quantity
     gameData.onlineDiceRollerActivated = true
-    gameData.prestigeLinePoints -= Math.floor(gameData.onlineDiceRollerCost)
-    gameData.onlineDiceRollerCost *= gameData.onlineDiceRollerCostRatio
-    gameData.onlineDiceRollerCount += 1
+    }
     updateAll();
   }
-}
 
 function lineUpgradeDecreasedWaitingLine() {
-  if (gameData.prestigeLinePoints >= Math.floor(gameData.decreasedWaitingLineCost)) {
-    gameData.prestigeLinePoints -= Math.floor(gameData.decreasedWaitingLineCost)
-    gameData.decreasedWaitingLineCost *= gameData.decreasedWaitingLineCostRatio
-    gameData.diceRollIntervalDecrease *= 1.50
-    updateAll();
+  bulkBuy("decreasedWaitingLine", "prestigeLinePoints");
+  if (gameData.quantity > 0) {
+    for (let i = 0; i < gameData.quantity; i++) {
+      gameData.diceRollIntervalDecrease *= 1.50
+    }
+    
   }
-  
+  updateAll();
 }
 
 function lineUpgradeDecreaseUpgradeCostRatios() {
-  if (gameData.prestigeLinePoints >= Math.floor(gameData.decreaseUpgradeCostRatiosCost)) {
-    gameData.prestigeLinePoints -= Math.floor(gameData.decreaseUpgradeCostRatiosCost);
-    
-    gameData.decreaseUpgradeCostRatiosCost *= gameData.decreaseUpgradeCostRatiosCostRatio;
-  
-    //For now this will just set all the ratio's of the normal upgrades to a smaller number. I'd like to be able to pick specifically what ratio you want to decrease instead.
-    gameData.dicePointsPerClickCostRatio *= 0.95;
-    gameData.diceSideUpgradeCostRatio *= 0.95;
-    gameData.diceAmountUpgradeCostRatio *= 0.95;
-    gameData.diceRollIntervalUpgradeCostRatio *= 0.95;
-    updateAll();
+  bulkBuy("decreaseUpgradeCostRatios", "prestigeLinePoints");
+  if (gameData.quantity > 0) {
+    for (let i = 0; i < gameData.quantity; i++) {
+      //For now this will just set all the ratio's of the normal upgrades to a smaller number. I'd like to be able to pick specifically what ratio you want to decrease instead.
+      gameData.dicePointsPerClickCostRatio *= 0.95;
+      gameData.diceSideUpgradeCostRatio *= 0.95;
+      gameData.diceAmountUpgradeCostRatio *= 0.95;
+      gameData.diceRollIntervalUpgradeCostRatio *= 0.95;
     }
+    
   }
+  updateAll();
+}
 
 function squareUpgradeSquaredRootSales() {
   //This should make it so that the cost of all regular upgrades that cost dicepoints is squared
@@ -402,7 +405,7 @@ function squareUpgradeSquaredRootSales() {
 }
 
 function bulkBuy(upgradeType, currencyType) {
-  var quantity = parseInt(document.getElementById("quantityPicker").value); // Get selected quantity
+  gameData.quantity = parseInt(document.getElementById("gameData.quantityPicker").value); // Get selected gameData.quantity
   var upgradeCost = gameData[upgradeType + "Cost"];
   var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
   var upgradeIncrement = 1; // Default increment value
@@ -411,16 +414,17 @@ function bulkBuy(upgradeType, currencyType) {
 
   
 
-  var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, quantity) - 1) / (upgradeCostRatio - 1); // Calculate total cost
+  var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, gameData.quantity) - 1) / (upgradeCostRatio - 1); // Calculate total cost
   if (gameData.squaredRootSalesActivated === true) {
     totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
   }
 
   if (gameData[currencyType] >= totalCost) {
     gameData[currencyType] -= totalCost; // Deduct cost from the specified currency
-    gameData[upgradeType] += upgradeIncrement * quantity; // Increment the upgrade count
-    gameData[upgradeType + "Cost"] *= Math.pow(upgradeCostRatio, quantity); // Adjust the upgrade cost
-    return quantity;
+    gameData[upgradeType] += upgradeIncrement * gameData.quantity; // Increment the upgrade count
+    gameData[upgradeType + "Cost"] *= Math.pow(upgradeCostRatio, gameData.quantity); // Adjust the upgrade cost
+    return gameData.quantity;
+    
   }
 }
 
