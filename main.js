@@ -6,6 +6,9 @@ document.getElementById("onlineDiceRoller").style.display = "none"
 document.getElementById("decreasedWaitingLine").style.display = "none"
 document.getElementById("squaredRootSales").style.display = "none"
 document.getElementById("decreaseUpgradeCostRatios").style.display = "none"
+document.getElementById("linePoints").style.display = "none";
+document.getElementById("squarePoints").style.display = "none";
+document.getElementById("cubePoints").style.display = "none";
 
 
 
@@ -30,7 +33,7 @@ var gameData = {
   diceRollInterval: 1000,
   diceRollIntervalUpgradeRatio: 100,
   furthestDiceReached: 0,
-  diceDimension: 6, //Altering this can increease the size of the cube, it is the length of the cube.
+  diceDimension: 1, //Altering this can increease the size of the cube, it is the length of the cube.
   prestigeLinePoints: 0,
   prestigeSquarePoints: 0,
   prestigeCubePoints: 0,
@@ -84,6 +87,8 @@ function updateAll() {
   }
   update("dicePoints", format(Math.floor(gameData.dicePoints), "scientific") + " Dice points");
   update("linePoints", "Line Points: " + gameData.prestigeLinePoints);
+  update("squarePoints", "Square Points: " + gameData.prestigeSquarePoints);
+  update("cubePoints", "Cube Points: " + gameData.prestigeCubePoints);
   update("diceProgress", "Currently reached dice " + format(gameData.furthestDiceReached, "scientific") + " of " + (Math.pow(gameData.diceDimension, 3)) +  " in dicecube");
   update ("diceProgress2", "Dice " + format(gameData.furthestDiceReached, "scientific") + " currently placed on " + Math.floor(gameData.dicePointsTotal/(Math.pow(5, (gameData.furthestDiceReached - 1)))));
   update ("linePrestige", "Line prestige (for " + Math.floor (gameData.furthestDiceReached/gameData.diceDimension) + "LP)");
@@ -250,6 +255,11 @@ var saveGameLoop = window.setInterval(function() {
   localStorage.setItem('diceCubeSave', JSON.stringify(gameData));
 }, 15000)
 
+var savegame = JSON.parse(localStorage.getItem("diceCubeSave"))
+if (savegame !== null) {
+  gameData = savegame
+}
+
 function format(number, type) {
 	let exponent = Math.floor(Math.log10(number));
 	let mantissa = number / Math.pow(10, exponent);
@@ -373,18 +383,26 @@ function squareUpgradeSquaredRootSales() {
     }
     if (gameData.furthestDiceReached/Math.pow(gameData.diceDimension,3) >= 1) {
       document.getElementById("cubePrestige").style.display = "inline-block"
+      
     }
     if (gameData.prestigeLinePoints >= 1) {
+      document.getElementById("linePoints").style.display = "inline-block";
       document.getElementById("onlineDiceRoller").style.display = "inline-block"
       document.getElementById("decreasedWaitingLine").style.display = "inline-block"
       document.getElementById("decreaseUpgradeCostRatios").style.display = "inline-block"
     }
     
     if (gameData.prestigeSquarePoints >= 1) {
+      document.getElementById("squarePoints").style.display = "inline-block";
       if (gameData.squaredRootSalesActivated === false) {
       document.getElementById("squaredRootSales").style.display = "inline-block"
       }
     }
+
+    if (gameData.prestigeCubePoints >= 1) {
+      document.getElementById("cubePoints").style.display = "inline-block";
+      }
+    
 
     //Add one for Cubepointsupgrades aswell
   
