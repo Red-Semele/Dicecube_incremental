@@ -49,7 +49,11 @@ var gameData = {
   squaredRootSalesCost: 1,
   decreasedWaitingLineCost: 1,
   decreasedWaitingLineCostRatio: 1.15,
-  quantity: 0
+  quantity: 0,
+  diceRollIntervalLimit: 10,
+  allRatiosLimit: 1.1,
+  quantityBought: 0
+  
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
 }
@@ -122,6 +126,13 @@ function rollDice() {
     duplicates[value] = (duplicates[value] || 0) + 1;
   });
 
+  
+  var highestComboValue = 0;
+  var highestComboCount = 0;
+  var mostCommonComboValue = 0;
+  var mostCommonComboCount = 0;
+  var comboMessage = "";
+
   // Apply score multiplier for duplicates
   var hasCombo = false;
   for (var value in duplicates) {
@@ -130,6 +141,14 @@ function rollDice() {
       totalPoints += parseInt(value) * (duplicates[value] - 1);
       hasCombo = true;
       comboDice.push({ value: value, count: duplicates[value] });
+      if (duplicates[value] > highestComboCount) {
+        highestComboValue = value;
+        highestComboCount = duplicates[value];
+      }
+      if (duplicates[value] >= mostCommonComboCount) {
+        mostCommonComboValue = value;
+        mostCommonComboCount = duplicates[value];
+    }
     }
   }
 
@@ -141,8 +160,20 @@ function rollDice() {
     var comboMessage = "Combo dice: ";
     comboDice.forEach(function(dice) {
       comboMessage += dice.value + " (x" + dice.count + "), ";
+      
     });
-    update("diceComboSystem", comboMessage.slice(0, -2)); // Remove trailing comma and space
+    var comboMessageLength = comboMessage.length;
+    var comboMessageFix = false;
+      if (comboMessageLength > 1) { //If the combo message is too long it picks the other system.
+        comboMessage = "Highest Combo: " + highestComboValue + " (x" + highestComboCount + ") Most Common Combo: " + mostCommonComboValue + " (x" + mostCommonComboCount + ")";
+        comboMessageFix = true;
+               
+      }
+    if (comboMessageFix === false) {
+       update("diceComboSystem", comboMessage.slice(0, -2)); // Remove trailing comma and space
+    } else {
+      update("diceComboSystem", comboMessage)
+    }
   }
   gameData.dicePoints += totalPoints;
   gameData.dicePointsTotal += totalPoints;
@@ -178,17 +209,29 @@ function buydicePointsPerClick() { //Change this upgrade into something else, pr
 }
 
 function buyDice() { //Add an upgrade once you have atleast 2 dice that lets you use combo's, for example, when the dice is a 6 and the other dice is also a 6 both of them get times two the points.
-  bulkBuy("diceAmountUpgrade", "dicePoints");
-  update("diceComboSystem", gameData.quantity);
-  
-  if (gameData.quantity > 0) {
-    gameData.diceCount += gameData.quantity; // Increment dice count by the gameData.quantity purchased
+  if (gameData.quantity > 1 ) {
+    // Loop through quantity times
+    for (var i = 0; i < gameData.quantity; i++) {
+        // Calculate cost with current ratio and add to totalCost
+        totalCost += gameData.diceAmountUpgradeCost * gameData.diceAmountUpgradeCostRatio;
+    }
+  }else{
+    totalCost = gameData.diceAmountUpgradeCost * gameData.quantity;
   }
+  if (gameData.squaredRootSalesActivated === true) {
+    totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
+  }
+  if (gameData.dicePoints >= totalCost) {
+    bulkBuy("diceAmountUpgrade", "dicePoints");
     
+    
+    if (gameData.quantityBought > 0) {
+      gameData.diceCount += gameData.quantityBought; // Increment dice count by the gameData.quantity purchased
+      gameData.quantityBought = 0
+      updateAll();
+    }
 
-  
-
-  updateAll(); // Update the game interface
+  }
 }
   //if (gameData.squaredRootSalesActivated === true) {
    // if (gameData.dicePoints >= Math.sqrt(gameData.diceAmountUpgradeCost)) {
@@ -208,28 +251,63 @@ function buyDice() { //Add an upgrade once you have atleast 2 dice that lets you
 //}
 
 function upgradeDice() { //TODO: For some reason this upgrade is now the only one that is fully unaffected by whatever bug it is that stops me from buying regular upgrades
+  if (gameData.quantity > 1 ) {
+    // Loop through quantity times
+    for (var i = 0; i < gameData.quantity; i++) {
+        // Calculate cost with current ratio and add to totalCost
+        totalCost += gameData.diceSideUpgradeCost * gameData.diceSideUpgradeCostRatio;
+    }
+  }else{
+    totalCost = gameData.diceSideUpgradeCost * gameData.quantity;
+  }
+  if (gameData.squaredRootSalesActivated === true) {
+    totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
+  }
+  if (gameData.dicePoints >= totalCost) {   
+  
       bulkBuy("diceSideUpgrade", "dicePoints");
-      if (gameData.quantity > 0) {
-        gameData.diceSides += (gameData.quantity * 2); // Increment dice count by the gameData.quantity purchased
+      if (gameData.quantityBought > 0) {
+        gameData.diceSides += (gameData.quantityBought * 2); // Increment dice count by the gameData.quantity purchased
         updateAll();
       }
       
     }
+}
   
 
 
 
 function upgradeDiceRollInterval() {
-  bulkBuy("diceRollIntervalUpgrade", "dicePoints");
-  //When the interval gets reset everything freezes and the automatic rolls just stop. Find a way to fix that.
-  if (gameData.quantity > 0) {
-    for (let i = 0; i < gameData.quantity; i++) {
-      gameData.diceRollInterval -= gameData.diceRollIntervalUpgradeRatio;
-      gameData.diceRollIntervalUpgradeRatio *= gameData.diceRollIntervalDecrease;
+  if (gameData.quantity > 1 ) {
+    // Loop through quantity times
+    for (var i = 0; i < gameData.quantity; i++) {
+        // Calculate cost with current ratio and add to totalCost
+        totalCost += gameData.diceSideUpgradeCost * gameData.diceSideUpgradeCostRatio;
     }
-    clearInterval(mainGameLoop);
-    mainGameLoop = setInterval(mainGameLoopFunction, gameData.diceRollInterval);
-    updateAll();
+  }else{
+    totalCost = gameData.diceSideUpgradeCost * gameData.quantity;
+  }
+  if (gameData.squaredRootSalesActivated === true) {
+    totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
+  }
+  if (gameData.dicePoints >= totalCost) {   
+    if (gameData.diceRollInterval > gameData.diceRollIntervalLimit) { //This checks if the diceRollInterval isn't below it's limit
+      
+      bulkBuy("diceRollIntervalUpgrade", "dicePoints");
+      //When the interval gets reset everything freezes and the automatic rolls just stop. Find a way to fix that.
+      if (gameData.quantityBought > 0) {
+        for (let i = 0; i < gameData.quantityBought; i++) {
+          gameData.diceRollInterval -= gameData.diceRollIntervalUpgradeRatio;
+          gameData.diceRollIntervalUpgradeRatio *= gameData.diceRollIntervalDecrease;
+        }
+        if (gameData.diceRollInterval < gameData.diceRollIntervalLimit) {
+          gameData.diceRollInterval = gameData.diceRollIntervalLimit
+        }
+        clearInterval(mainGameLoop);
+        mainGameLoop = setInterval(mainGameLoopFunction, gameData.diceRollInterval);
+        updateAll();
+      }
+    }
   }
 }
 
@@ -253,7 +331,16 @@ var saveGameLoop = window.setInterval(function() {
 var savegame = JSON.parse(localStorage.getItem("diceCubeSave"))
 if (savegame !== null) {
   gameData = savegame
-}
+  if (typeof saveGame.dicePoints !== "undefined") gameData.dicePoints = saveGame.dicePoints;
+  if (typeof saveGame.dicePointsPerClick !== "undefined") gameData.dicePointsPerClick = saveGame.dicePointsPerClick;
+  if (typeof saveGame.dicePointsPerClickCost !== "undefined") gameData.dicePointsPerClickCost = saveGame.dicePointsPerClickCost;
+  if (typeof saveGame.lastTick !== "undefined") gameData.lastTick = saveGame.lastTick;
+  if (typeof savegame.diceRollIntervalLimit === 'undefined') gameData.diceRollIntervalLimit = 10;
+  if (typeof savegame.allRatiosLimit === 'undefined') gameData.allRatiosLimit = 1.1;
+  
+    
+  }
+
 
 function format(number, type) {
 	let exponent = Math.floor(Math.log10(number));
@@ -264,10 +351,7 @@ function format(number, type) {
 }
 
 
-if (typeof saveGame.dicePoints !== "undefined") gameData.dicePoints = saveGame.dicePoints;
-if (typeof saveGame.dicePointsPerClick !== "undefined") gameData.dicePointsPerClick = saveGame.dicePointsPerClick;
-if (typeof saveGame.dicePointsPerClickCost !== "undefined") gameData.dicePointsPerClickCost = saveGame.dicePointsPerClickCost;
-if (typeof saveGame.lastTick !== "undefined") gameData.lastTick = saveGame.lastTick;
+
 //Add the other variables here aswell
 
 function tab(tab) {
@@ -322,39 +406,80 @@ function prestigeCube() {
 }
 
 function lineUpgradeOnlineDiceRoller() {
-  bulkBuy("onlineDiceRoller", "prestigeLinePoints");
-  //When the interval gets reset everything freezes and the automatic rolls just stop. Find a way to fix that.
-  if (gameData.quantity > 0) {
-    gameData.onlineDiceRollerCount += gameData.quantity
-    gameData.onlineDiceRollerActivated = true
+  if (gameData.quantity > 1 ) {
+    // Loop through quantity times
+    for (var i = 0; i < gameData.quantity; i++) {
+        // Calculate cost with current ratio and add to totalCost
+        totalCost += gameData.onlineDiceRollerCost * gameData.onlineDiceRollerCostRatio;
+    }
+  }else{
+    totalCost = gameData.onlineDiceRollerCost * gameData.quantity;
+  }
+  if (gameData.prestigeLinePoints >= totalCost) {   
+    bulkBuy("onlineDiceRoller", "prestigeLinePoints");
+    //When the interval gets reset everything freezes and the automatic rolls just stop. Find a way to fix that.
+    if (gameData.quantityBought > 0) {
+      gameData.onlineDiceRollerCount += gameData.quantityBought
+      gameData.onlineDiceRollerActivated = true
+      }
+      updateAll();
+    }
+}
+
+function lineUpgradeDecreasedWaitingLine() {
+  if (gameData.quantity > 1 ) {
+    // Loop through quantity times
+    for (var i = 0; i < gameData.quantity; i++) {
+        // Calculate cost with current ratio and add to totalCost
+        totalCost += gameData.decreasedWaitingLineCost * gameData.decreasedWaitingLineCostRatio;
+    }
+  }else{
+    totalCost = gameData.decreasedWaitingLineCost * gameData.quantity;
+  }
+  if (gameData.prestigeLinePoints >= totalCost) {   
+    bulkBuy("decreasedWaitingLine", "prestigeLinePoints");
+    if (gameData.quantityBought > 0) {
+      for (let i = 0; i < gameData.quantityBought; i++) {
+        gameData.diceRollIntervalDecrease *= 1.50
+      }
+      updateAll();
+    }
+    
+  }
+}
+
+
+function lineUpgradeDecreaseUpgradeCostRatios() {
+  if (gameData.quantity > 1 ) {
+    // Loop through quantity times
+    for (var i = 0; i < gameData.quantity; i++) {
+        // Calculate cost with current ratio and add to totalCost
+        totalCost += gameData.decreaseUpgradeCostRatiosCost * gameData.decreaseUpgradeCostRatiosCostRatio;
+    }
+  }else{
+    totalCost = gameData.decreaseUpgradeCostRatiosCost * gameData.quantity;
+  }
+  if (gameData.prestigeLinePoints >= totalCost) {   
+    if (gameData.diceSideUpgradeCostRatio > gameData.allRatiosLimit) {
+      bulkBuy("decreaseUpgradeCostRatios", "prestigeLinePoints");
+      if (gameData.quantityBought > 0) {
+        for (let i = 0; i < gameData.quantityBought; i++) {
+          //For now this will just set all the ratio's of the normal upgrades to a smaller number. I'd like to be able to pick specifically what ratio you want to decrease instead.
+          gameData.dicePointsPerClickCostRatio *= 0.95;
+          gameData.diceSideUpgradeCostRatio *= 0.95;
+          gameData.diceAmountUpgradeCostRatio *= 0.95;
+          gameData.diceRollIntervalUpgradeCostRatio *= 0.95;
+        } 
+        if (gameData.diceSideUpgradeCostRatio < gameData.allRatiosLimit) {
+          gameData.dicePointsPerClickCostRatio = 1.1;
+          gameData.diceSideUpgradeCostRatio = 1.1;
+          gameData.diceAmountUpgradeCostRatio = 1.1;
+          gameData.diceRollIntervalUpgradeCostRatio = 1.1;
+        }
+      }
     }
     updateAll();
   }
-
-function lineUpgradeDecreasedWaitingLine() {
-  bulkBuy("decreasedWaitingLine", "prestigeLinePoints");
-  if (gameData.quantity > 0) {
-    for (let i = 0; i < gameData.quantity; i++) {
-      gameData.diceRollIntervalDecrease *= 1.50
-    }
-    
-  }
-  updateAll();
-}
-
-function lineUpgradeDecreaseUpgradeCostRatios() {
-  bulkBuy("decreaseUpgradeCostRatios", "prestigeLinePoints");
-  if (gameData.quantity > 0) {
-    for (let i = 0; i < gameData.quantity; i++) {
-      //For now this will just set all the ratio's of the normal upgrades to a smaller number. I'd like to be able to pick specifically what ratio you want to decrease instead.
-      gameData.dicePointsPerClickCostRatio *= 0.95;
-      gameData.diceSideUpgradeCostRatio *= 0.95;
-      gameData.diceAmountUpgradeCostRatio *= 0.95;
-      gameData.diceRollIntervalUpgradeCostRatio *= 0.95;
-    }
-    
-  }
-  updateAll();
 }
 
 function squareUpgradeSquaredRootSales() {
@@ -423,10 +548,45 @@ function bulkBuy(upgradeType, currencyType) {
     gameData[currencyType] -= totalCost; // Deduct cost from the specified currency
     gameData[upgradeType] += upgradeIncrement * gameData.quantity; // Increment the upgrade count
     gameData[upgradeType + "Cost"] *= Math.pow(upgradeCostRatio, gameData.quantity); // Adjust the upgrade cost
-    return gameData.quantity;
+    gameData.quantityBought = gameData.quantity
+    return gameData.quantityBought;
     
   }
 }
 
 // go to a tab for the first time, so not all show
 tab("rollDiceMenu")
+
+function resetSave() {
+  localStorage.removeItem('diceCubeSave'); // Remove the saved game data from localStorage
+  // Reset all game data to default values
+  gameData.dicePoints = 0;
+  gameData.dicePointsTotal = 0;
+  gameData.dicePointsPerClick = 1;
+  gameData.diceCount = 1;
+  gameData.diceSides = 6;
+  gameData.dicePointsPerClickCost = 10;
+  gameData.diceSideUpgradeCost = 50;
+  gameData.diceAmountUpgradeCost = 100;
+  gameData.diceRollIntervalUpgradeCost = 200;
+  gameData.diceRollInterval = 1000;
+  gameData.diceRollIntervalUpgradeRatio = 100;
+  gameData.furthestDiceReached = 0;
+  gameData.diceDimension = 6;
+  gameData.prestigeLinePoints = 0;
+  gameData.prestigeSquarePoints = 0;
+  gameData.prestigeCubePoints = 0;
+  gameData.squaredRootSalesActivated = false;
+  gameData.onlineDiceRollerActivated = false;
+  gameData.diceRollIntervalDecrease = 0.50;
+  gameData.decreaseUpgradeCostRatiosCost = 1;
+  gameData.decreasedWaitingLineCost = 1;
+  gameData.onlineDiceRollerCost = 5;
+  gameData.onlineDiceRollerCount = 0;
+  gameData.decreasedWaitingLineCostRatio = 1.15;
+  gameData.quantity = 0;
+  gameData.diceRollIntervalLimit = 10;
+  gameData.allRatiosLimit = 1.1;
+  
+  updateAll(); // Update the game interface to reflect the reset
+}
