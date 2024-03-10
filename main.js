@@ -346,10 +346,47 @@ if (savegame !== null) {
   if (typeof savegame.diceRollIntervalLimit === 'undefined') gameData.diceRollIntervalLimit = 10;
   if (typeof savegame.allRatiosLimit === 'undefined') gameData.allRatiosLimit = 1.1;
   if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.comboMessageLenghtLimit = 120;
-  if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.diceRollIntervalUpgradeTimeSize = 100;
+  if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.diceRollIntervalUpgradeTimeSize = 100; //This is where it used to end, just so I can fix it if it goes wrong.
+  if (typeof savegame.dicePoints !== "undefined") gameData.dicePoints = savegame.dicePoints;
+  if (typeof savegame.dicePointsTotal !== "undefined") gameData.dicePointsTotal = savegame.dicePointsTotal;
+  if (typeof savegame.dicePointsPerClick !== "undefined") gameData.dicePointsPerClick = savegame.dicePointsPerClick;
+  if (typeof savegame.diceCount !== "undefined") gameData.diceCount = savegame.diceCount;
+  if (typeof savegame.diceSides !== "undefined") gameData.diceSides = savegame.diceSides;
+  if (typeof savegame.dicePointsPerClickCost !== "undefined") gameData.dicePointsPerClickCost = savegame.dicePointsPerClickCost;
+  if (typeof savegame.diceCountUpgradeCost !== "undefined") gameData.diceCountUpgradeCost = savegame.diceCountUpgradeCost;
+  if (typeof savegame.diceRollIntervalUpgradeCost !== "undefined") gameData.diceRollIntervalUpgradeCost = savegame.diceRollIntervalUpgradeCost;
+  if (typeof savegame.dicePointsPerClickCostRatio !== "undefined") gameData.dicePointsPerClickCostRatio = savegame.dicePointsPerClickCostRatio;
+  if (typeof savegame.diceSideUpgradeCostRatio !== "undefined") gameData.diceSideUpgradeCostRatio = savegame.diceSideUpgradeCostRatio;
+  if (typeof savegame.diceAmountUpgradeCostRatio !== "undefined") gameData.diceAmountUpgradeCostRatio = savegame.diceAmountUpgradeCostRatio;
+  if (typeof savegame.diceRollIntervalUpgradeCostRatio !== "undefined") gameData.diceRollIntervalUpgradeCostRatio = savegame.diceRollIntervalUpgradeCostRatio;
+  if (typeof savegame.lastTick !== "undefined") gameData.lastTick = savegame.lastTick;
+  if (typeof savegame.diceRollInterval === 'undefined') gameData.diceRollInterval = 1000;
+  if (typeof savegame.diceRollIntervalUpgradeTimeSize === 'undefined') gameData.diceRollIntervalUpgradeTimeSize = 100;
+  if (typeof savegame.furthestDiceReached === 'undefined') gameData.furthestDiceReached = 0;
+  if (typeof savegame.diceDimension === 'undefined') gameData.diceDimension = 6;
+  if (typeof savegame.prestigeLinePoints === 'undefined') gameData.prestigeLinePoints = 0;
+  if (typeof savegame.prestigeSquarePoints === 'undefined') gameData.prestigeSquarePoints = 0;
+  if (typeof savegame.prestigeCubePoints === 'undefined') gameData.prestigeCubePoints = 0;
+  if (typeof savegame.squaredRootSalesActivated === 'undefined') gameData.squaredRootSalesActivated = false;
+  if (typeof savegame.onlineDiceRollerActivated === 'undefined') gameData.onlineDiceRollerActivated = false;
+  if (typeof savegame.diceRollIntervalDecrease === 'undefined') gameData.diceRollIntervalDecrease = 0.50;
+  if (typeof savegame.decreaseUpgradeCostRatiosCost === 'undefined') gameData.decreaseUpgradeCostRatiosCost = 1;
+  if (typeof savegame.decreaseUpgradeCostRatiosCostRatio === 'undefined') gameData.decreaseUpgradeCostRatiosCostRatio = 2;
+  if (typeof savegame.onlineDiceRollerCost === 'undefined') gameData.onlineDiceRollerCost = 5;
+  if (typeof savegame.onlineDiceRollerCostRatio === 'undefined') gameData.onlineDiceRollerCostRatio = 100;
+  if (typeof savegame.onlineDiceRollerCount === 'undefined') gameData.onlineDiceRollerCount = 0;
+  if (typeof savegame.squaredRootSalesCost === 'undefined') gameData.squaredRootSalesCost = 1;
+  if (typeof savegame.decreasedWaitingLineCost === 'undefined') gameData.decreasedWaitingLineCost = 1;
+  if (typeof savegame.decreasedWaitingLineCostRatio === 'undefined') gameData.decreasedWaitingLineCostRatio = 1.15;
+  if (typeof savegame.quantity === 'undefined') gameData.quantity = 0;
+  if (typeof savegame.diceRollIntervalLimit === 'undefined') gameData.diceRollIntervalLimit = 10;
+  if (typeof savegame.allRatiosLimit === 'undefined') gameData.allRatiosLimit = 1.1;
+  if (typeof savegame.quantityBought === 'undefined') gameData.quantityBought = 0;
+  if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.comboMessageLenghtLimit = 120;
+}
   
     
-  }
+  
 
 
 function format(number, type) {
