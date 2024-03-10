@@ -50,7 +50,7 @@ var gameData = {
   squaredRootSalesCost: 1,
   decreasedWaitingLineCost: 1,
   decreasedWaitingLineCostRatio: 1.15,
-  quantity: 0,
+  quantity: 0, //TODO: Check this interaction in the bulkbuying section, something is wrong with it, if you attempt to buy with 100 while you can't afford it everythign is permanently striked out and you can't buy anything.
   diceRollIntervalLimit: 10,
   allRatiosLimit: 1.1,
   quantityBought: 0,
@@ -59,7 +59,12 @@ var gameData = {
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
 }
-
+//gameData.quantity = parseInt(document.getElementById("quantityPicker").value); TODO Find a way to apply this from the start so all buttons are striked out at first if you can't afford them.
+var selectElement = document.getElementById('quantityPicker');
+selectElement.addEventListener('change', function() {
+var selectedValue = parseInt(selectElement.value);
+  gameData.quantity = selectedValue;
+});
 
 function update(id, content) {
   document.getElementById(id).innerHTML = content;
@@ -231,6 +236,7 @@ function buyDice() { //Add an upgrade once you have atleast 2 dice that lets you
     totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
   }
   if (gameData.dicePoints >= totalCost) {
+    //TODO currently I at the very least get this far.
     bulkBuy("diceAmountUpgrade", "dicePoints");
     
     
@@ -579,7 +585,8 @@ function squareUpgradeSquaredRootSales() {
 }
 
 function bulkBuy(upgradeType, currencyType) {
-  gameData.quantity = parseInt(document.getElementById("gameData.quantityPicker").value); // Get selected gameData.quantity
+  //TODO When attempting to buy something while you can I at the very least get this far.
+  gameData.quantity = parseInt(document.getElementById("quantityPicker").value); // Get selected gameData.quantity
   var upgradeCost = gameData[upgradeType + "Cost"];
   var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
   var upgradeIncrement = 1; // Default increment value
