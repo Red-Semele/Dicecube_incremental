@@ -52,7 +52,8 @@ var gameData = {
   quantity: 0,
   diceRollIntervalLimit: 10,
   allRatiosLimit: 1.1,
-  quantityBought: 0
+  quantityBought: 0,
+  comboMessageLenghtLimit: 120
   
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
@@ -164,9 +165,15 @@ function rollDice() {
     });
     var comboMessageLength = comboMessage.length;
     var comboMessageFix = false;
-      if (comboMessageLength > 120) { //If the combo message is too long it picks the other system.
-        comboMessage = "Highest Combo: " + highestComboValue + " (x" + highestComboCount + ") Most Common Combo: " + mostCommonComboValue + " (x" + mostCommonComboCount + ")";
+      if (comboMessageLength > gameData.comboMessageLenghtLimit) { //If the combo message is too long it picks the other system.
         comboMessageFix = true;
+        if (highestComboCount == mostCommonComboCount) {
+          comboMessage = "Highest And Most Common Combo: " + highestComboValue + " (x" + highestComboCount + ")";
+        } else {
+          comboMessage = "Highest Combo: " + highestComboValue + " (x" + highestComboCount + ") Most Common Combo: " + mostCommonComboValue + " (x" + mostCommonComboCount + ")";
+        }
+        
+        
                
       }
     if (comboMessageFix === false) {
@@ -337,6 +344,7 @@ if (savegame !== null) {
   if (typeof saveGame.lastTick !== "undefined") gameData.lastTick = saveGame.lastTick;
   if (typeof savegame.diceRollIntervalLimit === 'undefined') gameData.diceRollIntervalLimit = 10;
   if (typeof savegame.allRatiosLimit === 'undefined') gameData.allRatiosLimit = 1.1;
+  if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.comboMessageLenghtLimit =120;
   
     
   }
