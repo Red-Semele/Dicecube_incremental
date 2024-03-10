@@ -18,11 +18,11 @@ var gameData = {
   dicePoints: 0,
   dicePointsTotal: 0,
   dicePointsPerClick:1,
-  diceCount: 1,
+  diceAmount: 1,
   diceSides: 6,
   dicePointsPerClickCost: 10,
   diceSideUpgradeCost: 50,
-  diceAmountUpgradeCost: 100, //Rename this and all the other instances of it to diceCountUpgradeCost
+  diceAmountUpgradeCost: 100, //Rename this and all the other instances of it to diceAmountUpgradeCost
   diceRollIntervalUpgradeCost: 200,
   dicePointsPerClickCostRatio: 1.25,
   diceSideUpgradeCostRatio: 1.25,
@@ -69,9 +69,9 @@ function updateAll() {
   if (gameData.squaredRootSalesActivated === true) {
     update("diceSideUpgrade", "Upgrade Dice (Currently " + "d" + gameData.diceSides + ") Cost: " + format(Math.sqrt(gameData.diceSideUpgradeCost), "scientific") + " dicePoints"); //Check this list to see by how much the sides need to be incremented to be a real dice: https://commons.wikimedia.org/wiki/Dice_by_number_of_sides#D9
     if (gameData.onlineDiceRollerActivated === true) { 
-      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceCount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "scientific") + " dicePoints");
+      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "scientific") + " dicePoints");
     } else {
-      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceCount + " dice" + ") Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "scientific") + " dicePoints");
+      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + ") Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "scientific") + " dicePoints");
     }
 
     update("diceRollIntervalUpgrade", "Increase automatic dice-roll speed by " + Math.floor(gameData.diceRollIntervalUpgradeTimeSize) + "ms (Currently " + Math.floor (gameData.diceRollInterval) + "ms ) Cost: " + format(Math.sqrt(gameData.diceRollIntervalUpgradeCost), "scientific") + " dicePoints");
@@ -84,9 +84,9 @@ function updateAll() {
     update("diceSideUpgrade", "Upgrade Dice (Currently " + "d" + gameData.diceSides + ") Cost: " + format(gameData.diceSideUpgradeCost, "scientific") + " dicePoints"); //Check this list to see by how much the sides need to be incremented to be a real dice: https://commons.wikimedia.org/wiki/Dice_by_number_of_sides#D9
    
     if (gameData.onlineDiceRollerActivated === true) { 
-      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceCount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(gameData.diceAmountUpgradeCost, "scientific") + " dicePoints");
+      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(gameData.diceAmountUpgradeCost, "scientific") + " dicePoints");
     } else {
-      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceCount + " dice" + ") Cost: " + format(gameData.diceAmountUpgradeCost, "scientific") + " dicePoints");
+      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + ") Cost: " + format(gameData.diceAmountUpgradeCost, "scientific") + " dicePoints");
     }
     update("diceRollIntervalUpgrade", "Increase automatic dice-roll speed by " + Math.floor(gameData.diceRollIntervalUpgradeTimeSize) + "ms (Currently " + Math.floor (gameData.diceRollInterval) + "ms ) Cost: " + format(gameData.diceRollIntervalUpgradeCost, "scientific") + " dicePoints");
     
@@ -116,7 +116,7 @@ function rollDice() {
   var totalPoints = 0;
   var diceValues = [];
   var comboDice = []; // Initialize comboDice array here
-  var loopCount = gameData.onlineDiceRollerActivated ? gameData.diceCount * gameData.onlineDiceRollerCount * 2 : gameData.diceCount; //This checks if you bought the online dice roller upgrade to double the dice it can roll.
+  var loopCount = gameData.onlineDiceRollerActivated ? gameData.diceAmount * gameData.onlineDiceRollerCount * 2 : gameData.diceAmount; //This checks if you bought the online dice roller upgrade to double the dice it can roll.
   for (var i = 0; i < loopCount; i++) { //Test if this works properly.
     let value = rollDie(gameData.diceSides);
     totalPoints += value;
@@ -234,7 +234,7 @@ function buyDice() { //Add an upgrade once you have atleast 2 dice that lets you
     
     
     if (gameData.quantityBought > 0) {
-      gameData.diceCount += gameData.quantityBought; // Increment dice count by the gameData.quantity purchased
+      gameData.diceAmount += gameData.quantityBought; // Increment dice count by the gameData.quantity purchased
       gameData.quantityBought = 0
       updateAll();
     }
@@ -244,7 +244,7 @@ function buyDice() { //Add an upgrade once you have atleast 2 dice that lets you
   //if (gameData.squaredRootSalesActivated === true) {
    // if (gameData.dicePoints >= Math.sqrt(gameData.diceAmountUpgradeCost)) {
       //gameData.dicePoints -= Math.sqrt(gameData.diceAmountUpgradeCost);
-      //gameData.diceCount += 1;
+      //gameData.diceAmount += 1;
       //gameData.diceAmountUpgradeCost *= gameData.diceAmountUpgradeCostRatio;
       //updateAll();
     //}
@@ -350,10 +350,10 @@ if (savegame !== null) {
   if (typeof savegame.dicePoints !== "undefined") gameData.dicePoints = savegame.dicePoints;
   if (typeof savegame.dicePointsTotal !== "undefined") gameData.dicePointsTotal = savegame.dicePointsTotal;
   if (typeof savegame.dicePointsPerClick !== "undefined") gameData.dicePointsPerClick = savegame.dicePointsPerClick;
-  if (typeof savegame.diceCount !== "undefined") gameData.diceCount = savegame.diceCount;
+  if (typeof savegame.diceAmount !== "undefined") gameData.diceAmount = savegame.diceAmount;
   if (typeof savegame.diceSides !== "undefined") gameData.diceSides = savegame.diceSides;
   if (typeof savegame.dicePointsPerClickCost !== "undefined") gameData.dicePointsPerClickCost = savegame.dicePointsPerClickCost;
-  if (typeof savegame.diceCountUpgradeCost !== "undefined") gameData.diceCountUpgradeCost = savegame.diceCountUpgradeCost;
+  if (typeof savegame.diceAmountUpgradeCost !== "undefined") gameData.diceAmountUpgradeCost = savegame.diceAmountUpgradeCost;
   if (typeof savegame.diceRollIntervalUpgradeCost !== "undefined") gameData.diceRollIntervalUpgradeCost = savegame.diceRollIntervalUpgradeCost;
   if (typeof savegame.dicePointsPerClickCostRatio !== "undefined") gameData.dicePointsPerClickCostRatio = savegame.dicePointsPerClickCostRatio;
   if (typeof savegame.diceSideUpgradeCostRatio !== "undefined") gameData.diceSideUpgradeCostRatio = savegame.diceSideUpgradeCostRatio;
@@ -409,11 +409,11 @@ function tab(tab) {
   document.getElementById(tab).style.display = "inline-block"
 }
 function prestigeReset() { //This is used to make sure all the stuff that should be reset from the normal upgrades gets reset.
-  gameData.furthestDiceReached = 0;
+    gameData.furthestDiceReached = 0;
     gameData.dicePoints = 0;
     gameData.dicePointsTotal = 0;
     gameData.dicePointsPerClick = 1;
-    gameData.diceCount = 1;
+    gameData.diceAmount = 1;
     gameData.dicePointsPerClickCost = 10;
     gameData.diceSideUpgradeCost = 50;
     gameData.diceAmountUpgradeCost = 100;
@@ -611,16 +611,22 @@ function resetSave() {
   gameData.dicePoints = 0;
   gameData.dicePointsTotal = 0;
   gameData.dicePointsPerClick = 1;
-  gameData.diceCount = 1;
+  gameData.diceAmount = 1;
   gameData.diceSides = 6;
   gameData.dicePointsPerClickCost = 10;
   gameData.diceSideUpgradeCost = 50;
-  gameData.diceAmountUpgradeCost = 100;
+  gameData.diceAmountUpgradeCost = 100; //Rename this and all the other instances of it to diceAmountUpgradeCost
   gameData.diceRollIntervalUpgradeCost = 200;
+  gameData.dicePointsPerClickCostRatio = 1.25;
+  gameData.diceSideUpgradeCostRatio = 1.25;
+  gameData.diceAmountUpgradeCostRatio = 1.25;
+  gameData.diceRollIntervalUpgradeCostRatio = 1.25;
+  //Add a way to better formulate the costratio thingies in the upgrades
+  gameData.lastTick = Date.now();
   gameData.diceRollInterval = 1000;
   gameData.diceRollIntervalUpgradeTimeSize = 100;
   gameData.furthestDiceReached = 0;
-  gameData.diceDimension = 6;
+  gameData.diceDimension = 6; //Altering this can increease the size of the cube, it is the length of the cube.
   gameData.prestigeLinePoints = 0;
   gameData.prestigeSquarePoints = 0;
   gameData.prestigeCubePoints = 0;
@@ -628,13 +634,19 @@ function resetSave() {
   gameData.onlineDiceRollerActivated = false;
   gameData.diceRollIntervalDecrease = 0.50;
   gameData.decreaseUpgradeCostRatiosCost = 1;
-  gameData.decreasedWaitingLineCost = 1;
+  gameData.decreaseUpgradeCostRatiosCostRatio = 2;
   gameData.onlineDiceRollerCost = 5;
+  gameData.onlineDiceRollerCostRatio = 100;
   gameData.onlineDiceRollerCount = 0;
+  gameData.decreaseUpgradeCostRatiosCostRatio = 2;
+  gameData.squaredRootSalesCost = 1;
+  gameData.decreasedWaitingLineCost = 1;
   gameData.decreasedWaitingLineCostRatio = 1.15;
   gameData.quantity = 0;
   gameData.diceRollIntervalLimit = 10;
   gameData.allRatiosLimit = 1.1;
+  gameData.quantityBought = 0;
+  gameData.comboMessageLenghtLimit = 120;
   
   updateAll(); // Update the game interface to reflect the reset
 }
