@@ -164,7 +164,7 @@ function rollDice() {
     });
     var comboMessageLength = comboMessage.length;
     var comboMessageFix = false;
-      if (comboMessageLength > 1) { //If the combo message is too long it picks the other system.
+      if (comboMessageLength > 120) { //If the combo message is too long it picks the other system.
         comboMessage = "Highest Combo: " + highestComboValue + " (x" + highestComboCount + ") Most Common Combo: " + mostCommonComboValue + " (x" + mostCommonComboCount + ")";
         comboMessageFix = true;
                
