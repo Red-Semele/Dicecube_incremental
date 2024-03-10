@@ -141,12 +141,12 @@ function rollDice() {
       totalPoints += parseInt(value) * (duplicates[value] - 1);
       hasCombo = true;
       comboDice.push({ value: value, count: duplicates[value] });
-      if (duplicates[value] > highestComboCount) {
-        highestComboValue = value;
+      if (parseInt(value) > highestComboValue) { // Check if the value is higher than the current highest combo value
+        highestComboValue = parseInt(value);
         highestComboCount = duplicates[value];
       }
-      if (duplicates[value] >= mostCommonComboCount) {
-        mostCommonComboValue = value;
+      if (duplicates[value] > mostCommonComboCount) { // Check if the value has more duplicates than the current most common combo value
+        mostCommonComboValue = parseInt(value);
         mostCommonComboCount = duplicates[value];
     }
     }
