@@ -9,6 +9,7 @@ document.getElementById("decreaseUpgradeCostRatios").style.display = "none"
 document.getElementById("linePoints").style.display = "none";
 document.getElementById("squarePoints").style.display = "none";
 document.getElementById("cubePoints").style.display = "none";
+document.getElementById("variableChecker").style.display = "none";
 
 
 
@@ -685,5 +686,47 @@ function updateButtonStyles() {
   }
 }
 
+function checkVariables() {
+  
+  variableMessage =
+    "gameData.dicePoints: " + gameData.dicePoints + "\n" +
+    "gameData.dicePointsTotal: " + gameData.dicePointsTotal + "\n" +
+    "gameData.dicePointsPerClick: " + gameData.dicePointsPerClick + "\n" +
+    "gameData.diceAmount: " + gameData.diceAmount + "\n" +
+    "gameData.diceSides: " + gameData.diceSides + "\n" +
+    "gameData.dicePointsPerClickCost: " + gameData.dicePointsPerClickCost + "\n" +
+    "gameData.diceSideUpgradeCost: " + gameData.diceSideUpgradeCost + "\n" +
+    "gameData.diceAmountUpgradeCost: " + gameData.diceAmountUpgradeCost + "\n" +
+    "gameData.diceRollIntervalUpgradeCost: " + gameData.diceRollIntervalUpgradeCost + "\n" +
+    "gameData.dicePointsPerClickCostRatio: " + gameData.dicePointsPerClickCostRatio + "\n" +
+    "gameData.diceSideUpgradeCostRatio: " + gameData.diceSideUpgradeCostRatio + "\n" +
+    "gameData.diceAmountUpgradeCostRatio: " + gameData.diceAmountUpgradeCostRatio + "\n" +
+    "gameData.diceRollIntervalUpgradeCostRatio: " + gameData.diceRollIntervalUpgradeCostRatio + "\n" +
+    "gameData.lastTick: " + gameData.lastTick + "\n" +
+    "gameData.diceRollInterval: " + gameData.diceRollInterval + "\n" +
+    "gameData.diceRollIntervalUpgradeTimeSize: " + gameData.diceRollIntervalUpgradeTimeSize + "\n" +
+    "gameData.furthestDiceReached: " + gameData.furthestDiceReached + "\n" +
+    "gameData.diceDimension: " + gameData.diceDimension + "\n" +
+    "gameData.prestigeLinePoints: " + gameData.prestigeLinePoints + "\n" +
+    "gameData.prestigeSquarePoints: " + gameData.prestigeSquarePoints + "\n" +
+    "gameData.prestigeCubePoints: " + gameData.prestigeCubePoints + "\n" +
+    "gameData.squaredRootSalesActivated: " + gameData.squaredRootSalesActivated + "\n" +
+    "gameData.onlineDiceRollerActivated: " + gameData.onlineDiceRollerActivated + "\n" +
+    "gameData.diceRollIntervalDecrease: " + gameData.diceRollIntervalDecrease + "\n" +
+    "gameData.decreaseUpgradeCostRatiosCost: " + gameData.decreaseUpgradeCostRatiosCost + "\n" +
+    "gameData.decreaseUpgradeCostRatiosCostRatio: " + gameData.decreaseUpgradeCostRatiosCostRatio + "\n" +
+    "gameData.onlineDiceRollerCost: " + gameData.onlineDiceRollerCost + "\n" +
+    "gameData.onlineDiceRollerCostRatio: " + gameData.onlineDiceRollerCostRatio + "\n" +
+    "gameData.onlineDiceRollerCount: " + gameData.onlineDiceRollerCount + "\n" +
+    "gameData.decreasedWaitingLineCost: " + gameData.decreasedWaitingLineCost + "\n" +
+    "gameData.decreasedWaitingLineCostRatio: " + gameData.decreasedWaitingLineCostRatio + "\n" +
+    "gameData.quantity: " + gameData.quantity + "\n" +
+    "gameData.diceRollIntervalLimit: " + gameData.diceRollIntervalLimit + "\n" +
+    "gameData.allRatiosLimit: " + gameData.allRatiosLimit + "\n" +
+    "gameData.quantityBought: " + gameData.quantityBought + "\n" +
+    "gameData.comboMessageLenghtLimit: " + gameData.comboMessageLenghtLimit + "\n";
+    document.getElementById("variableChecker").style.display = "inline-block";
+    update("variableChecker", variableMessage);
+}
  
 
