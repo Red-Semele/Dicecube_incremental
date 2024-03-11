@@ -1,3 +1,9 @@
+document.addEventListener('DOMContentLoaded', function() {
+  gameData.quantity = 1
+})
+
+
+
 document.getElementById("linePrestige").style.display = "none"
 document.getElementById("squarePrestige").style.display = "none"
 document.getElementById("cubePrestige").style.display = "none"
@@ -72,29 +78,34 @@ function update(id, content) {
 }
 
 function updateAll() {
-  if (gameData.squaredRootSalesActivated === true) {
-    update("diceSideUpgrade", "Upgrade Dice (Currently " + "d" + gameData.diceSides + ") Cost: " + format(Math.sqrt(gameData.diceSideUpgradeCost), "scientific") + " dicePoints"); //Check this list to see by how much the sides need to be incremented to be a real dice: https://commons.wikimedia.org/wiki/Dice_by_number_of_sides#D9
+
+  if (gameData.squaredRootSalesActivated === true) { //TODO: Dit mag waarschijnlijk weg omdat er ak gecheckt wordt of squaredRootsales atief is of niet en omdat de vierkantswortel dan al wordt genomen van de totalcost.
+    //update("diceSideUpgrade", "Upgrade Dice (Currently " + "d" + gameData.diceSides + ") Cost: " + format(Math.sqrt(gameData.diceSideUpgradeCost), "scientific") + " dicePoints"); //Check this list to see by how much the sides need to be incremented to be a real dice: https://commons.wikimedia.org/wiki/Dice_by_number_of_sides#D9
+    update("diceSideUpgrade", "Upgrade Dice (Currently " + "d" + gameData.diceSides + ") Cost: " + format(checkCost("diceSideUpgrade", "dicePoints"), "scientific") + " dicePoints");
     if (gameData.onlineDiceRollerActivated === true) { 
-      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "scientific") + " dicePoints");
+      //update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "scientific") + " dicePoints");
+      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(checkCost("diceAmountUpgrade", "dicePoints"), "scientific") + " dicePoints");
     } else {
-      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + ") Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "scientific") + " dicePoints");
+      //update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + ") Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "scientific") + " dicePoints");
+      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + ") Cost: " + format(checkCost("diceAmountUpgrade", "dicePoints"), "scientific") + " dicePoints");
     }
 
-    update("diceRollIntervalUpgrade", "Increase automatic dice-roll speed by " + Math.floor(gameData.diceRollIntervalUpgradeTimeSize) + "ms (Currently " + Math.floor (gameData.diceRollInterval) + "ms ) Cost: " + format(Math.sqrt(gameData.diceRollIntervalUpgradeCost), "scientific") + " dicePoints");
-    
+    //update("diceRollIntervalUpgrade", "Increase automatic dice-roll speed by " + Math.floor(gameData.diceRollIntervalUpgradeTimeSize) + "ms (Currently " + Math.floor (gameData.diceRollInterval) + "ms ) Cost: " + format(Math.sqrt(gameData.diceRollIntervalUpgradeCost), "scientific") + " dicePoints");
+    update("diceRollIntervalUpgrade", "Increase automatic dice-roll speed by " + Math.floor(gameData.diceRollIntervalUpgradeTimeSize) + "ms (Currently " + Math.floor(gameData.diceRollInterval) + "ms ) Cost: " + format(checkCost("diceRollIntervalUpgrade", "dicePoints"), "scientific") + " dicePoints");
     
     
   
   } else {
     //update("perClickUpgrade", "Upgrade Pickaxe (Currently Level " + format(gameData.dicePointsPerClick, "scientific") + ") Cost: " + format(gameData.dicePointsPerClickCost, "scientific") + " dicePoints");
-    update("diceSideUpgrade", "Upgrade Dice (Currently " + "d" + gameData.diceSides + ") Cost: " + format(gameData.diceSideUpgradeCost, "scientific") + " dicePoints"); //Check this list to see by how much the sides need to be incremented to be a real dice: https://commons.wikimedia.org/wiki/Dice_by_number_of_sides#D9
+    //update("diceSideUpgrade", "Upgrade Dice (Currently " + "d" + gameData.diceSides + ") Cost: " + format(gameData.diceSideUpgradeCost, "scientific") + " dicePoints"); //Check this list to see by how much the sides need to be incremented to be a real dice: https://commons.wikimedia.org/wiki/Dice_by_number_of_sides#D9
+    update("diceSideUpgrade", "Upgrade Dice (Currently " + "d" + gameData.diceSides + ") Cost: " + format(checkCost("diceSideUpgrade", "dicePoints"), "scientific") + " dicePoints"); //If something is wrong with thus the correct version is right above it.
    
     if (gameData.onlineDiceRollerActivated === true) { 
-      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(gameData.diceAmountUpgradeCost, "scientific") + " dicePoints");
+      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(checkCost("diceAmountUpgrade", "dicePoints"), "scientific") + " dicePoints");
     } else {
-      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + ") Cost: " + format(gameData.diceAmountUpgradeCost, "scientific") + " dicePoints");
+      update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + ") Cost: " + format(checkCost("diceAmountUpgrade", "dicePoints"), "scientific") + " dicePoints");
     }
-    update("diceRollIntervalUpgrade", "Increase automatic dice-roll speed by " + Math.floor(gameData.diceRollIntervalUpgradeTimeSize) + "ms (Currently " + Math.floor (gameData.diceRollInterval) + "ms ) Cost: " + format(gameData.diceRollIntervalUpgradeCost, "scientific") + " dicePoints");
+    update("diceRollIntervalUpgrade", "Increase automatic dice-roll speed by " + Math.floor(gameData.diceRollIntervalUpgradeTimeSize) + "ms (Currently " + Math.floor(gameData.diceRollInterval) + "ms ) Cost: " + format(checkCost("diceRollIntervalUpgrade", "dicePoints"), "scientific") + " dicePoints");
     
   }
   update("dicePoints", format(Math.floor(gameData.dicePoints), "scientific") + " Dice points");
@@ -106,9 +117,12 @@ function updateAll() {
   update ("linePrestige", "Line prestige (for " + Math.floor (gameData.furthestDiceReached/gameData.diceDimension) + "LP)");
   update ("squarePrestige", "Square prestige (for " + Math.floor (gameData.furthestDiceReached/Math.pow(gameData.diceDimension, 2)) + "SP)");
   update ("cubePrestige", "Cube prestige (for " + Math.floor (gameData.furthestDiceReached/Math.pow(gameData.diceDimension, 3)) + "CP)")
-  update ("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + Math.floor(gameData.decreaseUpgradeCostRatiosCost) + "LP")
-  update ("decreasedWaitingLine", "Decreased waiting line Cost: " + Math.floor(gameData.decreasedWaitingLineCost) + "LP")
-  update ("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost:" + Math.floor(gameData.onlineDiceRollerCost) + "LP")
+  //update ("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + Math.floor(gameData.decreaseUpgradeCostRatiosCost) + "LP")
+  //update ("decreasedWaitingLine", "Decreased waiting line Cost: " + Math.floor(gameData.decreasedWaitingLineCost) + "LP")
+  //update ("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost:" + Math.floor(gameData.onlineDiceRollerCost) + "LP")
+  update("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + format(checkCost("decreaseUpgradeCostRatios", "linePoints"), "scientific") + "LP");
+update("decreasedWaitingLine", "Decreased waiting line Cost: " + format(checkCost("decreasedWaitingLine", "linePoints"), "scientific") + "LP");
+update("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost:" + format(checkCost("onlineDiceRoller", "linePoints"), "scientific") + "LP");
   prestigeVisibility ();
   updateButtonStyles();
 }
@@ -662,7 +676,7 @@ function resetSave() {
 
 function updateButtonStyles() {
    // Check the cost for each button TODO: Make these correctly updated
-   checkCost("diceAmountUpgrade", "dicePoints"); // 0 ratio since it's not multiplied by quantity
+   checkCost("diceAmountUpgrade", "dicePoints"); 
    checkCost("decreaseUpgradeCostRatios", "prestigeLinePoints");
    checkCost("decreasedWaitingLine", "prestigeLinePoints");
    checkCost("onlineDiceRoller", "prestigeLinePoints");
@@ -672,12 +686,13 @@ function updateButtonStyles() {
 }
 
    function checkCost(upgradeType, currencyType) { //TODO: Instead of having both cost and ratio work with upgradetype and determine it like you already did a few funcitions ago, check that first.
-  var upgradeCost = gameData[upgradeType + "Cost"];
-  var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
-  var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, gameData.quantity) - 1) / (upgradeCostRatio - 1);
-  if (gameData.squaredRootSalesActivated === true && currencyType === "dicePoints") {
-    totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
-  }
+    var upgradeCost = gameData[upgradeType + "Cost"];
+    var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
+    var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, gameData.quantity) - 1) / (upgradeCostRatio - 1);
+    if (gameData.squaredRootSalesActivated === true && currencyType === "dicePoints") {
+      totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
+    }
+    //TODO add some code here that basically adds the totalcost at the end of the update text of the shopupgrades, also make it check what currency it is to either add "dicepoints" "LP" "SP" or "CP" at the end to showcase what the cost is. 
     // Check if the player has enough currency
     if (gameData[currencyType] < totalCost) {
       var buttonElement = document.getElementById(upgradeType);
@@ -686,13 +701,14 @@ function updateButtonStyles() {
       buttonElement.style.color = "#FFFFFF"; // White text color
       //buttonElement.style.color = "#808080"; // Dark grey color for text
       buttonElement.style.textDecoration = "line-through"; // Strikethrough text
-  } else {
-    var buttonElement = document.getElementById(upgradeType);
-    buttonElement.style.color = ""; // Reset color
-    buttonElement.style.backgroundColor = ""; // Reset background color
-    buttonElement.style.textDecoration = ""; // Reset text decoration
+    } else {
+      var buttonElement = document.getElementById(upgradeType);
+      buttonElement.style.color = ""; // Reset color
+      buttonElement.style.backgroundColor = ""; // Reset background color
+      buttonElement.style.textDecoration = ""; // Reset text decoration
+    }
+    return totalCost;
   }
-}
 
 function checkVariables() {
   
