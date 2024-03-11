@@ -421,6 +421,7 @@ function prestigeReset() { //This is used to make sure all the stuff that should
     gameData.dicePointsTotal = 0;
     gameData.dicePointsPerClick = 1;
     gameData.diceAmount = 1;
+    gameData.diceSides = 6,
     gameData.dicePointsPerClickCost = 10;
     gameData.diceSideUpgradeCost = 50;
     gameData.diceAmountUpgradeCost = 100;
