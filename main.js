@@ -112,9 +112,11 @@ function updateAll() {
   //update ("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + Math.floor(gameData.decreaseUpgradeCostRatiosCost) + "LP")
   //update ("decreasedWaitingLine", "Decreased waiting line Cost: " + Math.floor(gameData.decreasedWaitingLineCost) + "LP")
   //update ("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost:" + Math.floor(gameData.onlineDiceRollerCost) + "LP")
-  update("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + format(checkCost("decreaseUpgradeCostRatios", "linePoints"), "scientific") + "LP");
-  update("decreasedWaitingLine", "Decreased waiting line Cost: " + format(checkCost("decreasedWaitingLine", "linePoints"), "scientific") + "LP");
-  update("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost:" + format(checkCost("onlineDiceRoller", "linePoints"), "scientific") + "LP");
+  if (!gameData.stopCheckCostDiceRollInterval ) {
+    update("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + format(checkCost("decreaseUpgradeCostRatios", "linePoints"), "scientific") + "LP");
+    update("decreasedWaitingLine", "Decreased waiting line Cost: " + format(checkCost("decreasedWaitingLine", "linePoints"), "scientific") + "LP");
+    update("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost:" + format(checkCost("onlineDiceRoller", "linePoints"), "scientific") + "LP");
+  }
   prestigeVisibility ();
   updateButtonStyles();
 }
@@ -682,16 +684,13 @@ function updateButtonStyles() {
     diceRollIntervalUpgradeButton.style.backgroundColor = "#808080"; // Dark grey background color for the button
     diceRollIntervalUpgradeButton.style.color = "#FFFFFF"; // White text color
     diceRollIntervalUpgradeButton.innerHTML = "Dice Roll Interval Maxed (Currently " + Math.floor(gameData.diceRollInterval) + "ms)"; // Update button text
-    buttonElement.style.textDecoration = "line-through";
     gameData.stopCheckCostDiceRollInterval = true; //TODO: The problem here with the special dicerollinterval look (without lined through text) not working is probably because it doesn't get checked on time or something like that? Look into how I fixed the line pupgrades showijg up too soon to figure it out.
-
   } else if (Math.floor(gameData.diceRollIntervalUpgradeTimeSize) === 0) {
-    var diceRollIntervalUpgradeButton = document.getElementById("diceRollIntervalUpgrade");
-    diceRollIntervalUpgradeButton.style.backgroundColor = "#808080"; // Dark grey background color for the button
-    diceRollIntervalUpgradeButton.style.color = "#FFFFFF"; // White text color
-    diceRollIntervalUpgradeButton.innerHTML = "Dice Roll Interval can currently not be decreased (Currently " + Math.floor(gameData.diceRollInterval) + "ms)";
-    buttonElement.style.textDecoration = "line-through";
-    gameData.stopCheckCostDiceRollInterval = true;
+      var diceRollIntervalUpgradeButton = document.getElementById("diceRollIntervalUpgrade");
+      diceRollIntervalUpgradeButton.style.backgroundColor = "#808080"; // Dark grey background color for the button
+      diceRollIntervalUpgradeButton.style.color = "#FFFFFF"; // White text color
+      diceRollIntervalUpgradeButton.innerHTML = "Dice Roll Interval can currently not be decreased (Currently " + Math.floor(gameData.diceRollInterval) + "ms)";
+      gameData.stopCheckCostDiceRollInterval = true;
   }
   // Check the cost for each button TODO: Make these correctly updated
   
@@ -721,22 +720,23 @@ function checkCost(upgradeType, currencyType) {
 
   // Check if the player has enough currency
   var buttonElement = document.getElementById(upgradeType);
-  if (gameData[currencyType] < totalCost) {
-      buttonElement.style.display = "inline-block";
-      buttonElement.style.backgroundColor = "#808080"; // Dark grey background color for the button
-      buttonElement.style.color = "#FFFFFF"; // White text color
-      
+  if (buttonElement.style.textDecoration !== "none") {
+    if (gameData[currencyType] < totalCost) {
+        buttonElement.style.display = "inline-block";
+        buttonElement.style.backgroundColor = "#808080"; // Dark grey background color for the button
+        buttonElement.style.color = "#FFFFFF"; // White text color
         buttonElement.style.textDecoration = "line-through"; // Strikethrough text
-      
-  } else {
-      // TODO: Fix the prestigeupgrades that are invisible popping up again because of this. It's because of the style.textDecoration
-      buttonElement.style.color = ""; // Reset color
-      buttonElement.style.backgroundColor = ""; // Reset background color
-      if (buttonElement.style.textDecoration !== "none") {
-          buttonElement.style.textDecoration = ""; // Reset text decoration
-      }
+        
+        
+    } else {
+        // TODO: Fix the prestigeupgrades that are invisible popping up again because of this. It's because of the style.textDecoration
+        buttonElement.style.color = ""; // Reset color
+        buttonElement.style.backgroundColor = ""; // Reset background color
+        buttonElement.style.textDecoration = ""; // Reset text decoration
+        
+    }
   }
-  return totalCost;
+    return totalCost;
 }
 
 function checkVariables() {
@@ -778,7 +778,9 @@ function checkVariables() {
     "gameData.allRatiosLimit: " + gameData.allRatiosLimit + "\n" +
     "gameData.quantityBought: " + gameData.quantityBought + "\n" +
     "gameData.comboMessageLenghtLimit: " + gameData.comboMessageLenghtLimit + "\n" +
-    "gameData.stopCheckCostDiceRollInterval: " + gameData.stopCheckCostDiceRollInterval + "\n";
+    "gameData.stopCheckCostDiceRollInterval: " + gameData.stopCheckCostDiceRollInterval + "\n" +
+    "gameData.stopCheckCostLineUpgrades: " + gameData.stopCheckCostLineUpgrades + "\n";
+    
     
     document.getElementById("variableChecker").style.display = "inline-block";
     update("variableChecker", variableMessage);
