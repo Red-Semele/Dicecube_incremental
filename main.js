@@ -20,6 +20,8 @@ document.getElementById("variableChecker").style.display = "none";
 
 
 
+
+
 var saveGame = localStorage.getItem('diceCubeSave')
 var gameData = {
   dicePoints: 0,
@@ -61,7 +63,8 @@ var gameData = {
   allRatiosLimit: 1.1,
   quantityBought: 0,
   comboMessageLenghtLimit: 120,
-  stopCheckCostDiceRollInterval : false
+  stopCheckCostDiceRollInterval : false,
+  stopCheckCostLineUpgrades: true
   
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
@@ -398,6 +401,8 @@ if (savegame !== null) {
   if (typeof savegame.quantityBought === 'undefined') gameData.quantityBought = 0;
   if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.comboMessageLenghtLimit = 120;
   if (typeof savegame.stopCheckCostDiceRollInterval  === 'undefined') gameData.stopCheckCostDiceRollInterval  = false;
+  if (typeof savegame.stopCheckCostLineUpgrades  === 'undefined') gameData.stopCheckCostLineUpgrades  = true;
+
 }
   
     
@@ -571,6 +576,7 @@ function squareUpgradeSquaredRootSales() {
       
     }
     if (gameData.prestigeLinePoints >= 1) {
+      gameData.stopCheckCostLineUpgrades = false
       document.getElementById("linePoints").style.display = "inline-block";
       document.getElementById("onlineDiceRoller").style.display = "inline-block"
       document.getElementById("decreasedWaitingLine").style.display = "inline-block"
@@ -677,7 +683,7 @@ function updateButtonStyles() {
     diceRollIntervalUpgradeButton.style.color = "#FFFFFF"; // White text color
     diceRollIntervalUpgradeButton.innerHTML = "Dice Roll Interval Maxed (Currently " + Math.floor(gameData.diceRollInterval) + "ms)"; // Update button text
     buttonElement.style.textDecoration = "line-through";
-    gameData.stopCheckCostDiceRollInterval = true;
+    gameData.stopCheckCostDiceRollInterval = true; //TODO: The problem here with the special dicerollinterval look (without lined through text) not working is probably because it doesn't get checked on time or something like that? Look into how I fixed the line pupgrades showijg up too soon to figure it out.
 
   } else if (Math.floor(gameData.diceRollIntervalUpgradeTimeSize) === 0) {
     var diceRollIntervalUpgradeButton = document.getElementById("diceRollIntervalUpgrade");
@@ -689,10 +695,12 @@ function updateButtonStyles() {
   }
   // Check the cost for each button TODO: Make these correctly updated
   
-  checkCost("diceAmountUpgrade", "dicePoints"); 
-  checkCost("decreaseUpgradeCostRatios", "prestigeLinePoints");
-  checkCost("decreasedWaitingLine", "prestigeLinePoints");
-  checkCost("onlineDiceRoller", "prestigeLinePoints");
+  checkCost("diceAmountUpgrade", "dicePoints");
+  if (!gameData.stopCheckCostLineUpgrades) {
+    checkCost("decreaseUpgradeCostRatios", "prestigeLinePoints");
+    checkCost("decreasedWaitingLine", "prestigeLinePoints");
+    checkCost("onlineDiceRoller", "prestigeLinePoints");
+  }
   if (!gameData.stopCheckCostDiceRollInterval ) {
     checkCost("diceRollIntervalUpgrade", "dicePoints");
   }
@@ -717,9 +725,9 @@ function checkCost(upgradeType, currencyType) {
       buttonElement.style.display = "inline-block";
       buttonElement.style.backgroundColor = "#808080"; // Dark grey background color for the button
       buttonElement.style.color = "#FFFFFF"; // White text color
-      if (buttonElement.style.textDecoration !== "none") {
+      
         buttonElement.style.textDecoration = "line-through"; // Strikethrough text
-      }
+      
   } else {
       // TODO: Fix the prestigeupgrades that are invisible popping up again because of this. It's because of the style.textDecoration
       buttonElement.style.color = ""; // Reset color
