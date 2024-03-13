@@ -856,6 +856,7 @@ function lineUpgradeDicePointsBoostByDicePoints() {
 }
 
 function lineUpgradeBetterComboScore() {
+  //TODO: Make the upgrade more expensive and also nerf it a little more
   if (gameData.prestigeLinePoints >= Math.floor(gameData.betterComboScoreCost)) {
     gameData.prestigeLinePoints -= Math.floor(gameData.betterComboScoreCost)
     gameData.betterComboScoreActivated = true

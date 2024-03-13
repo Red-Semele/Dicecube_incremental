@@ -6,6 +6,33 @@
   margin-bottom: 40px; /* Adjust the space between sections as needed */
 }
 
+/* styles for desktop devices */
+@media only screen and (min-width: 992px) {
+  body {
+    font-size: 16px;
+    width: 80%;
+    margin: auto;
+  }
+}
+
+/* styles for tablet devices */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+  body {
+    font-size: 14px;
+    width: 90%;
+    margin: auto;
+  }
+}
+
+/* styles for mobile devices */
+@media only screen and (max-width: 767px) {
+  body {
+    font-size: 12px;
+    width: 100%;
+    margin: 0;
+  }
+}
+
   body { /* no . means element type */
     text-align: center; /* text-align centers text AND children */
   }
