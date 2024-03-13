@@ -16,6 +16,7 @@ document.getElementById("linePoints").style.display = "none";
 document.getElementById("squarePoints").style.display = "none";
 document.getElementById("cubePoints").style.display = "none";
 document.getElementById("variableChecker").style.display = "none";
+document.getElementById("dicePointsBoostByDicePoints").style.display = "none"
 
 
 
@@ -64,7 +65,10 @@ var gameData = {
   quantityBought: 0,
   comboMessageLenghtLimit: 120,
   stopCheckCostDiceRollInterval : false,
-  stopCheckCostLineUpgrades: true
+  stopCheckCostLineUpgrades: true,
+  dicePointsBoostByDicePointsActivated: true,
+  dicePointsBoostByDicePointsCost: 3
+  
   
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
@@ -112,7 +116,7 @@ function updateAll() {
   //update ("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + Math.floor(gameData.decreaseUpgradeCostRatiosCost) + "LP")
   //update ("decreasedWaitingLine", "Decreased waiting line Cost: " + Math.floor(gameData.decreasedWaitingLineCost) + "LP")
   //update ("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost:" + Math.floor(gameData.onlineDiceRollerCost) + "LP")
-  if (!gameData.stopCheckCostDiceRollInterval ) {
+  if (!gameData.stopCheckCostLineUpgrades ) {
     update("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + format(checkCost("decreaseUpgradeCostRatios", "linePoints"), "scientific") + "LP");
     update("decreasedWaitingLine", "Decreased waiting line Cost: " + format(checkCost("decreasedWaitingLine", "linePoints"), "scientific") + "LP");
     update("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost:" + format(checkCost("onlineDiceRoller", "linePoints"), "scientific") + "LP");
@@ -154,7 +158,7 @@ function rollDice() {
   for (var value in duplicates) {
     if (duplicates[value] > 1) {
       update("diceComboSystem", "Currently there is a combo!");
-      totalPoints += parseInt(value) * (duplicates[value] - 1);
+      totalPoints += parseInt(value) * (duplicates[value] - 1); //This adds combo's like this "If you rolled 3 6's it would add 2x6 = 12 to the totalpoints" TODO: Add an upgrade that changes the formula (like on your notes.)
       hasCombo = true;
       comboDice.push({ value: value, count: duplicates[value] });
       if (parseInt(value) > highestComboValue) { // Check if the value is higher than the current highest combo value
@@ -196,6 +200,9 @@ function rollDice() {
     } else {
       update("diceComboSystem", comboMessage)
     }
+  }
+  if (gameData.dicePointsBoostByDicePointsActivated === true) {
+    totalPoints *= Math.log(gameData.dicePoints) //If this works properly it should multiply the totalPoints by the amount of 0's in dicePoints at that time.
   }
   gameData.dicePoints += totalPoints;
   gameData.dicePointsTotal += totalPoints;
@@ -404,6 +411,10 @@ if (savegame !== null) {
   if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.comboMessageLenghtLimit = 120;
   if (typeof savegame.stopCheckCostDiceRollInterval  === 'undefined') gameData.stopCheckCostDiceRollInterval  = false;
   if (typeof savegame.stopCheckCostLineUpgrades  === 'undefined') gameData.stopCheckCostLineUpgrades  = true;
+  if (typeof savegame.dicePointsBoostByDicePointsCost  === 'undefined') gameData.dicePointsBoostByDicePointsCost  = 3;
+  if (typeof savegame.dicePointsBoostByDicePointsActivated   === 'undefined')  gameData.dicePointsBoostByDicePointsActivated = true;
+  
+ 
 
 }
   
@@ -580,9 +591,10 @@ function squareUpgradeSquaredRootSales() {
     if (gameData.prestigeLinePoints >= 1) {
       gameData.stopCheckCostLineUpgrades = false
       document.getElementById("linePoints").style.display = "inline-block";
-      document.getElementById("onlineDiceRoller").style.display = "inline-block"
-      document.getElementById("decreasedWaitingLine").style.display = "inline-block"
-      document.getElementById("decreaseUpgradeCostRatios").style.display = "inline-block"
+      document.getElementById("onlineDiceRoller").style.display = "inline-block";
+      document.getElementById("decreasedWaitingLine").style.display = "inline-block";
+      document.getElementById("decreaseUpgradeCostRatios").style.display = "inline-block";
+      document.getElementById("dicePointsBoostByDicePoints").style.display = "inline-block"
     }
     
     if (gameData.prestigeSquarePoints >= 1) {
@@ -673,6 +685,9 @@ function resetSave() {
   gameData.quantityBought = 0;
   gameData.comboMessageLenghtLimit = 120;
   gameData.stopCheckCostDiceRollInterval = false;
+  gameData.stopCheckCostLineUpgrades = true,
+  gameData.dicePointsBoostByDicePointsActivated = true,
+  gameData.dicePointsBoostByDicePointsCost = 3
   
   updateAll(); // Update the game interface to reflect the reset
 }
@@ -683,38 +698,50 @@ function updateButtonStyles() {
     var diceRollIntervalUpgradeButton = document.getElementById("diceRollIntervalUpgrade");
     diceRollIntervalUpgradeButton.style.backgroundColor = "#808080"; // Dark grey background color for the button
     diceRollIntervalUpgradeButton.style.color = "#FFFFFF"; // White text color
-    diceRollIntervalUpgradeButton.innerHTML = "Dice Roll Interval Maxed (Currently " + Math.floor(gameData.diceRollInterval) + "ms)"; // Update button text
+    diceRollIntervalUpgradeButton.innerHTML = "Dice Roll Interval Maxed (Currently " + Math.floor(gameData.diceRollInterval) + "ms)";
+    diceRollIntervalUpgradeButton.style.textDecoration = ""
     gameData.stopCheckCostDiceRollInterval = true; //TODO: The problem here with the special dicerollinterval look (without lined through text) not working is probably because it doesn't get checked on time or something like that? Look into how I fixed the line pupgrades showijg up too soon to figure it out.
   } else if (Math.floor(gameData.diceRollIntervalUpgradeTimeSize) === 0) {
       var diceRollIntervalUpgradeButton = document.getElementById("diceRollIntervalUpgrade");
       diceRollIntervalUpgradeButton.style.backgroundColor = "#808080"; // Dark grey background color for the button
       diceRollIntervalUpgradeButton.style.color = "#FFFFFF"; // White text color
       diceRollIntervalUpgradeButton.innerHTML = "Dice Roll Interval can currently not be decreased (Currently " + Math.floor(gameData.diceRollInterval) + "ms)";
+      diceRollIntervalUpgradeButton.style.textDecoration = ""
       gameData.stopCheckCostDiceRollInterval = true;
   }
   // Check the cost for each button TODO: Make these correctly updated
   
-  checkCost("diceAmountUpgrade", "dicePoints");
+  checkCost("diceAmountUpgrade", "dicePoints", "unlimited");
   if (!gameData.stopCheckCostLineUpgrades) {
-    checkCost("decreaseUpgradeCostRatios", "prestigeLinePoints");
-    checkCost("decreasedWaitingLine", "prestigeLinePoints");
-    checkCost("onlineDiceRoller", "prestigeLinePoints");
+    checkCost("decreaseUpgradeCostRatios", "prestigeLinePoints", "unlimited");
+    checkCost("decreasedWaitingLine", "prestigeLinePoints", "unlimited");
+    checkCost("onlineDiceRoller", "prestigeLinePoints", "unlimited");
+    if (gameData.dicePointsBoostByDicePointsActivated !== true) {
+    checkCost("dicePointsBoostByDicePoints", "prestigeLinePoints", "oneTime")
+    }
   }
   if (!gameData.stopCheckCostDiceRollInterval ) {
-    checkCost("diceRollIntervalUpgrade", "dicePoints");
+    checkCost("diceRollIntervalUpgrade", "dicePoints", "unlimited");
   }
-  checkCost("diceSideUpgrade", "dicePoints");
-  checkCost("squaredRootSales", "squarePoints") //Todo" add something that can see squaredrootsales is a one time upgrade
+  checkCost("diceSideUpgrade", "dicePoints", "unlimited");
+  checkCost("squaredRootSales", "squarePoints", "unlimited") //Todo" add something that can see squaredrootsales is a one time upgrade
 }
 
-function checkCost(upgradeType, currencyType) {
+function checkCost(upgradeType, currencyType, amountType) { //Amounttype can be unlimited, limited or oneTime
   // TODO: Instead of having both cost and ratio work with upgradeType and determine it like you already did a few functions ago, check that first.
   var upgradeCost = gameData[upgradeType + "Cost"];
-  var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
-  var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, gameData.quantity) - 1) / (upgradeCostRatio - 1);
+  if (amountType !== "oneTime") {
+    var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
+    var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, gameData.quantity) - 1) / (upgradeCostRatio - 1);
+  } else {
+    document.getElementById("variableChecker").style.display = "inline-block";
+    update("variableChecker", "Onetime");
+    totalCost = upgradeCost
+  }
   if (gameData.squaredRootSalesActivated === true && currencyType === "dicePoints") {
       totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
   }
+
 
   // TODO: Add some code here that basically adds the totalcost at the end of the update text of the shopupgrades, also make it check what currency it is to either add "dicepoints" "LP" "SP" or "CP" at the end to showcase what the cost is.
 
@@ -779,11 +806,27 @@ function checkVariables() {
     "gameData.quantityBought: " + gameData.quantityBought + "\n" +
     "gameData.comboMessageLenghtLimit: " + gameData.comboMessageLenghtLimit + "\n" +
     "gameData.stopCheckCostDiceRollInterval: " + gameData.stopCheckCostDiceRollInterval + "\n" +
-    "gameData.stopCheckCostLineUpgrades: " + gameData.stopCheckCostLineUpgrades + "\n";
+    "gameData.stopCheckCostLineUpgrades: " + gameData.stopCheckCostLineUpgrades + "\n" +
+    "gameData.dicePointsBoostByDicePointsActivated: " + gameData.dicePointsBoostByDicePointsActivated + "\n" +
+    "gameData.dicePointsBoostByDicePointsCost: " + gameData.dicePointsBoostByDicePointsCost + "\n";
+    
     
     
     document.getElementById("variableChecker").style.display = "inline-block";
     update("variableChecker", variableMessage);
 }
  
+function lineUpgradeDicePointsBoostByDicePoints() {
+  //TODO: Add something in the checkcost to see if it is a one time upgrade or not, that way I can put both the square root sales and this upgrade in that function and it can then be properly striked thrpugh and made darkgrey if you can't properly update it.
+  
+  if (gameData.prestigeLinePoints >= Math.floor(gameData.dicePointsBoostByDicePointsCost)) {
+    gameData.prestigeLinePoints -= Math.floor(gameData.dicePointsBoostByDicePointsCost)
+    gameData.dicePointsBoostByDicePointsActivated = true
+    document.getElementById("dicePointsBoostByDicePoints").style.display = "none"
+    updateAll();
+
+  }
+
+
+}
 
