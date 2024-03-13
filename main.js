@@ -17,6 +17,7 @@ document.getElementById("squarePoints").style.display = "none";
 document.getElementById("cubePoints").style.display = "none";
 document.getElementById("variableChecker").style.display = "none";
 document.getElementById("dicePointsBoostByDicePoints").style.display = "none"
+document.getElementById("betterComboScore").style.display = "none"
 
 
 
@@ -66,8 +67,11 @@ var gameData = {
   comboMessageLenghtLimit: 120,
   stopCheckCostDiceRollInterval : false,
   stopCheckCostLineUpgrades: true,
-  dicePointsBoostByDicePointsActivated: true,
-  dicePointsBoostByDicePointsCost: 3
+  dicePointsBoostByDicePointsActivated: false,
+  dicePointsBoostByDicePointsCost: 3,
+  betterComboScoreCost: 3,
+  betterComboScoreActivated: false
+
   
   
 
@@ -158,7 +162,12 @@ function rollDice() {
   for (var value in duplicates) {
     if (duplicates[value] > 1) {
       update("diceComboSystem", "Currently there is a combo!");
-      totalPoints += parseInt(value) * (duplicates[value] - 1); //This adds combo's like this "If you rolled 3 6's it would add 2x6 = 12 to the totalpoints" TODO: Add an upgrade that changes the formula (like on your notes.)
+      if (gameData.betterComboScoreActivated !== true) {
+        totalPoints += parseInt(value) * (duplicates[value] - 1); //This adds combo's like this "If you rolled 3 6's it would add 2x6 = 12 to the totalpoints" TODO: Add an upgrade that changes the formula (like on your notes.)
+      } else {
+        totalPoints += Math.pow( parseInt(value), (duplicates[value] -1)); //This should instead of adding the combo's let them, multiply, if you rolled 3 6's it would multiply the score with x6^3
+      }
+      //"totalPoints *= Math.pow(parseInt(value), duplicates[value]);" and "totalPoints *= parseInt(value) * (duplicates[value] -1)" //Implement an "evenbettercomboscore" that use this formula but nerf it slightly because the way this progrsses is waaay to powerful.
       hasCombo = true;
       comboDice.push({ value: value, count: duplicates[value] });
       if (parseInt(value) > highestComboValue) { // Check if the value is higher than the current highest combo value
@@ -412,7 +421,10 @@ if (savegame !== null) {
   if (typeof savegame.stopCheckCostDiceRollInterval  === 'undefined') gameData.stopCheckCostDiceRollInterval  = false;
   if (typeof savegame.stopCheckCostLineUpgrades  === 'undefined') gameData.stopCheckCostLineUpgrades  = true;
   if (typeof savegame.dicePointsBoostByDicePointsCost  === 'undefined') gameData.dicePointsBoostByDicePointsCost  = 3;
-  if (typeof savegame.dicePointsBoostByDicePointsActivated   === 'undefined')  gameData.dicePointsBoostByDicePointsActivated = true;
+  if (typeof savegame.dicePointsBoostByDicePointsActivated   === 'undefined')  gameData.dicePointsBoostByDicePointsActivated = false;
+  if (typeof savegame.betterComboScoreCost  === 'undefined') gameData.betterComboScoreCost  = 3;
+  if (typeof savegame.betterComboScoreActivated  === 'undefined')  gameData.betterComboScoreActivated = false;
+ 
   
  
 
@@ -594,7 +606,16 @@ function squareUpgradeSquaredRootSales() {
       document.getElementById("onlineDiceRoller").style.display = "inline-block";
       document.getElementById("decreasedWaitingLine").style.display = "inline-block";
       document.getElementById("decreaseUpgradeCostRatios").style.display = "inline-block";
+      if (gameData.dicePointsBoostByDicePointsActivated === false) {
       document.getElementById("dicePointsBoostByDicePoints").style.display = "inline-block"
+      } else {
+        document.getElementById("dicePointsBoostByDicePoints").style.display = "none"
+      }
+      if (gameData.betterComboScoreActivated === false) {
+        document.getElementById("betterComboScore").style.display = "inline-block"
+      } else {
+        document.getElementById("betterComboScore").style.display = "none"
+      }
     }
     
     if (gameData.prestigeSquarePoints >= 1) {
@@ -686,8 +707,10 @@ function resetSave() {
   gameData.comboMessageLenghtLimit = 120;
   gameData.stopCheckCostDiceRollInterval = false;
   gameData.stopCheckCostLineUpgrades = true,
-  gameData.dicePointsBoostByDicePointsActivated = true,
+  gameData.dicePointsBoostByDicePointsActivated = false,
   gameData.dicePointsBoostByDicePointsCost = 3
+  gameData.betterComboScoreCost = 3,
+  gameData.betterComboScoreActivated = false
   
   updateAll(); // Update the game interface to reflect the reset
 }
@@ -719,6 +742,9 @@ function updateButtonStyles() {
     if (gameData.dicePointsBoostByDicePointsActivated !== true) {
     checkCost("dicePointsBoostByDicePoints", "prestigeLinePoints", "oneTime")
     }
+    if (gameData.betterComboScoreActivated !== true) {
+      checkCost("betterComboScore", "prestigeLinePoints", "oneTime")
+    }
   }
   if (!gameData.stopCheckCostDiceRollInterval ) {
     checkCost("diceRollIntervalUpgrade", "dicePoints", "unlimited");
@@ -734,8 +760,6 @@ function checkCost(upgradeType, currencyType, amountType) { //Amounttype can be 
     var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
     var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, gameData.quantity) - 1) / (upgradeCostRatio - 1);
   } else {
-    document.getElementById("variableChecker").style.display = "inline-block";
-    update("variableChecker", "Onetime");
     totalCost = upgradeCost
   }
   if (gameData.squaredRootSalesActivated === true && currencyType === "dicePoints") {
@@ -808,7 +832,10 @@ function checkVariables() {
     "gameData.stopCheckCostDiceRollInterval: " + gameData.stopCheckCostDiceRollInterval + "\n" +
     "gameData.stopCheckCostLineUpgrades: " + gameData.stopCheckCostLineUpgrades + "\n" +
     "gameData.dicePointsBoostByDicePointsActivated: " + gameData.dicePointsBoostByDicePointsActivated + "\n" +
-    "gameData.dicePointsBoostByDicePointsCost: " + gameData.dicePointsBoostByDicePointsCost + "\n";
+    "gameData.dicePointsBoostByDicePointsCost: " + gameData.dicePointsBoostByDicePointsCost + "\n" +
+    "gameData.betterComboScoreCost: " + gameData.betterComboScoreCost + "\n" +
+    "gameData.betterComboScoreActivated: " + gameData.betterComboScoreActivated + "\n";
+    
     
     
     
@@ -826,7 +853,16 @@ function lineUpgradeDicePointsBoostByDicePoints() {
     updateAll();
 
   }
+}
 
+function lineUpgradeBetterComboScore() {
+  if (gameData.prestigeLinePoints >= Math.floor(gameData.betterComboScoreCost)) {
+    gameData.prestigeLinePoints -= Math.floor(gameData.betterComboScoreCost)
+    gameData.betterComboScoreActivated = true
+    document.getElementById("betterComboScore").style.display = "none"
+    updateAll();
+
+  }
 
 }
 
