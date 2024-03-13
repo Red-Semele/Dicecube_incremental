@@ -31,6 +31,9 @@
     width: 100%;
     margin: 0;
   }
+  button {
+    width: 80%;
+  }
 }
 
   body { /* no . means element type */

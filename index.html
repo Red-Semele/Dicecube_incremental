@@ -35,25 +35,25 @@
       <!--<button onclick="buydicePointsPerClick()" id="perClickUpgrade">Upgrade Pickaxe (Currently Level 1) Cost: 10 dicePoints</button>-->
     
       <div id="diceUpgrades" class="upgrade-section">
-        <button onclick="upgradeDice()" id="diceSideUpgrade">Upgrade Dice (Currently d6) Cost: 50 dicePoints</button>
-        <button onclick="buyDice()" id="diceAmountUpgrade">Buy extra dice(Currently 1) Cost: 100 dicePoints</button>
-        <button onclick="upgradeDiceRollInterval()" id="diceRollIntervalUpgrade"> Increase automatic dice-roll speed by 100ms (Currently 1000ms) Cost: 200 dicePoints</button>
+        <button onclick="upgradeDice()" id="diceSideUpgrade" class = "button">Upgrade Dice (Currently d6) Cost: 50 dicePoints</button>
+        <button onclick="buyDice()" id="diceAmountUpgrade" class = "button">Buy extra dice(Currently 1) Cost: 100 dicePoints</button>
+        <button onclick="upgradeDiceRollInterval()" id="diceRollIntervalUpgrade" class = "button"> Increase automatic dice-roll speed by 100ms (Currently 1000ms) Cost: 200 dicePoints</button>
       </div>
       <div id="lineUpgrades" class="upgrade-section">
-        <button onclick="lineUpgradeDecreaseUpgradeCostRatios()" id="decreaseUpgradeCostRatios" title="This upgrade decreases the ratio with wich every normal upgrades' cost grows"> Decrease the speed at which regular upgrades' cost grows Cost: 1 LP</button>
-        <button onclick="lineUpgradeOnlineDiceRoller()" id="onlineDiceRoller" title="Roll twice as many dice with the power of technology "> On-line dice roller Cost: 5 LP</button>
-        <button onclick="lineUpgradeDecreasedWaitingLine()" id="decreasedWaitingLine" title = "Improve the formula that calculates how close you can get to 0 with the automatic dice roll interval"> Decreased waiting line Cost: 1 LP</button>
-        <button onclick="lineUpgradeDicePointsBoostByDicePoints()" id="dicePointsBoostByDicePoints" title="Boost the end result of each roll by log(dice-points)"> Dice points boost by dice points Cost: 3 LP</button>
-        <button onclick="lineUpgradeBetterComboScore()" id="betterComboScore" title="Instead of adding the combo score on to the end results, multiply it by combovalue^(amount of combo's)"> Better Combo Score Cost: 3 LP</button>
+        <button onclick="lineUpgradeDecreaseUpgradeCostRatios()" id="decreaseUpgradeCostRatios" title="This upgrade decreases the ratio with wich every normal upgrades' cost grows" class = "button"> Decrease the speed at which regular upgrades' cost grows Cost: 1 LP</button>
+        <button onclick="lineUpgradeOnlineDiceRoller()" id="onlineDiceRoller" title="Roll twice as many dice with the power of technology" class = "button"> On-line dice roller Cost: 5 LP</button>
+        <button onclick="lineUpgradeDecreasedWaitingLine()" id="decreasedWaitingLine" title = "Improve the formula that calculates how close you can get to 0 with the automatic dice roll interval" class = "button"> Decreased waiting line Cost: 1 LP</button>
+        <button onclick="lineUpgradeDicePointsBoostByDicePoints()" id="dicePointsBoostByDicePoints" title="Boost the end result of each roll by log(dice-points)" class = "button"> Dice points boost by dice points Cost: 3 LP</button>
+        <button onclick="lineUpgradeBetterComboScore()" id="betterComboScore" title="Instead of adding the combo score on to the end results, multiply it by combovalue^(amount of combo's)" class = "button"> Better Combo Score Cost: 3 LP</button>
       </div>
       <div id="squareUpgrades" class="upgrade-section">
-        <button onclick="squareUpgradeSquaredRootSales()" id="squaredRootSales" title="Apply a squared root to the price of all normal upgrades"> Squared root sales Cost: 1 SP</button>
+        <button onclick="squareUpgradeSquaredRootSales()" id="squaredRootSales" title="Apply a squared root to the price of all normal upgrades" class = "button"> Squared root sales Cost: 1 SP</button>
       </div>
     </div>
     <div id="prestigeMenu">
-      <button onclick="prestigeLine()" id="linePrestige"  title="Sacrifice all your regular upgrades and dice-points to gain Line-points">Line prestige (for 0 LP)"</button>
-      <button onclick="prestigeSquare()" id="squarePrestige"  title="Sacrifice all your regular upgrades, dice-points, line upgrades and Line-points to gain Square-points">Square prestige (for 0 SP)</button>
-      <button onclick="prestigeCube()" id="cubePrestige" title="Sacrifice all your regular upgrades, dice-points, line upgrades and line-points and square upgrades and quare-points for Cube-points">Cube prestige (for 0 CP)</button>
+      <button onclick="prestigeLine()" id="linePrestige"  title="Sacrifice all your regular upgrades and dice-points to gain Line-points" class = "button">Line prestige (for 0 LP)"</button>
+      <button onclick="prestigeSquare()" id="squarePrestige"  title="Sacrifice all your regular upgrades, dice-points, line upgrades and Line-points to gain Square-points" class = "button">Square prestige (for 0 SP)</button>
+      <button onclick="prestigeCube()" id="cubePrestige" title="Sacrifice all your regular upgrades, dice-points, line upgrades and line-points and square upgrades and quare-points for Cube-points" class = "button">Cube prestige (for 0 CP)</button>
     </div>
     <script src="main.js" charset="utf-8" type="text/javascript"></script>
   </body>
