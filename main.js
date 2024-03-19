@@ -62,7 +62,7 @@ var gameData = {
   decreasedWaitingLineCostRatio: 1.25,
   quantity: 0, //TODO: Check this interaction in the bulkbuying section, something is wrong with it, if you attempt to buy with 100 while you can't afford it everythign is permanently striked out and you can't buy anything.
   diceRollIntervalLimit: 10,
-  allRatiosLimit: 1.1,
+  allRatiosLimit: 1.01,
   quantityBought: 0,
   comboMessageLenghtLimit: 120,
   stopCheckCostDiceRollInterval : false,
@@ -74,7 +74,8 @@ var gameData = {
   unlockedComboUpgrade: 1, //This sets how much dice can combo with eachother, so if you have 3 6's and unlockedComboUpgrade 2 only 2 will combo
   //TODO: Still set a base cost and costratio for unlockedComboUpgrade upgrade, also properly make that button update via the update all function and put it in checkcost.
   unlockedComboUpgradeCost: 400,
-  unlockedComboUpgradeCostRatio: 1.07
+  unlockedComboUpgradeCostRatio: 1.07,
+  tempCurrencyType: ""
   
   
 
@@ -414,6 +415,7 @@ var saveGameLoop = window.setInterval(function() {
 }, 15000)
 
 var savegame = JSON.parse(localStorage.getItem("diceCubeSave"))
+//TODO: A few of these are duplicates, fix that.
 if (savegame !== null) {
   gameData = savegame
   if (typeof saveGame.dicePoints !== "undefined") gameData.dicePoints = saveGame.dicePoints;
@@ -421,7 +423,7 @@ if (savegame !== null) {
   if (typeof saveGame.dicePointsPerClickCost !== "undefined") gameData.dicePointsPerClickCost = saveGame.dicePointsPerClickCost;
   if (typeof saveGame.lastTick !== "undefined") gameData.lastTick = saveGame.lastTick;
   if (typeof savegame.diceRollIntervalLimit === 'undefined') gameData.diceRollIntervalLimit = 10;
-  if (typeof savegame.allRatiosLimit === 'undefined') gameData.allRatiosLimit = 1.1;
+  if (typeof savegame.allRatiosLimit === 'undefined') gameData.allRatiosLimit = 1.01;
   if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.comboMessageLenghtLimit = 120;
   if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.diceRollIntervalUpgradeTimeSize = 100; //This is where it used to end, just so I can fix it if it goes wrong.
   if (typeof savegame.dicePoints !== "undefined") gameData.dicePoints = savegame.dicePoints;
@@ -457,7 +459,7 @@ if (savegame !== null) {
   if (typeof savegame.decreasedWaitingLineCostRatio === 'undefined') gameData.decreasedWaitingLineCostRatio = 1.25;
   if (typeof savegame.quantity === 'undefined') gameData.quantity = 0;
   if (typeof savegame.diceRollIntervalLimit === 'undefined') gameData.diceRollIntervalLimit = 10;
-  if (typeof savegame.allRatiosLimit === 'undefined') gameData.allRatiosLimit = 1.1;
+  if (typeof savegame.allRatiosLimit === 'undefined') gameData.allRatiosLimit = 1.01;
   if (typeof savegame.quantityBought === 'undefined') gameData.quantityBought = 0;
   if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.comboMessageLenghtLimit = 120;
   if (typeof savegame.stopCheckCostDiceRollInterval  === 'undefined') gameData.stopCheckCostDiceRollInterval  = false;
@@ -469,6 +471,8 @@ if (savegame !== null) {
   if (typeof savegame.unlockedComboUpgrade === 'undefined')  gameData.unlockedComboUpgrade = 1;
   if (typeof savegame.unlockedComboUpgradeCost === 'undefined')  gameData.unlockedComboUpgradeCost = 400;
   if (typeof savegame.unlockedComboUpgradeCostRatio === 'undefined')  gameData.unlockedComboUpgradeCostRatio = 1.07;
+  if (typeof savegame.tempCurrencyType === 'undefined')  gameData.tempCurrencyType = "";
+
   
 }
   
@@ -479,7 +483,16 @@ if (savegame !== null) {
 function format(number, type) {
 	let exponent = Math.floor(Math.log10(number));
 	let mantissa = number / Math.pow(10, exponent);
-	if (exponent < 3) return Math.floor(number.toFixed(0));
+  if (gameData.tempCurrencyType === "dicePoints") {
+    currencyTypeFormatLogic = Math.floor(number.toFixed(0))
+  } else {
+    if (number % 1 === 0) {
+      currencyTypeFormatLogic = number.toFixed(0)
+    } else {
+      currencyTypeFormatLogic = number.toFixed(2)
+    }
+  }
+	if (exponent < 3) return currencyTypeFormatLogic;
 	if (type == "scientific") return mantissa.toFixed(2) + "e" + exponent;
 	if (type == "engineering") return (Math.pow(10, exponent % 3) * mantissa).toFixed(2) + "e" + (Math.floor(exponent / 3) * 3)
 }
@@ -608,12 +621,12 @@ function lineUpgradeDecreaseUpgradeCostRatios() {
           gameData.diceRollIntervalUpgradeCostRatio *= 0.95;
           gameData.unlockedComboUpgradeCostRatio *= 0.95
         } 
-        if (gameData.diceSideUpgradeCostRatio < gameData.allRatiosLimit) { //TODO: Fix the limit, make the limit be 1.01
-          gameData.dicePointsPerClickCostRatio = 1.1;
-          gameData.diceSideUpgradeCostRatio = 1.1;
-          gameData.diceAmountUpgradeCostRatio = 1.1;
-          gameData.diceRollIntervalUpgradeCostRatio = 1.1;
-          gameData.unlockedComboUpgradeCostRatio = 1.1;
+        if (gameData.diceSideUpgradeCostRatio < gameData.allRatiosLimit) { 
+          gameData.dicePointsPerClickCostRatio = 1.01;
+          gameData.diceSideUpgradeCostRatio = 1.01;
+          gameData.diceAmountUpgradeCostRatio = 1.01;
+          gameData.diceRollIntervalUpgradeCostRatio = 1.01;
+          gameData.unlockedComboUpgradeCostRatio = 1.01;
         }
       }
     }
@@ -680,30 +693,36 @@ function squareUpgradeSquaredRootSales() {
 }
 
 function bulkBuy(upgradeType, currencyType) {
-  //TODO When attempting to buy something while you can I at the very least get this far.
+  //TODO Check the bulkbuy, something is very wrong with it in my last changes
   gameData.quantity = parseInt(document.getElementById("quantityPicker").value); // Get selected gameData.quantity
   var upgradeCost = gameData[upgradeType + "Cost"];
   var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
   var upgradeIncrement = 1; // Default increment value
-
-  
-
-  
-
-  var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, gameData.quantity) - 1) / (upgradeCostRatio - 1); // Calculate total cost
+  if (gameData.quantity === 1) {
+    var totalCost = upgradeCost
+  } else {
+    var totalCost = Math.pow (upgradeCost , Math.pow(upgradeCostRatio, (gameData.quantity -1))); // Calculate total cost
+  }
   if (gameData.squaredRootSalesActivated === true) {
     totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
   }
-
-  if (gameData[currencyType] >= Math.floor(totalCost)) {
-    gameData[currencyType] -= Math.floor(totalCost); // Deduct cost from the specified currency
+  if (currencyType === "dicePoints") { //This code makes sure that decimals are a thing for LP, SP and CP upgrades TODO: The game acts weird now with prices, probably because of the totalcosttypelogic
+    var totalCostTypeLogic = Math.floor(totalCost)
+    
+  } else {
+    var totalCostTypeLogic = round10(totalCost, -2)
+  }
+  gameData.tempCurrencyType = currencyType
+  if (gameData[currencyType] >= totalCostTypeLogic) {
+    gameData[currencyType] -= totalCostTypeLogic; // Deduct cost from the specified currency
     gameData[upgradeType] += upgradeIncrement * gameData.quantity; // Increment the upgrade count
-    gameData[upgradeType + "Cost"] *= Math.pow(upgradeCostRatio, gameData.quantity); // Adjust the upgrade cost
+    gameData[upgradeType + "Cost"] **= Math.pow(upgradeCostRatio, gameData.quantity); // Adjust the upgrade cost
     gameData.quantityBought = gameData.quantity
     return gameData.quantityBought;
     
   }
 }
+
 
 // go to a tab for the first time, so not all show
 tab("rollDiceMenu")
@@ -747,7 +766,7 @@ function resetSave() {
   gameData.decreasedWaitingLineCostRatio = 1.25;
   gameData.quantity = 0;
   gameData.diceRollIntervalLimit = 10;
-  gameData.allRatiosLimit = 1.1;
+  gameData.allRatiosLimit = 1.01;
   gameData.quantityBought = 0;
   gameData.comboMessageLenghtLimit = 120;
   gameData.stopCheckCostDiceRollInterval = false;
@@ -798,7 +817,8 @@ function updateButtonStyles() {
   }
   checkCost("diceSideUpgrade", "dicePoints", "unlimited");
   checkCost("squaredRootSales", "squarePoints", "oneTime") //Todo" add something that can see squaredrootsales is a one time upgrade
-  checkCost("unlockedComboUpgradeUpgrade", "dicePoints", "unlimited");
+  checkCost("unlockedComboUpgrade", "dicePoints", "unlimited");
+  checkCost("diceAmountUpgrade", "dicePoints", "unlimited");
 }
 
 function checkCost(upgradeType, currencyType, amountType) { //Amounttype can be unlimited, limited or oneTime
@@ -806,17 +826,27 @@ function checkCost(upgradeType, currencyType, amountType) { //Amounttype can be 
   var upgradeCost = gameData[upgradeType + "Cost"];
   if (amountType !== "oneTime") {
     var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
+    if (gameData.quantity === 1) {
+      var totalCost = upgradeCost
+    } else {
     var totalCost = Math.pow (upgradeCost , Math.pow(upgradeCostRatio, (gameData.quantity -1))); //TODO: This formula doesn't properly work.Find a better formula for costs "var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, gameData.quantity) - 1) / (upgradeCostRatio - 1);" this is the original one if something goes wrong
+    }
   } else {
-    totalCost = upgradeCost
+    var totalCost = upgradeCost
   }
   if (gameData.squaredRootSalesActivated === true && currencyType === "dicePoints") {
       totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
   }
+  if (currencyType === "dicePoints") { //This code makes sure that decimals are a thing for LP, SP and CP upgrades TODO: The game acts weird now with prices, probably because of the totalcosttypelogic
+    var totalCostTypeLogic = Math.floor(totalCost)
+  } else {
+    var totalCostTypeLogic = round10(totalCost, -2)
+  }
+  gameData.tempCurrencyType = currencyType
 
   var buttonElement = document.getElementById(upgradeType);
   if (buttonElement.style.textDecoration !== "none") {
-    if (gameData[currencyType] < totalCost) {
+    if (gameData[currencyType] < totalCostTypeLogic) {
         buttonElement.style.display = "inline-block";
         buttonElement.style.backgroundColor = "#808080"; // Dark grey background color for the button
         buttonElement.style.color = "#FFFFFF"; // White text color
@@ -831,7 +861,7 @@ function checkCost(upgradeType, currencyType, amountType) { //Amounttype can be 
         
     }
   }
-    return totalCost;
+    return totalCostTypeLogic;
 }
 
 function checkVariables() {
@@ -881,7 +911,10 @@ function checkVariables() {
     "gameData.betterComboScoreActivated: " + gameData.betterComboScoreActivated + "\n" +
     "gameData.unlockedComboUpgrade: " + gameData.unlockedComboUpgrade + "\n" +
     "gameData.unlockedComboUpgradeCost: " + gameData.unlockedComboUpgradeCost + "\n" +
-    "gameData.unlockedComboUpgradeCostRatio: " + gameData.unlockedComboUpgradeCostRatio + "\n";
+    "gameData.unlockedComboUpgradeCostRatio: " + gameData.unlockedComboUpgradeCostRatio + "\n" +
+    "gameData.tempCurrencyType: " + gameData.tempCurrencyType + "\n";
+    
+    
     
     document.getElementById("variableChecker").style.display = "inline-block";
     update("variableChecker", variableMessage);
