@@ -36,10 +36,10 @@ var gameData = {
   diceSideUpgradeCost: 50,
   diceAmountUpgradeCost: 100,
   diceRollIntervalUpgradeCost: 200,
-  dicePointsPerClickCostRatio: 1.07,
-  diceSideUpgradeCostRatio: 1.07,
-  diceAmountUpgradeCostRatio: 1.07,
-  diceRollIntervalUpgradeCostRatio: 1.07,
+  dicePointsPerClickCostRatio: 1.22,
+  diceSideUpgradeCostRatio: 1.22,
+  diceAmountUpgradeCostRatio: 1.22,
+  diceRollIntervalUpgradeCostRatio: 1.22,
   lastTick: Date.now(),
   diceRollInterval: 1000,
   diceRollIntervalUpgradeTimeSize: 100,
@@ -73,7 +73,7 @@ var gameData = {
   unlockedComboUpgrade: 1, //This sets how much dice can combo with eachother, so if you have 3 6's and unlockedComboUpgrade 2 only 2 will combo
   //TODO: Still set a base cost and costratio for unlockedComboUpgrade upgrade, also properly make that button update via the update all function and put it in checkcost.
   unlockedComboUpgradeCost: 400,
-  unlockedComboUpgradeCostRatio: 1.07,
+  unlockedComboUpgradeCostRatio: 1.22,
   tempCurrencyType: "",
   stopCheckCostSquareUpgrades: true
   
@@ -426,7 +426,7 @@ if (savegame !== null) {
   if (typeof savegame.betterComboScoreActivated  === 'undefined')  gameData.betterComboScoreActivated = false;
   if (typeof savegame.unlockedComboUpgrade === 'undefined')  gameData.unlockedComboUpgrade = 1;
   if (typeof savegame.unlockedComboUpgradeCost === 'undefined')  gameData.unlockedComboUpgradeCost = 400;
-  if (typeof savegame.unlockedComboUpgradeCostRatio === 'undefined')  gameData.unlockedComboUpgradeCostRatio = 1.07;
+  if (typeof savegame.unlockedComboUpgradeCostRatio === 'undefined')  gameData.unlockedComboUpgradeCostRatio = 1.22;
   if (typeof savegame.tempCurrencyType === 'undefined')  gameData.tempCurrencyType = "";
   if (typeof savegame.stopCheckCostSquareUpgrades === 'undefined')  gameData.stopCheckCostSquareUpgrades = false;
 
@@ -482,7 +482,7 @@ function prestigeReset() { //This is used to make sure all the stuff that should
     gameData.dicePoints = 0;
     gameData.dicePointsTotal = 0;
     gameData.unlockedComboUpgradeCost = 400;
-    gameData.unlockedComboUpgradeCostRatio = 1.07;
+    gameData.unlockedComboUpgradeCostRatio = 1.22;
     gameData.unlockedComboUpgrade = 1;
     
     
@@ -510,9 +510,9 @@ function prestigeSquare() {
     gameData.squarePoints += round10((gameData.furthestDiceReached/Math.pow(gameData.diceDimension,2)), -2);
     prestigeReset();
     gameData.linePoints = 0;
-    gameData.diceSideUpgradeCostRatio = 1.07;
-    gameData.diceAmountUpgradeCostRatio = 1.07;
-    gameData.diceRollIntervalUpgradeCostRatio = 1.07;
+    gameData.diceSideUpgradeCostRatio = 1.22;
+    gameData.diceAmountUpgradeCostRatio = 1.22;
+    gameData.diceRollIntervalUpgradeCostRatio = 1.22;
     gameData.onlineDiceRollerActivated = false;
     gameData.onlineDiceRollerCostRatio = 1.25;
     gameData.onlineDiceRollerCount = 0;
@@ -705,10 +705,10 @@ function resetSave() {
   gameData.diceSideUpgradeCost = 50;
   gameData.diceAmountUpgradeCost = 100; //Rename this and all the other instances of it to diceAmountUpgradeCost
   gameData.diceRollIntervalUpgradeCost = 200;
-  gameData.dicePointsPerClickCostRatio = 1.07;
-  gameData.diceSideUpgradeCostRatio = 1.07;
-  gameData.diceAmountUpgradeCostRatio = 1.07;
-  gameData.diceRollIntervalUpgradeCostRatio = 1.07;
+  gameData.dicePointsPerClickCostRatio = 1.22;
+  gameData.diceSideUpgradeCostRatio = 1.22;
+  gameData.diceAmountUpgradeCostRatio = 1.22;
+  gameData.diceRollIntervalUpgradeCostRatio = 1.22;
   //Add a way to better formulate the costratio thingies in the upgrades
   gameData.lastTick = Date.now();
   gameData.diceRollInterval = 1000;
@@ -743,7 +743,7 @@ function resetSave() {
   gameData.betterComboScoreActivated = false;
   gameData.unlockedComboUpgrade = 1;
   gameData.unlockedComboUpgradeCost = 400;
-  gameData.unlockedComboUpgradeCostRatio = 1.07;
+  gameData.unlockedComboUpgradeCostRatio = 1.22;
   gameData.stopCheckCostSquareUpgrades = false;
   
   updateAll(); // Update the game interface to reflect the reset
