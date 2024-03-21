@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-  gameData.quantity = 1
-})
+  gameData.quantity = 1;
+});
 
 
 
@@ -16,16 +16,16 @@ document.getElementById("linePoints").style.display = "none";
 document.getElementById("squarePoints").style.display = "none";
 document.getElementById("cubePoints").style.display = "none";
 document.getElementById("variableChecker").style.display = "none";
-document.getElementById("dicePointsBoostByDicePoints").style.display = "none"
-document.getElementById("betterComboScore").style.display = "none"
-document.getElementById("unlockedComboUpgrade").style.display = "none"
+document.getElementById("dicePointsBoostByDicePoints").style.display = "none";
+document.getElementById("betterComboScore").style.display = "none";
+document.getElementById("unlockedComboUpgrade").style.display = "none";
 
 
 
 
 
 
-var saveGame = localStorage.getItem('diceCubeSave')
+var saveGame = localStorage.getItem('diceCubeSave');
 var gameData = {
   dicePoints: 0,
   dicePointsTotal: 0,
@@ -45,18 +45,17 @@ var gameData = {
   diceRollIntervalUpgradeTimeSize: 100,
   furthestDiceReached: 0,
   diceDimension: 6, //Altering this can increase the size of the cube, it is the length of the cube.
-  prestigeLinePoints: 0,
-  prestigeSquarePoints: 0,
-  prestigeCubePoints: 0,
+  linePoints: 0,
+  squarePoints: 0,
+  cubePoints: 0,
   squaredRootSalesActivated: false,
   onlineDiceRollerActivated: false,
   diceRollIntervalDecrease: 0.50,
   decreaseUpgradeCostRatiosCost: 1,
   decreaseUpgradeCostRatiosCostRatio: 1.25,
   onlineDiceRollerCost: 5,
-  onlineDiceRollerCostRatio: 100,
+  onlineDiceRollerCostRatio: 1.25,
   onlineDiceRollerCount: 0,
-  decreaseUpgradeCostRatiosCostRatio: 1.25,
   squaredRootSalesCost: 1,
   decreasedWaitingLineCost: 1,
   decreasedWaitingLineCostRatio: 1.25,
@@ -75,12 +74,13 @@ var gameData = {
   //TODO: Still set a base cost and costratio for unlockedComboUpgrade upgrade, also properly make that button update via the update all function and put it in checkcost.
   unlockedComboUpgradeCost: 400,
   unlockedComboUpgradeCostRatio: 1.07,
-  tempCurrencyType: ""
+  tempCurrencyType: "",
+  stopCheckCostSquareUpgrades: true
   
   
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
-}
+};
 //gameData.quantity = parseInt(document.getElementById("quantityPicker").value); TODO Find a way to apply this from the start so all buttons are striked out at first if you can't afford them.
 var selectElement = document.getElementById('quantityPicker');
 selectElement.addEventListener('change', function() {
@@ -111,7 +111,7 @@ function updateAll() {
   }
   update("diceSideUpgrade", "Upgrade Dice (Currently " + "d" + gameData.diceSides + ") Cost: " + format(checkCost("diceSideUpgrade", "dicePoints"), "scientific") + " dicePoints"); //Check this list to see by how much the sides need to be incremented to be a real dice: https://commons.wikimedia.org/wiki/Dice_by_number_of_sides#D9
   if (gameData.diceAmount >= 2) {
-    document.getElementById("unlockedComboUpgrade").style.display = "inline-block"
+    document.getElementById("unlockedComboUpgrade").style.display = "inline-block";
     if (gameData.unlockedComboUpgrade === 1) {
       update("unlockedComboUpgrade", "Unlock the ability to combo dice (2x combo) Cost: "+ format(checkCost("unlockedComboUpgrade", "dicePoints"), "scientific") + " dicePoints"); //TODO: Make this adapt more based on what combo you unlocked etc.
     } else {
@@ -119,9 +119,9 @@ function updateAll() {
     }
   }
   update("dicePoints", format(Math.floor(gameData.dicePoints), "scientific") + " Dice points");
-  update("linePoints", "Line Points: " + round10(gameData.prestigeLinePoints, -2));
-  update("squarePoints", "Square Points: " + round10(gameData.prestigeSquarePoints, -2));
-  update("cubePoints", "Cube Points: " + round10(gameData.prestigeCubePoints, -2));
+  update("linePoints", "Line Points: " + round10(gameData.linePoints, -2));
+  update("squarePoints", "Square Points: " + round10(gameData.squarePoints, -2));
+  update("cubePoints", "Cube Points: " + round10(gameData.cubePoints, -2));
   update("diceProgress", "Currently reached dice " + format(gameData.furthestDiceReached, "scientific") + " of " + (Math.pow(gameData.diceDimension, 3)) +  " in dicecube");
   update ("diceProgress2", "Dice " + format(gameData.furthestDiceReached, "scientific") + " currently placed on " + Math.floor(gameData.dicePointsTotal/(Math.pow(5, (gameData.furthestDiceReached - 1)))));
   if (gameData.furthestDiceReached >= gameData.diceDimension) {
@@ -131,8 +131,8 @@ function updateAll() {
   } else {
     document.getElementById("linePrestige").style.backgroundColor = "#808080"; // Dark grey background color for the button
     document.getElementById("linePrestige").style.color = "#FFFFFF"; // White text color
-    document.getElementById("linePrestige").innerHTML = "You need to atleast reach dice " + gameData.diceDimension + " of " + Math.pow(gameData.diceDimension, 3) + " to Line Prestige."
-    document.getElementById("linePrestige").style.textDecoration = ""
+    document.getElementById("linePrestige").innerHTML = "You need to atleast reach dice " + gameData.diceDimension + " of " + Math.pow(gameData.diceDimension, 3) + " to Line Prestige.";
+    document.getElementById("linePrestige").style.textDecoration = "";
   }
   if (gameData.furthestDiceReached >= Math.pow(gameData.diceDimension,2)) {
     update ("squarePrestige", "Square prestige (for " + round10((gameData.furthestDiceReached/Math.pow(gameData.diceDimension,2)), -2) + "SP)");
@@ -141,8 +141,8 @@ function updateAll() {
   } else {
     document.getElementById("squarePrestige").style.backgroundColor = "#808080"; // Dark grey background color for the button
     document.getElementById("squarePrestige").style.color = "#FFFFFF"; // White text color
-    document.getElementById("squarePrestige").innerHTML = "You need to atleast reach dice " + Math.pow(gameData.diceDimension,2) + " of " + Math.pow(gameData.diceDimension, 3) + " to Line Prestige."
-    document.getElementById("squarePrestige").style.textDecoration = ""
+    document.getElementById("squarePrestige").innerHTML = "You need to atleast reach dice " + Math.pow(gameData.diceDimension,2) + " of " + Math.pow(gameData.diceDimension, 3) + " to Line Prestige.";
+    document.getElementById("squarePrestige").style.textDecoration = "";
   }
 
   if (gameData.furthestDiceReached >= Math.pow(gameData.diceDimension)) {
@@ -159,6 +159,7 @@ function updateAll() {
     update("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + format(checkCost("decreaseUpgradeCostRatios", "linePoints"), "scientific") + "LP");
     update("decreasedWaitingLine", "Decreased waiting line Cost: " + format(checkCost("decreasedWaitingLine", "linePoints"), "scientific") + "LP");
     update("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost:" + format(checkCost("onlineDiceRoller", "linePoints"), "scientific") + "LP");
+    
   }
   prestigeVisibility ();
   updateButtonStyles();
@@ -199,7 +200,7 @@ function rollDice() {
     if (duplicates[value] > 1 && gameData.unlockedComboUpgrade > 1) {
       if (duplicates[value] > gameData.unlockedComboUpgrade) {
         duplicates[value] = gameData.unlockedComboUpgrade
-      }
+      };
       update("diceComboSystem", "Currently there is a combo!");
       if (gameData.betterComboScoreActivated !== true) {
         totalPoints += parseInt(value) * (duplicates[value] - 1); //This adds combo's like this "If you rolled 3 6's it would add 2x6 = 12 to the totalpoints" TODO: Add an upgrade that changes the formula (like on your notes.)
@@ -246,11 +247,11 @@ function rollDice() {
     if (comboMessageFix === false) {
        update("diceComboSystem", comboMessage.slice(0, -2)); // Remove trailing comma and space
     } else {
-      update("diceComboSystem", comboMessage)
+      update("diceComboSystem", comboMessage);
     }
   }
   if (gameData.dicePointsBoostByDicePointsActivated === true) {
-    totalPoints *= Math.log(gameData.dicePoints) //If this works properly it should multiply the totalPoints by the amount of 0's in dicePoints at that time.
+    totalPoints *= Math.log(gameData.dicePoints); //If this works properly it should multiply the totalPoints by the amount of 0's in dicePoints at that time.
   }
   gameData.dicePoints += totalPoints;
   gameData.dicePointsTotal += totalPoints;
@@ -280,7 +281,7 @@ function increaseUnlockedComboUpgrade() {
         // Calculate cost with current ratio and add to totalCost
         totalCost += gameData.unlockedComboUpgradeCost * gameData.unlockedComboUpgradeCostRatio;
     }
-  }else{
+  } else{
     totalCost = gameData.unlockedComboUpgradeCost * gameData.quantity;
   }
   if (gameData.squaredRootSalesActivated === true) {
@@ -308,19 +309,6 @@ function buydicePointsPerClick() { //Change this upgrade into something else, pr
 }
 
 function buyDice() { //Add an upgrade once you have atleast 2 dice that lets you use combo's, for example, when the dice is a 6 and the other dice is also a 6 both of them get times two the points.
-  if (gameData.quantity > 1 ) {
-    // Loop through quantity times
-    for (var i = 0; i < gameData.quantity; i++) {
-        // Calculate cost with current ratio and add to totalCost
-        totalCost += gameData.diceAmountUpgradeCost * gameData.diceAmountUpgradeCostRatio;
-    }
-  }else{
-    totalCost = gameData.diceAmountUpgradeCost * gameData.quantity;
-  }
-  if (gameData.squaredRootSalesActivated === true) {
-    totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
-  }
-  if (gameData.dicePoints >= totalCost) {
     //TODO currently I at the very least get this far.
     bulkBuy("diceAmountUpgrade", "dicePoints");
     if (gameData.quantityBought > 0) {
@@ -330,51 +318,22 @@ function buyDice() { //Add an upgrade once you have atleast 2 dice that lets you
     }
 
   }
-}
+
 
 function upgradeDice() { //TODO: For some reason this upgrade is now the only one that is fully unaffected by whatever bug it is that stops me from buying regular upgrades
-  if (gameData.quantity > 1 ) {
-    // Loop through quantity times
-    for (var i = 0; i < gameData.quantity; i++) {
-        // Calculate cost with current ratio and add to totalCost
-        totalCost += gameData.diceSideUpgradeCost * gameData.diceSideUpgradeCostRatio;
-    }
-  }else{
-    totalCost = gameData.diceSideUpgradeCost * gameData.quantity;
+    bulkBuy("diceSideUpgrade", "dicePoints");
+    if (gameData.quantityBought > 0) {
+      gameData.diceSides += (gameData.quantityBought * 2); // Increment dice count by the gameData.quantity purchased
+      updateAll();
   }
-  if (gameData.squaredRootSalesActivated === true) {
-    totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
-  }
-  if (gameData.dicePoints >= totalCost) {   
   
-      bulkBuy("diceSideUpgrade", "dicePoints");
-      if (gameData.quantityBought > 0) {
-        gameData.diceSides += (gameData.quantityBought * 2); // Increment dice count by the gameData.quantity purchased
-        updateAll();
-      }
-      
-    }
 }
+
   
 
 
 
 function upgradeDiceRollInterval() {
-  if (Math.floor(gameData.diceRollIntervalUpgradeTimeSize) !== 0) {
-    if (gameData.diceRollInterval !== gameData.diceRollIntervalLimit) {
-      if (gameData.quantity > 1 ) {
-        // Loop through quantity times
-        for (var i = 0; i < gameData.quantity; i++) {
-            // Calculate cost with current ratio and add to totalCost
-            totalCost += gameData.diceRollIntervalUpgradeCost * gameData.diceRollIntervalUpgradeCostRatio
-        }
-      }else{
-        totalCost = gameData.diceSideUpgradeCost * gameData.quantity;
-      }
-      if (gameData.squaredRootSalesActivated === true) {
-        totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
-      }
-      if (gameData.dicePoints >= totalCost) {   
         if (gameData.diceRollInterval > gameData.diceRollIntervalLimit) { //This checks if the diceRollInterval isn't below it's limit
           
           bulkBuy("diceRollIntervalUpgrade", "dicePoints");
@@ -393,9 +352,6 @@ function upgradeDiceRollInterval() {
           }
         }
       }
-    }
-  }
-}
 
 
 var mainGameLoop = window.setInterval(mainGameLoopFunction, gameData.diceRollInterval);
@@ -443,16 +399,16 @@ if (savegame !== null) {
   if (typeof savegame.diceRollIntervalUpgradeTimeSize === 'undefined') gameData.diceRollIntervalUpgradeTimeSize = 100;
   if (typeof savegame.furthestDiceReached === 'undefined') gameData.furthestDiceReached = 0;
   if (typeof savegame.diceDimension === 'undefined') gameData.diceDimension = 6;
-  if (typeof savegame.prestigeLinePoints === 'undefined') gameData.prestigeLinePoints = 0;
-  if (typeof savegame.prestigeSquarePoints === 'undefined') gameData.prestigeSquarePoints = 0;
-  if (typeof savegame.prestigeCubePoints === 'undefined') gameData.prestigeCubePoints = 0;
+  if (typeof savegame.linePoints === 'undefined') gameData.linePoints = 0;
+  if (typeof savegame.squarePoints === 'undefined') gameData.squarePoints = 0;
+  if (typeof savegame.cubePoints === 'undefined') gameData.cubePoints = 0;
   if (typeof savegame.squaredRootSalesActivated === 'undefined') gameData.squaredRootSalesActivated = false;
   if (typeof savegame.onlineDiceRollerActivated === 'undefined') gameData.onlineDiceRollerActivated = false;
   if (typeof savegame.diceRollIntervalDecrease === 'undefined') gameData.diceRollIntervalDecrease = 0.50;
   if (typeof savegame.decreaseUpgradeCostRatiosCost === 'undefined') gameData.decreaseUpgradeCostRatiosCost = 1;
   if (typeof savegame.decreaseUpgradeCostRatiosCostRatio === 'undefined') gameData.decreaseUpgradeCostRatiosCostRatio = 1.25;
   if (typeof savegame.onlineDiceRollerCost === 'undefined') gameData.onlineDiceRollerCost = 5;
-  if (typeof savegame.onlineDiceRollerCostRatio === 'undefined') gameData.onlineDiceRollerCostRatio = 100;
+  if (typeof savegame.onlineDiceRollerCostRatio === 'undefined') gameData.onlineDiceRollerCostRatio = 1.25;
   if (typeof savegame.onlineDiceRollerCount === 'undefined') gameData.onlineDiceRollerCount = 0;
   if (typeof savegame.squaredRootSalesCost === 'undefined') gameData.squaredRootSalesCost = 1;
   if (typeof savegame.decreasedWaitingLineCost === 'undefined') gameData.decreasedWaitingLineCost = 1;
@@ -472,6 +428,7 @@ if (savegame !== null) {
   if (typeof savegame.unlockedComboUpgradeCost === 'undefined')  gameData.unlockedComboUpgradeCost = 400;
   if (typeof savegame.unlockedComboUpgradeCostRatio === 'undefined')  gameData.unlockedComboUpgradeCostRatio = 1.07;
   if (typeof savegame.tempCurrencyType === 'undefined')  gameData.tempCurrencyType = "";
+  if (typeof savegame.stopCheckCostSquareUpgrades === 'undefined')  gameData.stopCheckCostSquareUpgrades = false;
 
   
 }
@@ -522,10 +479,24 @@ function prestigeReset() { //This is used to make sure all the stuff that should
     gameData.diceRollInterval = 1000;
     gameData.diceRollIntervalUpgradeTimeSize = 100;
     gameData.furthestDiceReached = 0;
+    gameData.dicePoints = 0;
+    gameData.dicePointsTotal = 0;
+    gameData.unlockedComboUpgradeCost = 400;
+    gameData.unlockedComboUpgradeCostRatio = 1.07;
+    gameData.unlockedComboUpgrade = 1;
+    
+    
+    
+    
+    
+   
+    tempCurrencyType: ""
 }
 function prestigeLine() {
   if (gameData.furthestDiceReached/gameData.diceDimension >= 1) {
-    gameData.prestigeLinePoints += round10((gameData.furthestDiceReached/gameData.diceDimension), -2);
+    gameData.linePoints += round10((gameData.furthestDiceReached/gameData.diceDimension), -2);
+    unlockedComboUpgrade: 1, //This sets how much dice can combo with eachother, so if you have 3 6's and unlockedComboUpgrade 2 only 2 will combo
+    //TODO: Still set a base cost and costratio for unlockedComboUpgrade upgrade, also properly make that button update via the update all function and put it in checkcost.
     
     prestigeReset();
     updateAll();
@@ -536,9 +507,22 @@ function prestigeLine() {
 function prestigeSquare() {
   //Add an upgrade you can buy with a square point that basically boosts proregess based on how many LP you have.
   if (gameData.furthestDiceReached/Math.pow(gameData.diceDimension,2) >= 1) {
-    gameData.prestigeSquarePoints += round10((gameData.furthestDiceReached/Math.pow(gameData.diceDimension,2)), -2);
+    gameData.squarePoints += round10((gameData.furthestDiceReached/Math.pow(gameData.diceDimension,2)), -2);
     prestigeReset();
-    gameData.prestigeLinePoints = 0
+    gameData.linePoints = 0;
+    gameData.diceSideUpgradeCostRatio = 1.07;
+    gameData.diceAmountUpgradeCostRatio = 1.07;
+    gameData.diceRollIntervalUpgradeCostRatio = 1.07;
+    gameData.onlineDiceRollerActivated = false;
+    gameData.onlineDiceRollerCostRatio = 1.25;
+    gameData.onlineDiceRollerCount = 0;
+    gameData.stopCheckCostDiceRollInterval = false;
+    gameData.dicePointsBoostByDicePointsActivated = false;
+    gameData.dicePointsBoostByDicePointsCost = 3;
+    gameData.betterComboScoreCost =  3;
+    gameData.betterComboScoreActivated = false;
+    gameData.decreasedWaitingLineCost = 1;
+    gameData.onlineDiceRollerCost = 5;
     updateAll();
   }
 }
@@ -546,26 +530,17 @@ function prestigeSquare() {
 
 function prestigeCube() {
   if (gameData.furthestDiceReached/Math.pow(gameData.diceDimension,3) >= 1) {
-    gameData.prestigeCubePoints += round10((gameData.furthestDiceReached/Math.pow(gameData.diceDimension,3)), -2)
+    gameData.cubePoints += round10((gameData.furthestDiceReached/Math.pow(gameData.diceDimension,3)), -2)
     prestigeReset();
-    gameData.prestigeLinePoints = 0
-    gameData.prestigeSquarePoints = 0
+    gameData.linePoints = 0;
+    gameData.squarePoints = 0;
+    gameData.squaredRootSalesActivated = false;
     updateAll();
   }
 }
 
 function lineUpgradeOnlineDiceRoller() {
-  if (gameData.quantity > 1 ) {
-    // Loop through quantity times
-    for (var i = 0; i < gameData.quantity; i++) {
-        // Calculate cost with current ratio and add to totalCost
-        totalCost += gameData.onlineDiceRollerCost * gameData.onlineDiceRollerCostRatio;
-    }
-  }else{
-    totalCost = gameData.onlineDiceRollerCost * gameData.quantity;
-  }
-  if (gameData.prestigeLinePoints >= totalCost) {   
-    bulkBuy("onlineDiceRoller", "prestigeLinePoints");
+    bulkBuy("onlineDiceRoller", "linePoints");
     //When the interval gets reset everything freezes and the automatic rolls just stop. Find a way to fix that.
     if (gameData.quantityBought > 0) {
       gameData.onlineDiceRollerCount += gameData.quantityBought
@@ -573,20 +548,9 @@ function lineUpgradeOnlineDiceRoller() {
       }
       updateAll();
     }
-}
 
 function lineUpgradeDecreasedWaitingLine() {
-  if (gameData.quantity > 1 ) {
-    // Loop through quantity times
-    for (var i = 0; i < gameData.quantity; i++) {
-        // Calculate cost with current ratio and add to totalCost
-        totalCost += gameData.decreasedWaitingLineCost * gameData.decreasedWaitingLineCostRatio;
-    }
-  }else{
-    totalCost = gameData.decreasedWaitingLineCost * gameData.quantity;
-  }
-  if (gameData.prestigeLinePoints >= Math.floor(totalCost)) {   
-    bulkBuy("decreasedWaitingLine", "prestigeLinePoints");
+    bulkBuy("decreasedWaitingLine", "linePoints");
     if (gameData.quantityBought > 0) {
       for (let i = 0; i < gameData.quantityBought; i++) {
         gameData.diceRollIntervalDecrease *= 1.50
@@ -595,22 +559,12 @@ function lineUpgradeDecreasedWaitingLine() {
     }
     
   }
-}
+
 
 
 function lineUpgradeDecreaseUpgradeCostRatios() {
-  if (gameData.quantity > 1 ) {
-    // Loop through quantity times
-    for (var i = 0; i < gameData.quantity; i++) {
-        // Calculate cost with current ratio and add to totalCost
-        totalCost += gameData.decreaseUpgradeCostRatiosCost * gameData.decreaseUpgradeCostRatiosCostRatio;
-    }
-  }else{
-    totalCost = gameData.decreaseUpgradeCostRatiosCost * gameData.quantity;
-  }
-  if (gameData.prestigeLinePoints >= totalCost) {   
     if (gameData.diceSideUpgradeCostRatio > gameData.allRatiosLimit) {
-      bulkBuy("decreaseUpgradeCostRatios", "prestigeLinePoints");
+      bulkBuy("decreaseUpgradeCostRatios", "linePoints");
       
       if (gameData.quantityBought > 0) {
         for (let i = 0; i < gameData.quantityBought; i++) {
@@ -632,12 +586,12 @@ function lineUpgradeDecreaseUpgradeCostRatios() {
     }
     updateAll();
   }
-}
+
 
 function squareUpgradeSquaredRootSales() {
   //This should make it so that the cost of all regular upgrades that cost dicepoints is squared
-  if (gameData.prestigeSquarePoints >= Math.floor(gameData.squaredRootSalesCost)) {
-    gameData.prestigeSquarePoints -= Math.floor(gameData.squaredRootSalesCost)
+  if (gameData.squarePoints >= Math.floor(gameData.squaredRootSalesCost)) {
+    gameData.squarePoints -= Math.floor(gameData.squaredRootSalesCost)
     gameData.squaredRootSalesActivated = true
     document.getElementById("squaredRootSales").style.display = "none"
   updateAll();
@@ -658,7 +612,7 @@ function squareUpgradeSquaredRootSales() {
       document.getElementById("cubePrestige").style.display = "inline-block"
       
     }
-    if (gameData.prestigeLinePoints >= 1) {
+    if (gameData.linePoints >= 1) {
       gameData.stopCheckCostLineUpgrades = false
       document.getElementById("linePoints").style.display = "inline-block";
       document.getElementById("onlineDiceRoller").style.display = "inline-block";
@@ -676,14 +630,15 @@ function squareUpgradeSquaredRootSales() {
       }
     }
     
-    if (gameData.prestigeSquarePoints >= 1) {
+    if (gameData.squarePoints >= 1) {
+      gameData.stopCheckCostSquareUpgrades = false
       document.getElementById("squarePoints").style.display = "inline-block";
       if (gameData.squaredRootSalesActivated === false) {
       document.getElementById("squaredRootSales").style.display = "inline-block"
       }
     }
 
-    if (gameData.prestigeCubePoints >= 1) {
+    if (gameData.cubePoints >= 1) {
       document.getElementById("cubePoints").style.display = "inline-block";
       }
     
@@ -698,24 +653,35 @@ function bulkBuy(upgradeType, currencyType) {
   var upgradeCost = gameData[upgradeType + "Cost"];
   var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
   var upgradeIncrement = 1; // Default increment value
+  var totalCost = 0
+  var totalCostTypeLogic = 0
   if (gameData.quantity === 1) {
-    var totalCost = upgradeCost
+    totalCost = upgradeCost
   } else {
-    var totalCost = Math.pow (upgradeCost , Math.pow(upgradeCostRatio, (gameData.quantity -1))); // Calculate total cost
+    if (upgradeCost === 1) {
+      totalCost = Math.pow((upgradeCost + 0.1), Math.pow(upgradeCostRatio, (gameData.quantity - 1)));
+    } else {
+      totalCost = Math.pow (upgradeCost , Math.pow(upgradeCostRatio, (gameData.quantity - 1))); //TODO: This formula doesn't properly work.Find a better formula for costs "var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, gameData.quantity) - 1) / (upgradeCostRatio - 1);" this is the original one if something goes wrong
+    }
   }
   if (gameData.squaredRootSalesActivated === true) {
     totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
   }
   if (currencyType === "dicePoints") { //This code makes sure that decimals are a thing for LP, SP and CP upgrades TODO: The game acts weird now with prices, probably because of the totalcosttypelogic
-    var totalCostTypeLogic = Math.floor(totalCost)
+    totalCostTypeLogic = Math.floor(totalCost)
     
   } else {
-    var totalCostTypeLogic = round10(totalCost, -2)
+    totalCostTypeLogic = round10(totalCost, -2)
+    update("diceComboSystem", totalCostTypeLogic);
   }
   gameData.tempCurrencyType = currencyType
   if (gameData[currencyType] >= totalCostTypeLogic) {
+    
     gameData[currencyType] -= totalCostTypeLogic; // Deduct cost from the specified currency
     gameData[upgradeType] += upgradeIncrement * gameData.quantity; // Increment the upgrade count
+    if (upgradeCost === 1) {
+      gameData[upgradeType + "Cost"] += 0.1
+    }
     gameData[upgradeType + "Cost"] **= Math.pow(upgradeCostRatio, gameData.quantity); // Adjust the upgrade cost
     gameData.quantityBought = gameData.quantity
     return gameData.quantityBought;
@@ -749,16 +715,16 @@ function resetSave() {
   gameData.diceRollIntervalUpgradeTimeSize = 100;
   gameData.furthestDiceReached = 0;
   gameData.diceDimension = 6; //Altering this can increease the size of the cube, it is the length of the cube.
-  gameData.prestigeLinePoints = 0;
-  gameData.prestigeSquarePoints = 0;
-  gameData.prestigeCubePoints = 0;
+  gameData.linePoints = 0;
+  gameData.squarePoints = 0;
+  gameData.cubePoints = 0;
   gameData.squaredRootSalesActivated = false;
   gameData.onlineDiceRollerActivated = false;
   gameData.diceRollIntervalDecrease = 0.50;
   gameData.decreaseUpgradeCostRatiosCost = 1;
   gameData.decreaseUpgradeCostRatiosCostRatio = 1.25;
   gameData.onlineDiceRollerCost = 5;
-  gameData.onlineDiceRollerCostRatio = 100;
+  gameData.onlineDiceRollerCostRatio = 1.25;
   gameData.onlineDiceRollerCount = 0;
   gameData.decreaseUpgradeCostRatiosCostRatio = 1.25;
   gameData.squaredRootSalesCost = 1;
@@ -778,6 +744,7 @@ function resetSave() {
   gameData.unlockedComboUpgrade = 1;
   gameData.unlockedComboUpgradeCost = 400;
   gameData.unlockedComboUpgradeCostRatio = 1.07;
+  gameData.stopCheckCostSquareUpgrades = false;
   
   updateAll(); // Update the game interface to reflect the reset
 }
@@ -802,45 +769,56 @@ function updateButtonStyles() {
   
   checkCost("diceAmountUpgrade", "dicePoints", "unlimited");
   if (!gameData.stopCheckCostLineUpgrades) {
-    checkCost("decreaseUpgradeCostRatios", "prestigeLinePoints", "unlimited");
-    checkCost("decreasedWaitingLine", "prestigeLinePoints", "unlimited");
-    checkCost("onlineDiceRoller", "prestigeLinePoints", "unlimited");
+    checkCost("decreaseUpgradeCostRatios", "linePoints", "unlimited");
+    checkCost("decreasedWaitingLine", "linePoints", "unlimited");
+    checkCost("onlineDiceRoller", "linePoints", "unlimited");
     if (gameData.dicePointsBoostByDicePointsActivated !== true) {
-    checkCost("dicePointsBoostByDicePoints", "prestigeLinePoints", "oneTime")
+    checkCost("dicePointsBoostByDicePoints", "linePoints", "oneTime")
     }
     if (gameData.betterComboScoreActivated !== true) {
-      checkCost("betterComboScore", "prestigeLinePoints", "oneTime")
+      checkCost("betterComboScore", "linePoints", "oneTime")
     }
   }
   if (!gameData.stopCheckCostDiceRollInterval ) {
     checkCost("diceRollIntervalUpgrade", "dicePoints", "unlimited");
   }
   checkCost("diceSideUpgrade", "dicePoints", "unlimited");
-  checkCost("squaredRootSales", "squarePoints", "oneTime") //Todo" add something that can see squaredrootsales is a one time upgrade
+   //Todo" add something that can see squaredrootsales is a one time upgrade
   checkCost("unlockedComboUpgrade", "dicePoints", "unlimited");
-  checkCost("diceAmountUpgrade", "dicePoints", "unlimited");
+  if (!gameData.stopCheckCostSquareUpgrades) {
+  checkCost("squaredRootSales", "squarePoints", "oneTime")
+  }
+
 }
 
 function checkCost(upgradeType, currencyType, amountType) { //Amounttype can be unlimited, limited or oneTime
   // TODO: Instead of having both cost and ratio work with upgradeType and determine it like you already did a few functions ago, check that first.
   var upgradeCost = gameData[upgradeType + "Cost"];
+  var totalCost = 0;
+  var totalCostTypeLogic = 0;
+  var upgradeCostRatio = "";
   if (amountType !== "oneTime") {
-    var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
-    if (gameData.quantity === 1) {
-      var totalCost = upgradeCost
-    } else {
-    var totalCost = Math.pow (upgradeCost , Math.pow(upgradeCostRatio, (gameData.quantity -1))); //TODO: This formula doesn't properly work.Find a better formula for costs "var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, gameData.quantity) - 1) / (upgradeCostRatio - 1);" this is the original one if something goes wrong
-    }
+    upgradeCostRatio = gameData[upgradeType + "CostRatio"];
   } else {
-    var totalCost = upgradeCost
+    totalCost = upgradeCost;
   }
+  if (gameData.quantity === 1) {
+    totalCost = upgradeCost;
+  } else {
+    if (upgradeCost === 1) {
+      totalCost = Math.pow((upgradeCost + 0.1), Math.pow(upgradeCostRatio, (gameData.quantity - 1)));
+    } else {
+      totalCost = Math.pow (upgradeCost , Math.pow(upgradeCostRatio, (gameData.quantity - 1))); //TODO: This formula doesn't properly work.Find a better formula for costs "var totalCost = upgradeCost * (Math.pow(upgradeCostRatio, gameData.quantity) - 1) / (upgradeCostRatio - 1);" this is the original one if something goes wrong
+    }
+  }
+  
   if (gameData.squaredRootSalesActivated === true && currencyType === "dicePoints") {
       totalCost = Math.sqrt(totalCost); // Apply squared root sales if activated
   }
   if (currencyType === "dicePoints") { //This code makes sure that decimals are a thing for LP, SP and CP upgrades TODO: The game acts weird now with prices, probably because of the totalcosttypelogic
-    var totalCostTypeLogic = Math.floor(totalCost)
+    totalCostTypeLogic = Math.floor(totalCost);
   } else {
-    var totalCostTypeLogic = round10(totalCost, -2)
+    totalCostTypeLogic = round10(totalCost, -2);
   }
   gameData.tempCurrencyType = currencyType
 
@@ -885,9 +863,9 @@ function checkVariables() {
     "gameData.diceRollIntervalUpgradeTimeSize: " + gameData.diceRollIntervalUpgradeTimeSize + "\n" +
     "gameData.furthestDiceReached: " + gameData.furthestDiceReached + "\n" +
     "gameData.diceDimension: " + gameData.diceDimension + "\n" +
-    "gameData.prestigeLinePoints: " + gameData.prestigeLinePoints + "\n" +
-    "gameData.prestigeSquarePoints: " + gameData.prestigeSquarePoints + "\n" +
-    "gameData.prestigeCubePoints: " + gameData.prestigeCubePoints + "\n" +
+    "gameData.linePoints: " + gameData.linePoints + "\n" +
+    "gameData.squarePoints: " + gameData.squarePoints + "\n" +
+    "gameData.cubePoints: " + gameData.cubePoints + "\n" +
     "gameData.squaredRootSalesActivated: " + gameData.squaredRootSalesActivated + "\n" +
     "gameData.onlineDiceRollerActivated: " + gameData.onlineDiceRollerActivated + "\n" +
     "gameData.diceRollIntervalDecrease: " + gameData.diceRollIntervalDecrease + "\n" +
@@ -923,8 +901,8 @@ function checkVariables() {
 function lineUpgradeDicePointsBoostByDicePoints() {
   //TODO: Add something in the checkcost to see if it is a one time upgrade or not, that way I can put both the square root sales and this upgrade in that function and it can then be properly striked thrpugh and made darkgrey if you can't properly update it.
   
-  if (gameData.prestigeLinePoints >= Math.floor(gameData.dicePointsBoostByDicePointsCost)) {
-    gameData.prestigeLinePoints -= Math.floor(gameData.dicePointsBoostByDicePointsCost)
+  if (gameData.linePoints >= Math.floor(gameData.dicePointsBoostByDicePointsCost)) {
+    gameData.linePoints -= Math.floor(gameData.dicePointsBoostByDicePointsCost)
     gameData.dicePointsBoostByDicePointsActivated = true
     document.getElementById("dicePointsBoostByDicePoints").style.display = "none"
     updateAll();
@@ -934,8 +912,8 @@ function lineUpgradeDicePointsBoostByDicePoints() {
 
 function lineUpgradeBetterComboScore() {
   //TODO: Make the upgrade more expensive and also nerf it a little more
-  if (gameData.prestigeLinePoints >= Math.floor(gameData.betterComboScoreCost)) {
-    gameData.prestigeLinePoints -= Math.floor(gameData.betterComboScoreCost)
+  if (gameData.linePoints >= Math.floor(gameData.betterComboScoreCost)) {
+    gameData.linePoints -= Math.floor(gameData.betterComboScoreCost)
     gameData.betterComboScoreActivated = true
     document.getElementById("betterComboScore").style.display = "none"
     updateAll();
