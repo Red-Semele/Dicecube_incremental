@@ -822,7 +822,7 @@ function updateButtonStyles() {
    //Todo" add something that can see squaredrootsales is a one time upgrade
   checkCost("unlockedComboUpgrade", "dicePoints", "unlimited");
   if (!gameData.stopCheckCostSquareUpgrades) {
-  checkCost("squaredRootSales", "squarePoints", "oneTime")
+    checkCost("squaredRootSales", "squarePoints", "oneTime")
   }
 
 }
