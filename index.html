@@ -21,6 +21,8 @@
       <button onclick="tab('prestigeMenu')" id="prestigeDiceMenu" title="Click here to go to Prestige menu">Go to Prestige menu</button>
       <button onclick="resetSave()">Reset Save</button>
       <button onclick="checkVariables()">Check Values</button>
+      <button onclick="importGameDataPrompt()">Import Save</button>
+      
     </div>
     <div id="rollDiceMenu">
       <button onclick="rollDice()">Roll dice</button>
@@ -48,6 +50,7 @@
         <button onclick="lineUpgradeDecreasedWaitingLine()" id="decreasedWaitingLine" title = "Improve the formula that calculates how close you can get to 0 with the automatic dice roll interval" class = "button"> Decreased waiting line Cost: 1 LP</button>
         <button onclick="lineUpgradeDicePointsBoostByDicePoints()" id="dicePointsBoostByDicePoints" title="Boost the end result of each roll by log(dice-points)" class = "button"> Dice points boost by dice points Cost: 3 LP</button>
         <button onclick="lineUpgradeBetterComboScore()" id="betterComboScore" title="Instead of adding the combo score on to the end results, multiply it by combovalue^(amount of combo's)" class = "button"> Better Combo Score Cost: 3 LP</button>
+        <button onclick="lineUpgradeDiceRollIntervalOverload()" id="diceRollIntervalOverload" title="Enable overclocking of the dicerollintervalupgrade, you can increase the speed of it even faster, each overclocking loses efficiency." class = "button"> Diceroll-speed overload Cost: 5 LP</button>
       </div>
       <div id="squareUpgrades" class="upgrade-section">
         <button onclick="squareUpgradeSquaredRootSales()" id="squaredRootSales" title="Apply a squared root to the price of all normal upgrades" class = "button"> Squared root sales Cost: 1 SP</button>

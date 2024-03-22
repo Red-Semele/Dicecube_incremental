@@ -19,6 +19,7 @@ document.getElementById("variableChecker").style.display = "none";
 document.getElementById("dicePointsBoostByDicePoints").style.display = "none";
 document.getElementById("betterComboScore").style.display = "none";
 document.getElementById("unlockedComboUpgrade").style.display = "none";
+document.getElementById("diceRollIntervalOverload").style.display = "none"
 
 
 
@@ -75,7 +76,11 @@ var gameData = {
   unlockedComboUpgradeCost: 400,
   unlockedComboUpgradeCostRatio: 1.22,
   tempCurrencyType: "",
-  stopCheckCostSquareUpgrades: true
+  stopCheckCostSquareUpgrades: true,
+  diceRollIntervalOverloadUpgradeCost: 5,
+  diceRollIntervalOverloadActivated: false,
+  diceRollIntervalOverloadTime: 0,
+  diceRollIntervalOverloadAmount: 0
   
   
 
@@ -350,8 +355,19 @@ function upgradeDiceRollInterval() {
             mainGameLoop = setInterval(mainGameLoopFunction, gameData.diceRollInterval);
             updateAll();
           }
-        }
-      }
+        } else if (gameData.diceRollIntervalOverloadActivated === true ) {
+          bulkBuy("diceRollIntervalUpgrade", "dicePoints");
+          gameData.diceRollIntervalOverloadAmount = (gameData.diceRollIntervalOverloadTime/ (1000 - gameData.diceRollIntervalLimit)) //This should set diceRollIntervalOverloadAmount to how many times it fits in the regular diceRollinterval
+          
+          //When the interval gets reset everything freezes and the automatic rolls just stop. Find a way to fix that.
+          if (gameData.quantityBought > 0) {
+            for (let i = 0; i < gameData.quantityBought; i++) {
+              gameData.diceRollIntervalOverloadTime += gameData.diceRollIntervalUpgradeTimeSize;
+              gameData.diceRollIntervalUpgradeTimeSize *= gameData.diceRollIntervalDecrease;
+            }
+         }
+       }
+}
 
 
 var mainGameLoop = window.setInterval(mainGameLoopFunction, gameData.diceRollInterval);
@@ -429,6 +445,9 @@ if (savegame !== null) {
   if (typeof savegame.unlockedComboUpgradeCostRatio === 'undefined')  gameData.unlockedComboUpgradeCostRatio = 1.22;
   if (typeof savegame.tempCurrencyType === 'undefined')  gameData.tempCurrencyType = "";
   if (typeof savegame.stopCheckCostSquareUpgrades === 'undefined')  gameData.stopCheckCostSquareUpgrades = false;
+  if (typeof savegame.diceRollIntervalOverloadUpgradeCost === 'undefined')  gameData.diceRollIntervalOverloadUpgradeCost = 5;
+  if (typeof savegame.diceRollIntervalOverloadActivated === 'undefined')  gameData.diceRollIntervalOverloadActivated = false;
+  
 
   
 }
@@ -523,6 +542,8 @@ function prestigeSquare() {
     gameData.betterComboScoreActivated = false;
     gameData.decreasedWaitingLineCost = 1;
     gameData.onlineDiceRollerCost = 5;
+    gameData.diceRollIntervalOverloadUpgradeCost = 5;
+    gameData.diceRollIntervalOverloadActivated = false;
     updateAll();
   }
 }
@@ -628,6 +649,11 @@ function squareUpgradeSquaredRootSales() {
       } else {
         document.getElementById("betterComboScore").style.display = "none"
       }
+      if (gameData.diceRollIntervalOverloadActivated === false) {
+        document.getElementById("diceRollIntervalOverload").style.display = "inline-block"
+      } else {
+        document.getElementById("diceRollIntervalOverload").style.display = "none"
+      }
     }
     
     if (gameData.squarePoints >= 1) {
@@ -686,6 +712,8 @@ function bulkBuy(upgradeType, currencyType) {
     gameData.quantityBought = gameData.quantity
     return gameData.quantityBought;
     
+  } else {
+    gameData.quantityBought = 0
   }
 }
 
@@ -745,6 +773,8 @@ function resetSave() {
   gameData.unlockedComboUpgradeCost = 400;
   gameData.unlockedComboUpgradeCostRatio = 1.22;
   gameData.stopCheckCostSquareUpgrades = false;
+  gameData.diceRollIntervalOverloadUpgradeCost = 5;
+  gameData.diceRollIntervalOverloadActivated = false;
   
   updateAll(); // Update the game interface to reflect the reset
 }
@@ -755,9 +785,15 @@ function updateButtonStyles() {
     var diceRollIntervalUpgradeButton = document.getElementById("diceRollIntervalUpgrade");
     diceRollIntervalUpgradeButton.style.backgroundColor = "#808080"; // Dark grey background color for the button
     diceRollIntervalUpgradeButton.style.color = "#FFFFFF"; // White text color
-    diceRollIntervalUpgradeButton.innerHTML = "Dice Roll Interval Maxed (Currently " + Math.floor(gameData.diceRollInterval) + "ms)";
+    if (!gameData.diceRollIntervalOverloadActivated) {
+      diceRollIntervalUpgradeButton.innerHTML = "Dice Roll Interval Maxed (Currently " + Math.floor(gameData.diceRollInterval) + "ms)";
+      gameData.stopCheckCostDiceRollInterval = true; //TODO: The problem here with the special dicerollinterval look (without lined through text) not working is probably because it doesn't get checked on time or something like that? Look into how I fixed the line pupgrades showijg up too soon to figure it out.
+    
+    } else {
+      diceRollIntervalUpgradeButton.innerHTML = "PROTOTYPE: This will display the current overclocking of the dice roll interval. Overclocked " + gameData.diceRollIntervalOverloadAmount + " times" //TODO: Implement this
+    }
     diceRollIntervalUpgradeButton.style.textDecoration = ""
-    gameData.stopCheckCostDiceRollInterval = true; //TODO: The problem here with the special dicerollinterval look (without lined through text) not working is probably because it doesn't get checked on time or something like that? Look into how I fixed the line pupgrades showijg up too soon to figure it out.
+
   } else if (Math.floor(gameData.diceRollIntervalUpgradeTimeSize) === 0) {
       var diceRollIntervalUpgradeButton = document.getElementById("diceRollIntervalUpgrade");
       diceRollIntervalUpgradeButton.style.backgroundColor = "#808080"; // Dark grey background color for the button
@@ -890,7 +926,10 @@ function checkVariables() {
     "gameData.unlockedComboUpgrade: " + gameData.unlockedComboUpgrade + "\n" +
     "gameData.unlockedComboUpgradeCost: " + gameData.unlockedComboUpgradeCost + "\n" +
     "gameData.unlockedComboUpgradeCostRatio: " + gameData.unlockedComboUpgradeCostRatio + "\n" +
-    "gameData.tempCurrencyType: " + gameData.tempCurrencyType + "\n";
+    "gameData.tempCurrencyType: " + gameData.tempCurrencyType + "\n" +
+    "gameData.stopCheckCostSquareUpgrades: " + gameData.stopCheckCostSquareUpgrades + "\n" +
+    "gameData.diceRollIntervalOverloadUpgradeCost: " + gameData.diceRollIntervalOverloadUpgradeCost + "\n" +
+    "gameData.diceRollIntervalOverloadActivated: " + gameData.diceRollIntervalOverloadActivated + "\n";
     
     
     
@@ -969,4 +1008,54 @@ round10(-55, 1); // -50
 round10(-55.1, 1); // -60
 // Floor
 
+function lineUpgradeDiceRollIntervalOverload() {
+  if (gameData.linePoints >= Math.floor(gameData.diceRollIntervalOverloadUpgradeCost)) {
+    gameData.linePoints -= Math.floor(gameData.diceRollIntervalOverloadUpgradeCost)
+    gameData.diceRollIntervalOverloadActivated = true
+    gameData.diceRollIntervalOverloadTime = 1000
+    document.getElementById("diceRollIntervalOverload").style.display = "none"
+    updateAll();
+
+  }
+}
+
+  function importGameDataPrompt() {
+  let importData = prompt("Please input your data", "gameData.dicePoints: 0");
+  importGameData(importData);
+    function importGameData(inputData) {
+      // Split the input string into an array of key-value pairs
+      const keyValuePairs = inputData.split(/\s+/);
+
+      // Define an object to store the updated game data
+      let updatedData = {};
+
+      // Iterate through the key-value pairs and update the corresponding game data properties
+      keyValuePairs.forEach(pair => {
+          const [key, value] = pair.split(':');
+          if (key && value) {
+              // Trim any leading/trailing whitespace from the key and value
+              const trimmedKey = key.trim();
+              const trimmedValue = value.trim();
+
+              // Check if the key exists in the game data and update its value
+              if (gameData.hasOwnProperty(trimmedKey)) {
+                  // Convert the value to the appropriate data type
+                  if (!isNaN(trimmedValue)) {
+                      updatedData[trimmedKey] = parseFloat(trimmedValue);
+                  } else if (trimmedValue === "true" || trimmedValue === "false") {
+                      updatedData[trimmedKey] = (trimmedValue === "true");
+                  } else {
+                      updatedData[trimmedKey] = trimmedValue;
+                  }
+              }
+          }
+      });
+
+      // Merge the updated data with the existing game data
+      gameData = Object.assign({}, gameData, updatedData);
+
+      // Display the updated game data
+      
+    }
+  }
 
