@@ -19,7 +19,7 @@ document.getElementById("variableChecker").style.display = "none";
 document.getElementById("dicePointsBoostByDicePoints").style.display = "none";
 document.getElementById("betterComboScore").style.display = "none";
 document.getElementById("unlockedComboUpgrade").style.display = "none";
-document.getElementById("diceRollIntervalOverload").style.display = "none"
+document.getElementById("diceRollIntervalOverload").style.display = "none" //TODO: For some weird reason this upgrade doesn't become visbile, will need some more testing in the future, commenting this out fixes the problem so it's probably ui based.
 
 
 
@@ -77,7 +77,7 @@ var gameData = {
   unlockedComboUpgradeCostRatio: 1.22,
   tempCurrencyType: "",
   stopCheckCostSquareUpgrades: true,
-  diceRollIntervalOverloadUpgradeCost: 5,
+  diceRollIntervalOverloadCost: 5,
   diceRollIntervalOverloadActivated: false,
   diceRollIntervalOverloadTime: 0,
   diceRollIntervalOverloadAmount: 0
@@ -445,7 +445,7 @@ if (savegame !== null) {
   if (typeof savegame.unlockedComboUpgradeCostRatio === 'undefined')  gameData.unlockedComboUpgradeCostRatio = 1.22;
   if (typeof savegame.tempCurrencyType === 'undefined')  gameData.tempCurrencyType = "";
   if (typeof savegame.stopCheckCostSquareUpgrades === 'undefined')  gameData.stopCheckCostSquareUpgrades = false;
-  if (typeof savegame.diceRollIntervalOverloadUpgradeCost === 'undefined')  gameData.diceRollIntervalOverloadUpgradeCost = 5;
+  if (typeof savegame.diceRollIntervalOverloadCost === 'undefined')  gameData.diceRollIntervalOverloadCost = 5;
   if (typeof savegame.diceRollIntervalOverloadActivated === 'undefined')  gameData.diceRollIntervalOverloadActivated = false;
   
 
@@ -542,7 +542,7 @@ function prestigeSquare() {
     gameData.betterComboScoreActivated = false;
     gameData.decreasedWaitingLineCost = 1;
     gameData.onlineDiceRollerCost = 5;
-    gameData.diceRollIntervalOverloadUpgradeCost = 5;
+    gameData.diceRollIntervalOverloadCost = 5;
     gameData.diceRollIntervalOverloadActivated = false;
     updateAll();
   }
@@ -660,7 +660,7 @@ function squareUpgradeSquaredRootSales() {
       gameData.stopCheckCostSquareUpgrades = false
       document.getElementById("squarePoints").style.display = "inline-block";
       if (gameData.squaredRootSalesActivated === false) {
-      document.getElementById("squaredRootSales").style.display = "inline-block"
+        document.getElementById("squaredRootSales").style.display = "inline-block"
       }
     }
 
@@ -773,7 +773,7 @@ function resetSave() {
   gameData.unlockedComboUpgradeCost = 400;
   gameData.unlockedComboUpgradeCostRatio = 1.22;
   gameData.stopCheckCostSquareUpgrades = false;
-  gameData.diceRollIntervalOverloadUpgradeCost = 5;
+  gameData.diceRollIntervalOverloadCost = 5;
   gameData.diceRollIntervalOverloadActivated = false;
   
   updateAll(); // Update the game interface to reflect the reset
@@ -813,6 +813,9 @@ function updateButtonStyles() {
     }
     if (gameData.betterComboScoreActivated !== true) {
       checkCost("betterComboScore", "linePoints", "oneTime")
+    }
+    if (gameData.diceRollIntervalOverloadActivated !== true) {
+      checkCost("diceRollIntervalOverload", "linePoints", "oneTime")
     }
   }
   if (!gameData.stopCheckCostDiceRollInterval ) {
@@ -928,7 +931,7 @@ function checkVariables() {
     "gameData.unlockedComboUpgradeCostRatio: " + gameData.unlockedComboUpgradeCostRatio + "\n" +
     "gameData.tempCurrencyType: " + gameData.tempCurrencyType + "\n" +
     "gameData.stopCheckCostSquareUpgrades: " + gameData.stopCheckCostSquareUpgrades + "\n" +
-    "gameData.diceRollIntervalOverloadUpgradeCost: " + gameData.diceRollIntervalOverloadUpgradeCost + "\n" +
+    "gameData.diceRollIntervalOverloadCost: " + gameData.diceRollIntervalOverloadCost + "\n" +
     "gameData.diceRollIntervalOverloadActivated: " + gameData.diceRollIntervalOverloadActivated + "\n";
     
     
@@ -1009,8 +1012,8 @@ round10(-55.1, 1); // -60
 // Floor
 
 function lineUpgradeDiceRollIntervalOverload() {
-  if (gameData.linePoints >= Math.floor(gameData.diceRollIntervalOverloadUpgradeCost)) {
-    gameData.linePoints -= Math.floor(gameData.diceRollIntervalOverloadUpgradeCost)
+  if (gameData.linePoints >= Math.floor(gameData.diceRollIntervalOverloadCost)) {
+    gameData.linePoints -= Math.floor(gameData.diceRollIntervalOverloadCost)
     gameData.diceRollIntervalOverloadActivated = true
     gameData.diceRollIntervalOverloadTime = 1000
     document.getElementById("diceRollIntervalOverload").style.display = "none"
