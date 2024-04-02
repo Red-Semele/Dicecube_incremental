@@ -1,6 +1,10 @@
+//TODO: Figure out how to add these: import { compress } from 'lz-string'; //RECENT import { decompress } from 'lz-string'; //RECENT
 document.addEventListener('DOMContentLoaded', function() {
   gameData.quantity = 1;
+  
 });
+
+
 
 
 
@@ -19,13 +23,37 @@ document.getElementById("variableChecker").style.display = "none";
 document.getElementById("dicePointsBoostByDicePoints").style.display = "none";
 document.getElementById("betterComboScore").style.display = "none";
 document.getElementById("unlockedComboUpgrade").style.display = "none";
+document.getElementById("myChart").style.display = "none";
 document.getElementById("diceRollIntervalOverload").style.display = "none" //TODO: For some weird reason this upgrade doesn't become visbile, will need some more testing in the future, commenting this out fixes the problem so it's probably ui based.
+const ctx = document.getElementById('myChart');
+
+      // Initial data
+      const initialData = {
+        labels: [],
+        datasets: [{
+          label: 'My First Dataset', //TODO: Give this a different name, prefarbly something dynamically changeable.
+          data: [],
+          backgroundColor: [],
+          hoverOffset: 4
+        }]
+      }
+
+      const colors = [
+        'rgb(75, 192, 192)',
+        'rgb(153, 102, 255)',
+        'rgb(255, 159, 64)',
+        'rgb(255, 99, 132)',
+        'rgb(54, 162, 235)',
+        'rgb(255, 205, 86)'
+      ];
+
+      // Create the chart
+      
 
 
 
 
-
-
+const clonedIds = new Set();
 var saveGame = localStorage.getItem('diceCubeSave');
 var gameData = {
   dicePoints: 0,
@@ -80,18 +108,47 @@ var gameData = {
   diceRollIntervalOverloadCost: 5,
   diceRollIntervalOverloadActivated: false,
   diceRollIntervalOverloadTime: 0,
-  diceRollIntervalOverloadAmount: 0
+  diceRollIntervalOverloadAmount: 0,
+  boughtShopMenuCurrencyType: "All",
+  boughtShopMenuUpgradeType: "All",
+  //TODO: Add all upgrades below and set their quantity, then put these everywhere that it is used to adnd make bulkbuy increase these with the upgradeincrement. Also make this appear in the bought button upgrades.
+  diceSideUpgradeQuantity: 0, //Quantity shows you how many upgrades you have purchased.
+  diceAmountUpgradeQuantity: 0,
+  diceRollIntervalUpgradeQuantity: 0,
+  unlockedComboUpgradeQuantity: 0,
+
+  decreaseUpgradeCostRatiosQuantity: 0,
+  diceRollIntervalOverloadQuantity: 0,
+  onlineDiceRollerQuantity: 0,
+  squaredRootSalesQuantity: 0,
+  decreasedWaitingLineQuantity: 0,
+  dicePointsBoostByDicePointsQuantity: 0,
+  betterComboScoreQuantity: 0
+
+  
   
   
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
 };
 //gameData.quantity = parseInt(document.getElementById("quantityPicker").value); TODO Find a way to apply this from the start so all buttons are striked out at first if you can't afford them.
-var selectElement = document.getElementById('quantityPicker');
-selectElement.addEventListener('change', function() {
-var selectedValue = parseInt(selectElement.value);
-  gameData.quantity = selectedValue;
+
+var selectElementQuantity = document.getElementById('quantityPicker');
+selectElementQuantity.addEventListener('change', function() {
+var selectedValueQuantity = parseInt(selectElementQuantity.value);
+  gameData.quantity = selectedValueQuantity;
 });
+var selectElementCurrency = document.getElementById('boughtShopMenuCurrencyType');
+selectElementCurrency.addEventListener('change', function() {
+var selectedValueCurrency = selectElementCurrency.options[selectElementCurrency.selectedIndex].getAttribute('boughtShopMenuCurrency');//selectElementCurrency.boughtShopMenuCurrency
+  gameData.boughtShopMenuCurrencyType = selectedValueCurrency;
+});
+var selectElementUpgrade = document.getElementById('boughtShopMenuUpgradeType');
+selectElementUpgrade.addEventListener('change', function() {
+var selectedValueUpgrade = selectElementUpgrade.options[selectElementUpgrade.selectedIndex].getAttribute('boughtShopMenuUpgrade');//selectElementCurrency.boughtShopMenuCurrency
+  gameData.boughtShopMenuUpgradeType = selectedValueUpgrade;
+});
+
 
 function update(id, content) {
   document.getElementById(id).innerHTML = content;
@@ -166,6 +223,13 @@ function updateAll() {
     update("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost:" + format(checkCost("onlineDiceRoller", "linePoints"), "scientific") + "LP");
     
   }
+  var clonedButtons = document.querySelectorAll(".cloned-button");
+  
+  clonedButtons.forEach(function(clonedButton) {
+    clonedButton.style.backgroundColor = ""; // Reset background color
+    clonedButton.style.color = ""; // Reset text color
+    clonedButton.style.textDecoration = ""; // Reset text decoration
+  });
   prestigeVisibility ();
   updateButtonStyles();
 }
@@ -295,7 +359,7 @@ function increaseUnlockedComboUpgrade() {
   if (gameData.dicePoints >= totalCost) {   
       bulkBuy("unlockedComboUpgrade", "dicePoints");
       if (gameData.quantityBought > 0) {
-        //Originally this basically added 1 to the allowed combo cost but bulkbuy can already handle that on it's own. (Check the code to see if you can also implement this with other upgrades better.)
+        gameData.unlockedComboUpgrade += gameData.quantityBought
         gameData.quantityBought = 0
         updateAll();
       }
@@ -357,14 +421,22 @@ function upgradeDiceRollInterval() {
           }
         } else if (gameData.diceRollIntervalOverloadActivated === true ) {
           bulkBuy("diceRollIntervalUpgrade", "dicePoints");
-          gameData.diceRollIntervalOverloadAmount = (gameData.diceRollIntervalOverloadTime/ (1000 - gameData.diceRollIntervalLimit)) //This should set diceRollIntervalOverloadAmount to how many times it fits in the regular diceRollinterval
+          
           
           //When the interval gets reset everything freezes and the automatic rolls just stop. Find a way to fix that.
           if (gameData.quantityBought > 0) {
-            for (let i = 0; i < gameData.quantityBought; i++) {
-              gameData.diceRollIntervalOverloadTime += gameData.diceRollIntervalUpgradeTimeSize;
-              gameData.diceRollIntervalUpgradeTimeSize *= gameData.diceRollIntervalDecrease;
+            if (gameData.quantityBought === 1) {
+              var diceRollIntervalOverloadDiminished = 0.80 //TODO Make this variable a regular gameData one
+            } else {
+              var diceRollIntervalOverloadDiminished = Math.pow(0.80, (gameData.quantityBought - 1))
             }
+
+            for (let i = 0; i < gameData.quantityBought; i++) { //TODO, the math here is not yet fully perfect, check it out once again and look for something else than a loop to use.
+              gameData.diceRollIntervalOverloadTime += gameData.diceRollIntervalUpgradeTimeSize;
+              gameData.diceRollIntervalUpgradeTimeSize *= (gameData.diceRollIntervalDecrease *= diceRollIntervalOverloadDiminished);
+            }
+            
+            gameData.diceRollIntervalOverloadAmount = (gameData.diceRollIntervalOverloadTime/ (1000 - gameData.diceRollIntervalLimit)) //This should set diceRollIntervalOverloadAmount to how many times it fits in the regular diceRollinterval probably add exponetial growth on the divided function but also instead of equalising it add onto it.
          }
        }
 }
@@ -447,8 +519,20 @@ if (savegame !== null) {
   if (typeof savegame.stopCheckCostSquareUpgrades === 'undefined')  gameData.stopCheckCostSquareUpgrades = false;
   if (typeof savegame.diceRollIntervalOverloadCost === 'undefined')  gameData.diceRollIntervalOverloadCost = 5;
   if (typeof savegame.diceRollIntervalOverloadActivated === 'undefined')  gameData.diceRollIntervalOverloadActivated = false;
-  
-
+  if (typeof savegame.boughtShopMenuCurrencyType === 'undefined')  gameData.boughtShopMenuCurrencyType = "All";
+  if (typeof savegame.boughtShopMenuUpgradeType === 'undefined')  gameData.boughtShopMenuUpgradeType = "All";
+  if (typeof savegame.diceSideUpgradeQuantity === 'undefined')  gameData.diceSideUpgradeQuantity = 0;
+  if (typeof savegame.diceRollIntervalUpgradeQuantity === 'undefined')  gameData.diceRollIntervalUpgradeQuantity = 0;
+  if (typeof savegame.diceAmountUpgradeQuantity === 'undefined')  gameData.diceAmountUpgradeQuantity = 0;
+  if (typeof savegame.unlockedComboUpgradeQuantity === 'undefined')  gameData.unlockedComboUpgradeQuantity = 0;
+  if (typeof savegame.decreaseUpgradeCostRatiosQuantity === 'undefined')  gameData.decreaseUpgradeCostRatiosQuantity = 0;
+  if (typeof savegame.diceRollIntervalOverloadQuantity === 'undefined')  gameData.diceRollIntervalOverloadQuantity = 0;
+  if (typeof savegame.onlineDiceRollerQuantity === 'undefined')  gameData.onlineDiceRollerQuantity = 0;
+  if (typeof savegame.unlockedComboUpgradeQuantity === 'undefined')  gameData.unlockedComboUpgradeQuantity = 0;
+  if (typeof savegame.squaredRootSalesQuantity === 'undefined')  gameData.squaredRootSalesQuantity = 0;
+  if (typeof savegame.decreasedWaitingLineQuantity === 'undefined')  gameData.decreasedWaitingLineQuantity = 0;
+  if (typeof savegame.dicePointsBoostByDicePointsQuantity === 'undefined')  gameData.dicePointsBoostByDicePointsQuantity = 0;
+  if (typeof savegame.betterComboScoreQuantity === 'undefined')  gameData.betterComboScoreQuantity = 0;
   
 }
   
@@ -482,6 +566,8 @@ function tab(tab) {
   document.getElementById("rollDiceMenu").style.display = "none"
   document.getElementById("shopMenu").style.display = "none"
   document.getElementById("prestigeMenu").style.display = "none"
+  document.getElementById("boughtShopMenu").style.display = "none"
+  document.getElementById("saveStuffMenu").style.display = "none"
   document.getElementById(tab).style.display = "inline-block"
 }
 function prestigeReset() { //This is used to make sure all the stuff that should be reset from the normal upgrades gets reset.
@@ -503,19 +589,16 @@ function prestigeReset() { //This is used to make sure all the stuff that should
     gameData.unlockedComboUpgradeCost = 400;
     gameData.unlockedComboUpgradeCostRatio = 1.22;
     gameData.unlockedComboUpgrade = 1;
+    gameData.diceSideUpgradeQuantity = 0, //Quantity shows you how many upgrades you have purchased.
+    gameData.diceAmountUpgradeQuantity = 0,
+    gameData.diceRollIntervalUpgradeQuantity = 0,
+    gameData.unlockedComboUpgradeQuantity = 0
     
-    
-    
-    
-    
-   
-    tempCurrencyType: ""
 }
 function prestigeLine() {
   if (gameData.furthestDiceReached/gameData.diceDimension >= 1) {
     gameData.linePoints += round10((gameData.furthestDiceReached/gameData.diceDimension), -2);
-    unlockedComboUpgrade: 1, //This sets how much dice can combo with eachother, so if you have 3 6's and unlockedComboUpgrade 2 only 2 will combo
-    //TODO: Still set a base cost and costratio for unlockedComboUpgrade upgrade, also properly make that button update via the update all function and put it in checkcost.
+    
     
     prestigeReset();
     updateAll();
@@ -544,6 +627,12 @@ function prestigeSquare() {
     gameData.onlineDiceRollerCost = 5;
     gameData.diceRollIntervalOverloadCost = 5;
     gameData.diceRollIntervalOverloadActivated = false;
+    gameData.decreaseUpgradeCostRatiosQuantity = 0,
+    gameData.diceRollIntervalOverloadQuantity = 0,
+    gameData.onlineDiceRollerQuantity = 0,
+    gameData.decreasedWaitingLineQuantity = 0,
+    gameData.dicePointsBoostByDicePointsQuantity = 0,
+    gameData.betterComboScoreQuantity = 0
     updateAll();
   }
 }
@@ -556,6 +645,7 @@ function prestigeCube() {
     gameData.linePoints = 0;
     gameData.squarePoints = 0;
     gameData.squaredRootSalesActivated = false;
+    gameData.squaredRootSalesQuantity = 0
     updateAll();
   }
 }
@@ -704,7 +794,7 @@ function bulkBuy(upgradeType, currencyType) {
   if (gameData[currencyType] >= totalCostTypeLogic) {
     
     gameData[currencyType] -= totalCostTypeLogic; // Deduct cost from the specified currency
-    gameData[upgradeType] += upgradeIncrement * gameData.quantity; // Increment the upgrade count
+    gameData[upgradeType + "Quantity"] += (upgradeIncrement * gameData.quantity); // Increment the upgrade count
     if (upgradeCost === 1) {
       gameData[upgradeType + "Cost"] += 0.1
     }
@@ -775,11 +865,22 @@ function resetSave() {
   gameData.stopCheckCostSquareUpgrades = false;
   gameData.diceRollIntervalOverloadCost = 5;
   gameData.diceRollIntervalOverloadActivated = false;
+  gameData.boughtShopMenuCurrencyType = "All"
+  gameData.boughtShopMenuUpgradeType = "All"
+
   
   updateAll(); // Update the game interface to reflect the reset
 }
 
 function updateButtonStyles() {
+  // Add this check to exclude cloned buttons from being updated
+  var clonedButtons = document.querySelectorAll(".cloned-button");
+  
+  clonedButtons.forEach(function(clonedButton) {
+    clonedButton.style.backgroundColor = ""; // Reset background color
+    clonedButton.style.color = ""; // Reset text color
+    clonedButton.style.textDecoration = ""; // Reset text decoration
+  });
   // The code below checks to see if the diceRollinterval has met it's limit
   if (gameData.diceRollInterval === gameData.diceRollIntervalLimit) {
     var diceRollIntervalUpgradeButton = document.getElementById("diceRollIntervalUpgrade");
@@ -882,62 +983,13 @@ function checkCost(upgradeType, currencyType, amountType) { //Amounttype can be 
 }
 
 function checkVariables() {
-  
-  variableMessage =
-    "gameData.dicePoints: " + gameData.dicePoints + "\n" +
-    "gameData.dicePointsTotal: " + gameData.dicePointsTotal + "\n" +
-    "gameData.dicePointsPerClick: " + gameData.dicePointsPerClick + "\n" +
-    "gameData.diceAmount: " + gameData.diceAmount + "\n" +
-    "gameData.diceSides: " + gameData.diceSides + "\n" +
-    "gameData.dicePointsPerClickCost: " + gameData.dicePointsPerClickCost + "\n" +
-    "gameData.diceSideUpgradeCost: " + gameData.diceSideUpgradeCost + "\n" +
-    "gameData.diceAmountUpgradeCost: " + gameData.diceAmountUpgradeCost + "\n" +
-    "gameData.diceRollIntervalUpgradeCost: " + gameData.diceRollIntervalUpgradeCost + "\n" +
-    "gameData.dicePointsPerClickCostRatio: " + gameData.dicePointsPerClickCostRatio + "\n" +
-    "gameData.diceSideUpgradeCostRatio: " + gameData.diceSideUpgradeCostRatio + "\n" +
-    "gameData.diceAmountUpgradeCostRatio: " + gameData.diceAmountUpgradeCostRatio + "\n" +
-    "gameData.diceRollIntervalUpgradeCostRatio: " + gameData.diceRollIntervalUpgradeCostRatio + "\n" +
-    "gameData.lastTick: " + gameData.lastTick + "\n" +
-    "gameData.diceRollInterval: " + gameData.diceRollInterval + "\n" +
-    "gameData.diceRollIntervalUpgradeTimeSize: " + gameData.diceRollIntervalUpgradeTimeSize + "\n" +
-    "gameData.furthestDiceReached: " + gameData.furthestDiceReached + "\n" +
-    "gameData.diceDimension: " + gameData.diceDimension + "\n" +
-    "gameData.linePoints: " + gameData.linePoints + "\n" +
-    "gameData.squarePoints: " + gameData.squarePoints + "\n" +
-    "gameData.cubePoints: " + gameData.cubePoints + "\n" +
-    "gameData.squaredRootSalesActivated: " + gameData.squaredRootSalesActivated + "\n" +
-    "gameData.onlineDiceRollerActivated: " + gameData.onlineDiceRollerActivated + "\n" +
-    "gameData.diceRollIntervalDecrease: " + gameData.diceRollIntervalDecrease + "\n" +
-    "gameData.decreaseUpgradeCostRatiosCost: " + gameData.decreaseUpgradeCostRatiosCost + "\n" +
-    "gameData.decreaseUpgradeCostRatiosCostRatio: " + gameData.decreaseUpgradeCostRatiosCostRatio + "\n" +
-    "gameData.onlineDiceRollerCost: " + gameData.onlineDiceRollerCost + "\n" +
-    "gameData.onlineDiceRollerCostRatio: " + gameData.onlineDiceRollerCostRatio + "\n" +
-    "gameData.onlineDiceRollerCount: " + gameData.onlineDiceRollerCount + "\n" +
-    "gameData.decreasedWaitingLineCost: " + gameData.decreasedWaitingLineCost + "\n" +
-    "gameData.decreasedWaitingLineCostRatio: " + gameData.decreasedWaitingLineCostRatio + "\n" +
-    "gameData.quantity: " + gameData.quantity + "\n" +
-    "gameData.diceRollIntervalLimit: " + gameData.diceRollIntervalLimit + "\n" +
-    "gameData.allRatiosLimit: " + gameData.allRatiosLimit + "\n" +
-    "gameData.quantityBought: " + gameData.quantityBought + "\n" +
-    "gameData.comboMessageLenghtLimit: " + gameData.comboMessageLenghtLimit + "\n" +
-    "gameData.stopCheckCostDiceRollInterval: " + gameData.stopCheckCostDiceRollInterval + "\n" +
-    "gameData.stopCheckCostLineUpgrades: " + gameData.stopCheckCostLineUpgrades + "\n" +
-    "gameData.dicePointsBoostByDicePointsActivated: " + gameData.dicePointsBoostByDicePointsActivated + "\n" +
-    "gameData.dicePointsBoostByDicePointsCost: " + gameData.dicePointsBoostByDicePointsCost + "\n" +
-    "gameData.betterComboScoreCost: " + gameData.betterComboScoreCost + "\n" +
-    "gameData.betterComboScoreActivated: " + gameData.betterComboScoreActivated + "\n" +
-    "gameData.unlockedComboUpgrade: " + gameData.unlockedComboUpgrade + "\n" +
-    "gameData.unlockedComboUpgradeCost: " + gameData.unlockedComboUpgradeCost + "\n" +
-    "gameData.unlockedComboUpgradeCostRatio: " + gameData.unlockedComboUpgradeCostRatio + "\n" +
-    "gameData.tempCurrencyType: " + gameData.tempCurrencyType + "\n" +
-    "gameData.stopCheckCostSquareUpgrades: " + gameData.stopCheckCostSquareUpgrades + "\n" +
-    "gameData.diceRollIntervalOverloadCost: " + gameData.diceRollIntervalOverloadCost + "\n" +
-    "gameData.diceRollIntervalOverloadActivated: " + gameData.diceRollIntervalOverloadActivated + "\n";
-    
-    
-    
-    document.getElementById("variableChecker").style.display = "inline-block";
-    update("variableChecker", variableMessage);
+    var textarea = document.getElementById("variableChecker");
+    var json = JSON.stringify(gameData)
+    var compressed = LZString.compressToEncodedURIComponent(json);
+    console.log(compressed)
+    textarea.value = ""
+    textarea.style.display = "inline-block";
+    textarea.value += compressed;
 }
  
 function lineUpgradeDicePointsBoostByDicePoints() {
@@ -1023,42 +1075,161 @@ function lineUpgradeDiceRollIntervalOverload() {
 }
 
   function importGameDataPrompt() {
-  let importData = prompt("Please input your data", "gameData.dicePoints: 0");
-  importGameData(importData);
-    function importGameData(inputData) {
-      // Split the input string into an array of key-value pairs
-      const keyValuePairs = inputData.split(/\s+/);
+    var textarea = document.getElementById("variableChecker");
+    textarea.style.display = "inline-block";
+  }
+  function importGameData() {
+    var importData = document.getElementById("variableChecker").value;
+    var original_json = LZString.decompressFromEncodedURIComponent(importData)
+    console.log(importData)
+    console.log(LZString.decompressFromBase64(importData))
+    var loaded_game_data = JSON.parse(original_json)
+    console.log(loaded_game_data)
+    gameData = loaded_game_data
 
-      // Define an object to store the updated game data
-      let updatedData = {};
+    
+    
+  }
 
-      // Iterate through the key-value pairs and update the corresponding game data properties
-      keyValuePairs.forEach(pair => {
-          const [key, value] = pair.split(':');
-          if (key && value) {
-              // Trim any leading/trailing whitespace from the key and value
-              const trimmedKey = key.trim();
-              const trimmedValue = value.trim();
+  function exportGameDataClipboard() {
+    var importData = document.getElementById("variableChecker").value;
+    navigator.clipboard.writeText(importData);
+    
+    }
 
-              // Check if the key exists in the game data and update its value
-              if (gameData.hasOwnProperty(trimmedKey)) {
-                  // Convert the value to the appropriate data type
-                  if (!isNaN(trimmedValue)) {
-                      updatedData[trimmedKey] = parseFloat(trimmedValue);
-                  } else if (trimmedValue === "true" || trimmedValue === "false") {
-                      updatedData[trimmedKey] = (trimmedValue === "true");
-                  } else {
-                      updatedData[trimmedKey] = trimmedValue;
-                  }
-              }
-          }
-      });
 
-      // Merge the updated data with the existing game data
-      gameData = Object.assign({}, gameData, updatedData);
 
-      // Display the updated game data
+
+const upgrades = {
+  unlimited: {
+    dicePoints: ["diceAmountUpgrade", "diceRollIntervalUpgrade", "diceSideUpgrade", "unlockedComboUpgrade"],
+    linePoints: ["onlineDiceRoller"], //TODO decreaseUpgradeCostRatios should be a limited upgrade.
+    squarePoints: [],
+    cubePoints: []
+  },
+  limited: {
+    dicePoints: [],
+    linePoints: ["decreaseUpgradeCostRatios", "decreasedWaitingLine"],
+    squarePoints: [],
+    cubePoints: []
+  },
+  oneTime: {
+    dicePoints: [],
+    linePoints: ["dicePointsBoostByDicePoints", "betterComboScore", "diceRollIntervalOverload"],
+    squarePoints: ["squaredRootSales"],
+    cubePoints: []
+  }
+};
+
+// Function to list bought upgrades
+function listBoughtUpgrades(currencyType, upgradeType) {
+  myChart.data.labels = [];
+  myChart.data.datasets[0].data = [];
+  myChart.data.datasets[0].backgroundColor = [];
+  colorIndex = 0
+  console.log('TEST1')
+  // Clear all cloned elements
+  const clonedButtons = document.querySelectorAll('.cloned-button');
+  clonedButtons.forEach(button => button.remove());//clonedButtons.forEach(button => button.parentNode.removeChild(button));
+
+  // Iterate over upgrades
+  clonedIds.clear();
+  for (const type in upgrades) { //TODO: I think the problem here is that it loops over the upgrde constant three times if it isn't set to All since there ae three types? I might want to fix that.
+    console.log(`Upgrades for ${type}:`);
+    console.log('TEST2')
+    
+    // Filter upgrades based on currencyType
+    if (gameData.boughtShopMenuCurrencyType === "All") {
+      // List all upgrades
       
+        if (gameData.boughtShopMenuUpgradeType === "All") {
+          const upgradeTypes = ["limited", "unlimited", "oneTime"];
+          let allUpgrades = [];
+
+          for (let type of upgradeTypes) {
+              allUpgrades = allUpgrades.concat(
+                upgrades[type].dicePoints,
+                upgrades[type].linePoints,
+                upgrades[type].squarePoints,
+                upgrades[type].cubePoints
+              );
+          }
+
+          appendUpgradeButtons(allUpgrades);
+        } else {
+          const allUpgrades = upgrades[gameData.boughtShopMenuUpgradeType].dicePoints.concat(upgrades[gameData.boughtShopMenuUpgradeType].linePoints, upgrades[gameData.boughtShopMenuUpgradeType].squarePoints, upgrades[gameData.boughtShopMenuUpgradeType].cubePoints );
+          appendUpgradeButtons(allUpgrades);
+          
+        }
+      
+    } else if (gameData.boughtShopMenuCurrencyType === "dicePoints" || gameData.boughtShopMenuCurrencyType === "linePoints" || gameData.boughtShopMenuCurrencyType === "squarePoints" || gameData.boughtShopMenuCurrencyType === "CubePoints") {
+      // Only show the upgrades for specified currency type
+      console.log(`Upgrades for ${gameData.boughtShopMenuCurrencyType}:`);
+      //TODO: Make the below code also work on boughtshopmenucurrencytype "all" That should probably help update everything decently.
+      if (gameData.boughtShopMenuUpgradeType === "All") {
+        const allUpgrades = upgrades.unlimited[gameData.boughtShopMenuCurrencyType].concat(upgrades.limited[gameData.boughtShopMenuCurrencyType], upgrades.oneTime[gameData.boughtShopMenuCurrencyType]);
+        console.log(allUpgrades.join(", "));
+        appendUpgradeButtons(allUpgrades);
+      } else {
+        appendUpgradeButtons(upgrades[gameData.boughtShopMenuUpgradeType][gameData.boughtShopMenuCurrencyType]);
+      }
     }
   }
+}
+
+function appendUpgradeButtons(upgradeIds) {
+  console.log(`Upgrades for TEST ${upgradeIds}:`)
+  for (const elementId of upgradeIds) {
+    if (!clonedIds.has(elementId)) {
+      const originalElement = document.getElementById(elementId);
+      if (originalElement) {
+        const clonedElement = originalElement.cloneNode(true);
+        const clonedElementId = elementId + "-2"; // Add "-2" to the cloned ID
+        clonedElement.id = clonedElementId; // Assign the new ID to the cloned element
+        clonedElement.classList.add("cloned-button");
+
+        if (originalElement.classList.contains("cloned-button")) { //USE SOMETHING LIKE THIS FOR UPDATE CHECK
+          console.log("OH GOD NO")
+        }
+        else {
+          console.log(`YES ${originalElement} ${clonedElement} `)
+        }
+        clonedElement.style.fontSize = "larger";
+        clonedElement.removeAttribute("onclick");
+        clonedElement.removeAttribute("href");
+        clonedElement.style.backgroundColor = "";
+        clonedElement.style.color = "";
+        document.getElementById("boughtShopMenu").insertAdjacentElement("afterend", clonedElement); //This part of the code is the only part of it that is responsible for inserting the cloned button elements.
+        clonedElement.innerHTML += (" (" + gameData[elementId + "Quantity"] + " Bought)"); 
+        clonedIds.add(elementId);
+        
+        console.log(`Upgrades for ${clonedElement}:`);
+        console.log(`Upgrades for ${originalElement}:`);
+        console.log(`EE ${clonedIds}:`);
+        addData(elementId, gameData[elementId + "Quantity"], getNextColor()); //TODO: This line puts all Ids in the list, even the ones you can't see yet, maybe I should slightly change that.
+        console.log(`YES ${gameData[elementId + "Quantity"]}  `)
+      }
+    }
+  }
+  document.getElementById("myChart").style.display = "inline-block";
+}
+
+function addData(label, data, color) {
+  // Add label to the labels array
+  myChart.data.labels.push(label);
+  // Add data to the data array
+  myChart.data.datasets[0].data.push(data);
+  // Add color to the backgroundColor array
+  myChart.data.datasets[0].backgroundColor.push(color);
+  // Update the chart
+  myChart.update();
+}
+
+let colorIndex = 0; // Initialize color index to start from 0
+
+function getNextColor() {
+  const color = colors[colorIndex]; // Get the color at the current index
+  colorIndex = (colorIndex + 1) % colors.length; // Increment index and reset if it exceeds the length of the colors array
+  return color;
+}
 

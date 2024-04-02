@@ -14,19 +14,40 @@
     <p id="diceProgress" class="dice-progress">Currently reached no dice in dicecube</p>
     <p id="diceProgress2" class="dice-progress2">Not started yet</p>
     <p id="diceComboSystem" class="dice-combosystem">No combo currently</p>
-    <p id="variableChecker" class="variable-checker">Filler</p>
     <div id="navigateButtons" class="flex-container">
       <button onclick="tab('rollDiceMenu')">Go to Roll dice</button>
       <button onclick="tab('shopMenu')">Go to Shop</button>
       <button onclick="tab('prestigeMenu')" id="prestigeDiceMenu" title="Click here to go to Prestige menu">Go to Prestige menu</button>
-      <button onclick="resetSave()">Reset Save</button>
-      <button onclick="checkVariables()">Check Values</button>
-      <button onclick="importGameDataPrompt()">Import Save</button>
+      <button onclick="tab ('saveStuffMenu')">Save options</button>
+      <button onclick="tab('boughtShopMenu')">Check bought upgrades</button>
+
       
     </div>
     <div id="rollDiceMenu">
       <button onclick="rollDice()">Roll dice</button>
     </div>
+  </div>
+  <div id="boughtShopMenu">
+    <select id="boughtShopMenuCurrencyType">
+      <option boughtShopMenuCurrency="All">All</option>
+      <option boughtShopMenuCurrency="dicePoints">Dice-points</option>
+      <option boughtShopMenuCurrency="linePoints">Line-points</option>
+      <option boughtShopMenuCurrency="squarePoints">Square-points</option>
+      <option boughtShopMenuCurrency="cubePoints">Cube-points</option>
+    </select>
+    <select id="boughtShopMenuUpgradeType">
+      <option boughtShopMenuUpgrade="All">All</option>
+      <option boughtShopMenuUpgrade="oneTime">One-time</option>
+      <option boughtShopMenuUpgrade="limited">Limited</option>
+      <option boughtShopMenuUpgrade="unlimited">Unlimited</option>
+    </select>
+    <button onclick="listBoughtUpgrades(gameData.boughtShopMenuCurrencyType, gameData.boughtShopMenuUpgradeType)">Check bought upgrades.</button>
+    <div>
+      <canvas id="myChart" width="400" height="400"></canvas>
+    </div>
+    
+  </div>
+    
     <div id="shopMenu">
       <select id="quantityPicker">
         <option value="1">1x</option>
@@ -61,6 +82,30 @@
       <button onclick="prestigeSquare()" id="squarePrestige"  title="Sacrifice all your regular upgrades, dice-points, line upgrades and Line-points to gain Square-points" class = "button">Square prestige (for 0 SP)</button>
       <button onclick="prestigeCube()" id="cubePrestige" title="Sacrifice all your regular upgrades, dice-points, line upgrades and line-points and square upgrades and quare-points for Cube-points" class = "button">Cube prestige (for 0 CP)</button>
     </div>
+    <div id="saveStuffMenu">
+      <button onclick="resetSave()">Reset Save</button>
+      <button onclick="checkVariables()">Check Values</button>
+      <button onclick="importGameDataPrompt()">Import Save</button>
+      <div>
+        <textarea id="variableChecker" class="variable-checker" name="variableChecker" rows="15" cols="100">
+        </textarea>
+        <div>
+          <button onclick="importGameData()">Import</button>
+          <button onclick="exportGameDataClipboard()">Copy to clipboard</button>
+          
+        </div>
+      </div>
+    </div>
+  </div>
     <script src="main.js" charset="utf-8" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.js"></script>
+    <script>
+      const myChart = new Chart(ctx, {
+          type: 'pie',
+          data: initialData
+        })
+        
+    </script>
   </body>
 </html>
