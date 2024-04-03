@@ -42,8 +42,16 @@
       <option boughtShopMenuUpgrade="unlimited">Unlimited</option>
     </select>
     <button onclick="listBoughtUpgrades(gameData.boughtShopMenuCurrencyType, gameData.boughtShopMenuUpgradeType)">Check bought upgrades.</button>
+    <div id="clonedBoughtButtons">
+    </div>
     <div>
-      <canvas id="myChart" width="400" height="400"></canvas>
+      
+      <button onclick="showboughtUpgradesButton()">Show graph</button>
+      <button onclick="hideboughtUpgradesButton()">Hide graph</button>
+      
+    </div>
+    <div style="height: 300px">
+    <canvas id="myChart" width="100" height="100"></canvas>
     </div>
     
   </div>
@@ -103,7 +111,11 @@
     <script>
       const myChart = new Chart(ctx, {
           type: 'pie',
-          data: initialData
+          data: initialData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false
+          }
         })
         
     </script>

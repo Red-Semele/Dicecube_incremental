@@ -36,6 +36,7 @@ const ctx = document.getElementById('myChart');
           backgroundColor: [],
           hoverOffset: 4
         }]
+
       }
 
       const colors = [
@@ -1178,6 +1179,8 @@ function listBoughtUpgrades(currencyType, upgradeType) {
 }
 
 function appendUpgradeButtons(upgradeIds) {
+  const clonedBoughtButtons = document.getElementById("clonedBoughtButtons"); // Get the container for cloned buttons
+  //clonedBoughtButtons.innerHTML = ''
   console.log(`Upgrades for TEST ${upgradeIds}:`)
   for (const elementId of upgradeIds) {
     if (!clonedIds.has(elementId)) {
@@ -1194,12 +1197,13 @@ function appendUpgradeButtons(upgradeIds) {
         else {
           console.log(`YES ${originalElement} ${clonedElement} `)
         }
-        clonedElement.style.fontSize = "larger";
+      
+        clonedElement.style.fontSize = "larger"; //This isn't the problem that makes the chart bigger
         clonedElement.removeAttribute("onclick");
         clonedElement.removeAttribute("href");
         clonedElement.style.backgroundColor = "";
         clonedElement.style.color = "";
-        document.getElementById("boughtShopMenu").insertAdjacentElement("afterend", clonedElement); //This part of the code is the only part of it that is responsible for inserting the cloned button elements.
+        clonedBoughtButtons.appendChild(clonedElement); // Append cloned button to the container
         clonedElement.innerHTML += (" (" + gameData[elementId + "Quantity"] + " Bought)"); 
         clonedIds.add(elementId);
         
@@ -1211,7 +1215,7 @@ function appendUpgradeButtons(upgradeIds) {
       }
     }
   }
-  document.getElementById("myChart").style.display = "inline-block";
+  myChart.update();
 }
 
 function addData(label, data, color) {
@@ -1222,7 +1226,7 @@ function addData(label, data, color) {
   // Add color to the backgroundColor array
   myChart.data.datasets[0].backgroundColor.push(color);
   // Update the chart
-  myChart.update();
+  
 }
 
 let colorIndex = 0; // Initialize color index to start from 0
@@ -1233,3 +1237,11 @@ function getNextColor() {
   return color;
 }
 
+function showboughtUpgradesButton() {
+  document.getElementById("myChart").style.display = "";
+  myChart.update();
+}
+
+function hideboughtUpgradesButton() {
+  document.getElementById("myChart").style.display = "none";
+}
