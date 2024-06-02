@@ -70,7 +70,7 @@ const ctx = document.getElementById('myChart');
 
 
 const clonedIds = new Set();
-var saveGame = localStorage.getItem('diceCubeSave');
+
 var gameData = {
   dicePoints: 0,
   dicePointsTotal: 0,
@@ -156,12 +156,13 @@ var gameData = {
   iceCubeDimension: 5, //This size is in cm, it's the length of an icecube.
   totalIceCubeDimension: 1,
   iceCubeNextUpgrade: 1,
-  iceCubePointsNeeded:10 //This is how many points you need to achieve with the heat to melt the ice.
+  iceCubePointsNeeded:10, //This is how many points you need to achieve with the heat to melt the ice.
   
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
 };
 var originalGameData = Object.assign({}, gameData);
+var saveGame = localStorage.getItem('diceCubeSave');
 //gameData.quantity = parseInt(document.getElementById("quantityPicker").value); TODO Find a way to apply this from the start so all buttons are striked out at first if you can't afford them.
 
 var selectElementQuantity = document.getElementById('quantityPicker');
@@ -565,103 +566,12 @@ var savegame = JSON.parse(localStorage.getItem("diceCubeSave"))
 //TODO: A few of these are duplicates, fix that.
 if (savegame !== null) {
   gameData = savegame
-  if (typeof saveGame.dicePoints !== "undefined") gameData.dicePoints = saveGame.dicePoints;
-  if (typeof saveGame.dicePointsPerClick !== "undefined") gameData.dicePointsPerClick = saveGame.dicePointsPerClick;
-  if (typeof saveGame.dicePointsPerClickCost !== "undefined") gameData.dicePointsPerClickCost = saveGame.dicePointsPerClickCost;
-  if (typeof saveGame.lastTick !== "undefined") gameData.lastTick = saveGame.lastTick;
-  if (typeof savegame.diceRollIntervalLimit === 'undefined') gameData.diceRollIntervalLimit = 10;
-  if (typeof savegame.allRatiosLimit === 'undefined') gameData.allRatiosLimit = 1.01;
-  if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.comboMessageLenghtLimit = 120;
-  if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.diceRollIntervalUpgradeTimeSize = 100; //This is where it used to end, just so I can fix it if it goes wrong.
-  if (typeof savegame.dicePoints !== "undefined") gameData.dicePoints = savegame.dicePoints;
-  if (typeof savegame.dicePointsTotal !== "undefined") gameData.dicePointsTotal = savegame.dicePointsTotal;
-  if (typeof savegame.dicePointsPerClick !== "undefined") gameData.dicePointsPerClick = savegame.dicePointsPerClick;
-  if (typeof savegame.diceAmount !== "undefined") gameData.diceAmount = savegame.diceAmount;
-  if (typeof savegame.diceSides !== "undefined") gameData.diceSides = savegame.diceSides;
-  if (typeof savegame.dicePointsPerClickCost !== "undefined") gameData.dicePointsPerClickCost = savegame.dicePointsPerClickCost;
-  if (typeof savegame.diceAmountUpgradeCost !== "undefined") gameData.diceAmountUpgradeCost = savegame.diceAmountUpgradeCost;
-  if (typeof savegame.diceRollIntervalUpgradeCost !== "undefined") gameData.diceRollIntervalUpgradeCost = savegame.diceRollIntervalUpgradeCost;
-  if (typeof savegame.dicePointsPerClickCostRatio !== "undefined") gameData.dicePointsPerClickCostRatio = savegame.dicePointsPerClickCostRatio;
-  if (typeof savegame.diceSideUpgradeCostRatio !== "undefined") gameData.diceSideUpgradeCostRatio = savegame.diceSideUpgradeCostRatio;
-  if (typeof savegame.diceAmountUpgradeCostRatio !== "undefined") gameData.diceAmountUpgradeCostRatio = savegame.diceAmountUpgradeCostRatio;
-  if (typeof savegame.diceRollIntervalUpgradeCostRatio !== "undefined") gameData.diceRollIntervalUpgradeCostRatio = savegame.diceRollIntervalUpgradeCostRatio;
-  if (typeof savegame.lastTick !== "undefined") gameData.lastTick = savegame.lastTick;
-  if (typeof savegame.diceRollInterval === 'undefined') gameData.diceRollInterval = 1000;
-  if (typeof savegame.diceRollIntervalUpgradeTimeSize === 'undefined') gameData.diceRollIntervalUpgradeTimeSize = 100;
-  if (typeof savegame.furthestDiceReached === 'undefined') gameData.furthestDiceReached = 0;
-  if (typeof savegame.diceDimension === 'undefined') gameData.diceDimension = 6;
-  if (typeof savegame.linePoints === 'undefined') gameData.linePoints = 0;
-  if (typeof savegame.squarePoints === 'undefined') gameData.squarePoints = 0;
-  if (typeof savegame.cubePoints === 'undefined') gameData.cubePoints = 0;
-  if (typeof savegame.squaredRootSalesActivated === 'undefined') gameData.squaredRootSalesActivated = false;
-  if (typeof savegame.onlineDiceRollerActivated === 'undefined') gameData.onlineDiceRollerActivated = false;
-  if (typeof savegame.diceRollIntervalDecrease === 'undefined') gameData.diceRollIntervalDecrease = 0.50;
-  if (typeof savegame.decreaseUpgradeCostRatiosCost === 'undefined') gameData.decreaseUpgradeCostRatiosCost = 1;
-  if (typeof savegame.decreaseUpgradeCostRatiosCostRatio === 'undefined') gameData.decreaseUpgradeCostRatiosCostRatio = 1.25;
-  if (typeof savegame.onlineDiceRollerCost === 'undefined') gameData.onlineDiceRollerCost = 5;
-  if (typeof savegame.onlineDiceRollerCostRatio === 'undefined') gameData.onlineDiceRollerCostRatio = 1.25;
-  if (typeof savegame.onlineDiceRollerCount === 'undefined') gameData.onlineDiceRollerCount = 0;
-  if (typeof savegame.squaredRootSalesCost === 'undefined') gameData.squaredRootSalesCost = 1;
-  if (typeof savegame.decreasedWaitingLineCost === 'undefined') gameData.decreasedWaitingLineCost = 1;
-  if (typeof savegame.decreasedWaitingLineCostRatio === 'undefined') gameData.decreasedWaitingLineCostRatio = 1.25;
-  if (typeof savegame.quantity === 'undefined') gameData.quantity = 0;
-  if (typeof savegame.diceRollIntervalLimit === 'undefined') gameData.diceRollIntervalLimit = 10;
-  if (typeof savegame.allRatiosLimit === 'undefined') gameData.allRatiosLimit = 1.01;
-  if (typeof savegame.quantityBought === 'undefined') gameData.quantityBought = 0;
-  if (typeof savegame.comboMessageLenghtLimit === 'undefined') gameData.comboMessageLenghtLimit = 120;
-  if (typeof savegame.stopCheckCostDiceRollInterval  === 'undefined') gameData.stopCheckCostDiceRollInterval  = false;
-  if (typeof savegame.stopCheckCostLineUpgrades  === 'undefined') gameData.stopCheckCostLineUpgrades  = true;
-  if (typeof savegame.dicePointsBoostByDicePointsCost  === 'undefined') gameData.dicePointsBoostByDicePointsCost  = 3;
-  if (typeof savegame.dicePointsBoostByDicePointsActivated   === 'undefined')  gameData.dicePointsBoostByDicePointsActivated = false;
-  if (typeof savegame.betterComboScoreCost  === 'undefined') gameData.betterComboScoreCost  = 3;
-  if (typeof savegame.betterComboScoreActivated  === 'undefined')  gameData.betterComboScoreActivated = false;
-  if (typeof savegame.unlockedComboUpgrade === 'undefined')  gameData.unlockedComboUpgrade = 1;
-  if (typeof savegame.unlockedComboUpgradeCost === 'undefined')  gameData.unlockedComboUpgradeCost = 400;
-  if (typeof savegame.unlockedComboUpgradeCostRatio === 'undefined')  gameData.unlockedComboUpgradeCostRatio = 1.22;
-  if (typeof savegame.tempCurrencyType === 'undefined')  gameData.tempCurrencyType = "";
-  if (typeof savegame.stopCheckCostSquareUpgrades === 'undefined')  gameData.stopCheckCostSquareUpgrades = false;
-  if (typeof savegame.diceRollIntervalOverloadCost === 'undefined')  gameData.diceRollIntervalOverloadCost = 5;
-  if (typeof savegame.diceRollIntervalOverloadActivated === 'undefined')  gameData.diceRollIntervalOverloadActivated = false;
-  if (typeof savegame.boughtShopMenuCurrencyType === 'undefined')  gameData.boughtShopMenuCurrencyType = "All";
-  if (typeof savegame.boughtShopMenuUpgradeType === 'undefined')  gameData.boughtShopMenuUpgradeType = "All";
-  if (typeof savegame.diceSideUpgradeQuantity === 'undefined')  gameData.diceSideUpgradeQuantity = 0;
-  if (typeof savegame.diceRollIntervalUpgradeQuantity === 'undefined')  gameData.diceRollIntervalUpgradeQuantity = 0;
-  if (typeof savegame.diceAmountUpgradeQuantity === 'undefined')  gameData.diceAmountUpgradeQuantity = 0;
-  if (typeof savegame.unlockedComboUpgradeQuantity === 'undefined')  gameData.unlockedComboUpgradeQuantity = 0;
-  if (typeof savegame.decreaseUpgradeCostRatiosQuantity === 'undefined')  gameData.decreaseUpgradeCostRatiosQuantity = 0;
-  if (typeof savegame.diceRollIntervalOverloadQuantity === 'undefined')  gameData.diceRollIntervalOverloadQuantity = 0;
-  if (typeof savegame.onlineDiceRollerQuantity === 'undefined')  gameData.onlineDiceRollerQuantity = 0;
-  if (typeof savegame.unlockedComboUpgradeQuantity === 'undefined')  gameData.unlockedComboUpgradeQuantity = 0;
-  if (typeof savegame.squaredRootSalesQuantity === 'undefined')  gameData.squaredRootSalesQuantity = 0;
-  if (typeof savegame.decreasedWaitingLineQuantity === 'undefined')  gameData.decreasedWaitingLineQuantity = 0;
-  if (typeof savegame.dicePointsBoostByDicePointsQuantity === 'undefined')  gameData.dicePointsBoostByDicePointsQuantity = 0;
-  if (typeof savegame.betterComboScoreQuantity === 'undefined')  gameData.betterComboScoreQuantity = 0;
-  if (typeof savegame.diceRollIntervalOverloadDiminished === 'undefined')  gameData.diceRollIntervalOverloadDiminished = 1;
-  if (typeof savegame.diceRollIntervalOverload === 'undefined')  gameData.diceRollIntervalOverload = 1;
-  if (typeof savegame.diceRollIntervalOverloadHeatPerLoop === 'undefined')  gameData.diceRollIntervalOverloadHeatPerLoop = 0;
-  if (typeof savegame.diceRollIntervalOverloadHeat === 'undefined')  gameData.diceRollIntervalOverloadHeat = 0;
-  if (typeof savegame.diceThermometer === 'undefined')  gameData.diceThermometer = 0;
-  if (typeof savegame.iceCubeDimension === 'undefined')  gameData.iceCubeDimension = 0;
-  if (typeof savegame.totalIceCubeDimension === 'undefined')  gameData.totalIceCubeDimension = 1;
-  if (typeof savegame.iceCubeNextUpgrade === 'undefined')  gameData.iceCubeNextUpgrade = 1;
-  if (typeof savegame.iceCubePointsNeeded === 'undefined')  gameData.iceCubePointsNeeded = 10;
-  if (typeof savegame.biggerTimeSizeQuantity === 'undefined')  gameData.biggerTimeSizeQuantity = 0;
-  if (typeof savegame.biggerTimeSizeCost === 'undefined')  gameData.biggerTimeSizeCost = 5;
-  if (typeof savegame.biggerTimeSizeCostRatio === 'undefined')  gameData.biggerTimeSizeCostRatio = 1.25;
-  if (typeof savegame.blowOnDiceQuantity === 'undefined')  gameData.blowOnDiceQuantity = 0;
-  if (typeof savegame.blowOnDiceCost === 'undefined')  gameData.blowOnDiceCost = 7;
-  if (typeof savegame.blowOnDiceCostRatio === 'undefined')  gameData.blowOnDiceCostRatio = 1.25;
-  if (typeof savegame.blowOnDiceTriggerChance === 'undefined')  gameData.blowOnDiceTriggerChance = 0;
-  //TODO: Code some system here that basically checks the version all gameData vars where set to previously and then check if they savegame versions of it are undefined or not. If they are not defined then you should set the gameData. vars to what they originally should be.
-  //This should probably be able to fit into a for-each loop? For each variable of gameData, perform the below code.
-  
-  for (var key in gameData) {
-    if (originalGameData.hasOwnProperty(key)) {
-      gameData[key] = originalGameData[key];
+  for (var key in originalGameData) {
+      //if (originalGameData.hasOwnProperty(key)) {
+      //gameData[key] = originalGameData[key];
       if (typeof savegame[key] === 'undefined') gameData[key] = originalGameData[key];
-    }
+      //}
   }
-  //TODO: Very experimental code, try to check out wheter or not it works, if this would work I can stop adding lines to this problematic function that is tons of code.
   
 }
   
