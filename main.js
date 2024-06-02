@@ -24,6 +24,21 @@ document.getElementById("dicePointsBoostByDicePoints").style.display = "none";
 document.getElementById("betterComboScore").style.display = "none";
 document.getElementById("unlockedComboUpgrade").style.display = "none";
 document.getElementById("myChart").style.display = "none";
+document.getElementById("hideGraph").style.display = "none"; //TODO:Should this really be set to none?
+document.getElementById("importData").style.display = "none";
+document.getElementById("exportToClipboard").style.display = "none";
+document.getElementById("diceThermometer").style.display = "none";
+document.getElementById("linePointsUpgrades").style.display = "none";
+document.getElementById("squarePointsUpgrades").style.display = "none";
+document.getElementById("cubePointsUpgrades").style.display = "none";
+document.getElementById("lineUpgrades").style.display = "none";
+document.getElementById("squareUpgrades").style.display = "none";
+document.getElementById("cubeUpgrades").style.display = "none";
+
+const rollButton = document.getElementById('rollDice');
+let holdTimer;
+
+
 document.getElementById("diceRollIntervalOverload").style.display = "none" //TODO: For some weird reason this upgrade doesn't become visbile, will need some more testing in the future, commenting this out fixes the problem so it's probably ui based.
 const ctx = document.getElementById('myChart');
 
@@ -99,6 +114,13 @@ var gameData = {
   dicePointsBoostByDicePointsActivated: false,
   dicePointsBoostByDicePointsCost: 3,
   betterComboScoreCost: 3,
+  biggerTimeSizeQuantity: 0,
+  biggerTimeSizeCost: 5,
+  biggerTimeSizeCostRatio: 1.25,
+  blowOnDiceQuantity: 0,
+  blowOnDiceCost: 7,
+  blowOnDiceCostRatio: 1.25,
+  blowOnDiceTriggerChance: 0, // Ranges From 0-1 (Percentage for lucky dice.)
   betterComboScoreActivated: false,
   unlockedComboUpgrade: 1, //This sets how much dice can combo with eachother, so if you have 3 6's and unlockedComboUpgrade 2 only 2 will combo
   //TODO: Still set a base cost and costratio for unlockedComboUpgrade upgrade, also properly make that button update via the update all function and put it in checkcost.
@@ -124,14 +146,22 @@ var gameData = {
   squaredRootSalesQuantity: 0,
   decreasedWaitingLineQuantity: 0,
   dicePointsBoostByDicePointsQuantity: 0,
-  betterComboScoreQuantity: 0
-
-  
-  
+  betterComboScoreQuantity: 0,
+  diceRollIntervalOverloadDiminished: 1.11,
+  diceRollIntervalOverload: 0,
+  diceRollIntervalOverloadRequirement: 0,
+  diceRollIntervalOverloadHeatPerLoop: 0,
+  diceRollIntervalOverloadHeat: 0,
+  diceThermometer: 0,
+  iceCubeDimension: 5, //This size is in cm, it's the length of an icecube.
+  totalIceCubeDimension: 1,
+  iceCubeNextUpgrade: 1,
+  iceCubePointsNeeded:10 //This is how many points you need to achieve with the heat to melt the ice.
   
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
 };
+var originalGameData = Object.assign({}, gameData);
 //gameData.quantity = parseInt(document.getElementById("quantityPicker").value); TODO Find a way to apply this from the start so all buttons are striked out at first if you can't afford them.
 
 var selectElementQuantity = document.getElementById('quantityPicker');
@@ -158,7 +188,10 @@ function update(id, content) {
 
 function updateAll() {
 
-  
+  if (gameData.diceRollIntervalOverloadHeat > 0) {
+    document.getElementById("diceThermometer").style.display = "";
+    update("diceThermometer", "Dice thermometer: Dice " + gameData.diceThermometer + " currently placed on " + Math.floor(gameData.diceRollIntervalOverloadHeat/(Math.pow(5, (gameData.diceThermometer - 1)))))
+  }
   
   if (gameData.onlineDiceRollerActivated === true) { 
     //update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "scientific") + " dicePoints");
@@ -221,7 +254,9 @@ function updateAll() {
   if (!gameData.stopCheckCostLineUpgrades ) {
     update("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + format(checkCost("decreaseUpgradeCostRatios", "linePoints"), "scientific") + "LP");
     update("decreasedWaitingLine", "Decreased waiting line Cost: " + format(checkCost("decreasedWaitingLine", "linePoints"), "scientific") + "LP");
-    update("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost:" + format(checkCost("onlineDiceRoller", "linePoints"), "scientific") + "LP");
+    update("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost: " + format(checkCost("onlineDiceRoller", "linePoints"), "scientific") + "LP");
+    update("biggerTimeSize", "Increase interval | Cost: " + format(checkCost("biggerTimeSize", "linePoints"), "scientific") + "LP");
+    update("blowOnDice", "Blow on dice | Cost: " + format(checkCost("blowOnDice", "linePoints"), "scientific") + "LP");
     
   }
   var clonedButtons = document.querySelectorAll(".cloned-button");
@@ -240,12 +275,52 @@ function getBaseLog(x, y) {
   return Math.log(y) / Math.log(x);
 }
 
+function startRolling() {
+  rollDice('manual');
+  holdTimer = setInterval(() => rollDice('manual'), 333);
+}
 
-function rollDice() {
+function stopRolling() {
+  clearInterval(holdTimer);
+}
+
+rollButton.addEventListener('mousedown', startRolling);
+rollButton.addEventListener('mouseup', stopRolling);
+rollButton.addEventListener('mouseleave', stopRolling);
+rollButton.addEventListener('touchstart', startRolling);
+rollButton.addEventListener('touchend', stopRolling);
+rollButton.addEventListener('touchcancel', stopRolling);
+
+rollButton.addEventListener('click', () => {
+  if (!holdTimer) {
+      rollDice('manual');
+  }
+});
+
+function rollDice(rollStyle) {
   var totalPoints = 0;
   var diceValues = [];
   var comboDice = []; // Initialize comboDice array here
-  var loopCount = gameData.onlineDiceRollerActivated ? gameData.diceAmount * gameData.onlineDiceRollerCount * 2 : gameData.diceAmount; //This checks if you bought the online dice roller upgrade to double the dice it can roll.
+  var loopCount = gameData.diceAmount; //This checks if you bought the online dice roller upgrade to double the dice it can roll.
+  if (rollStyle === 'automatic') {
+    console.log("Automatic roll detected")
+    if (gameData.diceRollIntervalOverloadActivated === true) {
+      if (gameData.diceRollIntervalOverloadAmount > 1) {
+        loopCount *= (gameData.diceRollIntervalOverloadAmount + 1) 
+        console.log("Overload boost aplied, boosted by" + (gameData.diceRollIntervalOverloadAmount + 1) + "times.")
+      //TODO: Still add the balacing act where each overload starts to multiply the loopcount less and less, I should probably make the efficiency be an exponent or something? 2: Probably not a good idea, just make it harder and harder to reach the next level of overload. It's way more intuitive to have diceoverload X boost the production X times.
+      //Maybe set each loopCount to be multiplied by a different value that's based on the diceRollIntervalOverloadAmount, it should be multiplied by efficiency based on how many varibales you have.
+      //Multiply the version by the diminsihed value, add on this when you used each diceRollIntervalOverloadAmount. this should not happen hereit should be happening when diceRollIntervalOverloadAmount increases based on the normal function.
+      }
+    }
+  } else {
+    console.log("Manual roll detected")
+    if (gameData.onlineDiceRollerActivated === true) {
+      loopCount *= (gameData.onlineDiceRollerCount * 2); //Recently added, check if onlinediceroller only doubles the manual rollstyle
+      console.log("Online diceroller boost aplied, boosted by" + (gameData.onlineDiceRollerCount * 2) + "times.")
+      
+    }
+  }
   for (var i = 0; i < loopCount; i++) { //Test if this works properly.
     let value = rollDie(gameData.diceSides);
     totalPoints += value;
@@ -307,6 +382,7 @@ function rollDice() {
         comboMessageFix = true;
         if (highestComboCount == mostCommonComboCount) {
           comboMessage = "Highest And Most Common Combo: " + highestComboValue + " (x" + highestComboCount + ")";
+          //TODO: Make sure that the function gives an extra benefit to having the highest and most common combo be the same. A better formula to calculate the effect.
         } else {
           comboMessage = "Highest Combo: " + highestComboValue + " (x" + highestComboCount + ") Most Common Combo: " + mostCommonComboValue + " (x" + mostCommonComboCount + ")";
         }
@@ -340,7 +416,15 @@ function rollDice() {
   
 
 function rollDie(sides) {
-  return Math.floor(Math.random() * sides) + 1;
+  let rollResult = Math.floor(Math.random() * sides) + 1;
+  if (gameData.blowOnDiceTriggerChance > 0) {
+    console.log ("Luck check works" + gameData.blowOnDiceTriggerChance)
+    while (Math.random() <= gameData.blowOnDiceTriggerChance && rollResult < gameData.diceSides) {
+      rollResult += 1;
+      console.log ("Lucky you! Your dice was boosted.")
+    }
+  }
+    return rollResult
 }
 
 function increaseUnlockedComboUpgrade() {
@@ -351,7 +435,7 @@ function increaseUnlockedComboUpgrade() {
         // Calculate cost with current ratio and add to totalCost
         totalCost += gameData.unlockedComboUpgradeCost * gameData.unlockedComboUpgradeCostRatio;
     }
-  } else{
+  } else {
     totalCost = gameData.unlockedComboUpgradeCost * gameData.quantity;
   }
   if (gameData.squaredRootSalesActivated === true) {
@@ -404,6 +488,7 @@ function upgradeDice() { //TODO: For some reason this upgrade is now the only on
 
 
 function upgradeDiceRollInterval() {
+        limitOverloadFix()
         if (gameData.diceRollInterval > gameData.diceRollIntervalLimit) { //This checks if the diceRollInterval isn't below it's limit
           
           bulkBuy("diceRollIntervalUpgrade", "dicePoints");
@@ -426,19 +511,29 @@ function upgradeDiceRollInterval() {
           
           //When the interval gets reset everything freezes and the automatic rolls just stop. Find a way to fix that.
           if (gameData.quantityBought > 0) {
-            if (gameData.quantityBought === 1) {
-              var diceRollIntervalOverloadDiminished = 0.80 //TODO Make this variable a regular gameData one
-            } else {
-              var diceRollIntervalOverloadDiminished = Math.pow(0.80, (gameData.quantityBought - 1))
+            //TODO: Use the diceRollIntervalOverloadDiminished code a bit below the for loop
+            for (let i = 0; i < gameData.quantityBought; i++) { //TODO, the math here is not yet fully perfect, check it out once again. TRY THIS, HOPEFULLY IT WORKS
+              //gameData.diceRollIntervalOverload += (gameData.diceRollIntervalUpgradeTimeSize **= (gameData.diceRollIntervalOverloadDiminished *= gameData.diceRollIntervalDecrease));
+              
+             
+              //TODO: Instead of the above code use something like this adapted to your needs:
+              gameData.diceRollIntervalOverload -= gameData.diceRollIntervalUpgradeTimeSize;
+              gameData.diceRollIntervalUpgradeTimeSize *= gameData.diceRollIntervalDecrease
+              if (gameData.diceRollIntervalOverload <= 0) {
+                gameData.diceRollIntervalOverloadAmount += 1
+                gameData.diceRollIntervalDecrease **= gameData.diceRollIntervalOverloadDiminished
+                gameData.diceRollIntervalOverloadRequirement **= 1.1
+                gameData.diceRollIntervalOverload = gameData.diceRollIntervalOverloadRequirement
+                console.log("New overload")
+              }
             }
-
-            for (let i = 0; i < gameData.quantityBought; i++) { //TODO, the math here is not yet fully perfect, check it out once again and look for something else than a loop to use.
-              gameData.diceRollIntervalOverloadTime += gameData.diceRollIntervalUpgradeTimeSize;
-              gameData.diceRollIntervalUpgradeTimeSize *= (gameData.diceRollIntervalDecrease *= diceRollIntervalOverloadDiminished);
-            }
-            
-            gameData.diceRollIntervalOverloadAmount = (gameData.diceRollIntervalOverloadTime/ (1000 - gameData.diceRollIntervalLimit)) //This should set diceRollIntervalOverloadAmount to how many times it fits in the regular diceRollinterval probably add exponetial growth on the divided function but also instead of equalising it add onto it.
-         }
+            gameData.diceRollIntervalOverloadHeatPerLoop = (Math.log(gameData.diceRollIntervalOverload * 2));
+            console.log(gameData.diceRollIntervalOverloadHeatPerLoop + " Heatloop");
+            //TODO: Check this math to make sure the cost keeps growing more and more demanding. The requirements for the next overloadamount should probably grow more and more exponentially.
+            console.log ("Requirement " + gameData.diceRollIntervalOverloadRequirement)
+            console.log ("intervalOverload " + gameData.diceRollIntervalOverload)
+            console.log ("Next full overload reached in: " + (gameData.diceRollIntervalOverloadRequirement - gameData.diceRollIntervalOverload))
+          }
        }
 }
 
@@ -449,7 +544,14 @@ function mainGameLoopFunction() {
   gameData.lastTick = Date.now();
   gameData.dicePoints += gameData.dicePointsPerClick * (diff / gameData.diceRollInterval) // divide diff by how often (ms) mainGameLoop is ran
   gameData.dicePointsTotal += gameData.dicePointsPerClick * (diff / gameData.diceRollInterval) // divide diff by how often (ms) mainGameLoop is ran
-  rollDice();
+  if (gameData.diceRollIntervalOverloadHeatPerLoop > 0) {
+    gameData.diceRollIntervalOverloadHeat += gameData.diceRollIntervalOverloadHeatPerLoop;
+    console.log("Helloheat" + gameData.diceRollIntervalOverloadHeat)
+    gameData.diceThermometer = (Math.floor(getBaseLog(5, gameData.diceRollIntervalOverloadHeat)) + 1)
+    console.log ("Dice thermometer: dice " + gameData.diceThermometer + " on " + Math.floor(gameData.diceRollIntervalOverloadHeat/(Math.pow(5, (gameData.diceThermometer - 1)))))
+    dIceCubeCode()
+  }
+  rollDice('automatic');
   updateAll();
 
 }
@@ -534,6 +636,32 @@ if (savegame !== null) {
   if (typeof savegame.decreasedWaitingLineQuantity === 'undefined')  gameData.decreasedWaitingLineQuantity = 0;
   if (typeof savegame.dicePointsBoostByDicePointsQuantity === 'undefined')  gameData.dicePointsBoostByDicePointsQuantity = 0;
   if (typeof savegame.betterComboScoreQuantity === 'undefined')  gameData.betterComboScoreQuantity = 0;
+  if (typeof savegame.diceRollIntervalOverloadDiminished === 'undefined')  gameData.diceRollIntervalOverloadDiminished = 1;
+  if (typeof savegame.diceRollIntervalOverload === 'undefined')  gameData.diceRollIntervalOverload = 1;
+  if (typeof savegame.diceRollIntervalOverloadHeatPerLoop === 'undefined')  gameData.diceRollIntervalOverloadHeatPerLoop = 0;
+  if (typeof savegame.diceRollIntervalOverloadHeat === 'undefined')  gameData.diceRollIntervalOverloadHeat = 0;
+  if (typeof savegame.diceThermometer === 'undefined')  gameData.diceThermometer = 0;
+  if (typeof savegame.iceCubeDimension === 'undefined')  gameData.iceCubeDimension = 0;
+  if (typeof savegame.totalIceCubeDimension === 'undefined')  gameData.totalIceCubeDimension = 1;
+  if (typeof savegame.iceCubeNextUpgrade === 'undefined')  gameData.iceCubeNextUpgrade = 1;
+  if (typeof savegame.iceCubePointsNeeded === 'undefined')  gameData.iceCubePointsNeeded = 10;
+  if (typeof savegame.biggerTimeSizeQuantity === 'undefined')  gameData.biggerTimeSizeQuantity = 0;
+  if (typeof savegame.biggerTimeSizeCost === 'undefined')  gameData.biggerTimeSizeCost = 5;
+  if (typeof savegame.biggerTimeSizeCostRatio === 'undefined')  gameData.biggerTimeSizeCostRatio = 1.25;
+  if (typeof savegame.blowOnDiceQuantity === 'undefined')  gameData.blowOnDiceQuantity = 0;
+  if (typeof savegame.blowOnDiceCost === 'undefined')  gameData.blowOnDiceCost = 7;
+  if (typeof savegame.blowOnDiceCostRatio === 'undefined')  gameData.blowOnDiceCostRatio = 1.25;
+  if (typeof savegame.blowOnDiceTriggerChance === 'undefined')  gameData.blowOnDiceTriggerChance = 0;
+  //TODO: Code some system here that basically checks the version all gameData vars where set to previously and then check if they savegame versions of it are undefined or not. If they are not defined then you should set the gameData. vars to what they originally should be.
+  //This should probably be able to fit into a for-each loop? For each variable of gameData, perform the below code.
+  
+  for (var key in gameData) {
+    if (originalGameData.hasOwnProperty(key)) {
+      gameData[key] = originalGameData[key];
+      if (typeof savegame[key] === 'undefined') gameData[key] = originalGameData[key];
+    }
+  }
+  //TODO: Very experimental code, try to check out wheter or not it works, if this would work I can stop adding lines to this problematic function that is tons of code.
   
 }
   
@@ -590,10 +718,19 @@ function prestigeReset() { //This is used to make sure all the stuff that should
     gameData.unlockedComboUpgradeCost = 400;
     gameData.unlockedComboUpgradeCostRatio = 1.22;
     gameData.unlockedComboUpgrade = 1;
-    gameData.diceSideUpgradeQuantity = 0, //Quantity shows you how many upgrades you have purchased.
-    gameData.diceAmountUpgradeQuantity = 0,
-    gameData.diceRollIntervalUpgradeQuantity = 0,
-    gameData.unlockedComboUpgradeQuantity = 0
+    gameData.diceSideUpgradeQuantity = 0; //Quantity shows you how many upgrades you have purchased.
+    gameData.diceAmountUpgradeQuantity = 0;
+    gameData.diceRollIntervalUpgradeQuantity = 0;
+    gameData.unlockedComboUpgradeQuantity = 0;
+    gameData.diceRollIntervalOverloadDiminished = 1;
+    gameData.diceRollIntervalOverload = 0;
+    gameData.diceRollIntervalOverloadHeatPerLoop = 0;
+    gameData.diceRollIntervalOverloadHeat = 0;
+    gameData.diceThermometer = 0;
+    gameData.iceCubeDimension = 5;
+    gameData.totalIceCubeDimension = 1;
+    gameData.iceCubeNextUpgrade = 1;
+    gameData.iceCubePointsNeeded = 10
     
 }
 function prestigeLine() {
@@ -633,7 +770,14 @@ function prestigeSquare() {
     gameData.onlineDiceRollerQuantity = 0,
     gameData.decreasedWaitingLineQuantity = 0,
     gameData.dicePointsBoostByDicePointsQuantity = 0,
-    gameData.betterComboScoreQuantity = 0
+    gameData.betterComboScoreQuantity = 0,
+    gameData.biggerTimeSizeQuantity = 0,
+    gameData.biggerTimeSizeCost = 5,
+    gameData.biggerTimeSizeCostRatio = 1.25,
+    gameData.blowOnDiceQuantity = 0,
+    gameData.blowOnDiceCost = 7,
+    gameData.blowOnDiceCostRatio = 1.25,
+    gameData.blowOnDiceTriggerChance = 0,
     updateAll();
   }
 }
@@ -667,6 +811,7 @@ function lineUpgradeDecreasedWaitingLine() {
       for (let i = 0; i < gameData.quantityBought; i++) {
         gameData.diceRollIntervalDecrease *= 1.50
       }
+      limitOverloadFix();
       updateAll();
     }
     
@@ -688,6 +833,7 @@ function lineUpgradeDecreaseUpgradeCostRatios() {
           gameData.unlockedComboUpgradeCostRatio *= 0.95
         } 
         if (gameData.diceSideUpgradeCostRatio < gameData.allRatiosLimit) { 
+          //TODO: Put this logic in the limitfix function.
           gameData.dicePointsPerClickCostRatio = 1.01;
           gameData.diceSideUpgradeCostRatio = 1.01;
           gameData.diceAmountUpgradeCostRatio = 1.01;
@@ -716,6 +862,7 @@ function squareUpgradeSquaredRootSales() {
     if (gameData.furthestDiceReached/gameData.diceDimension >= 1) {
       document.getElementById("prestigeDiceMenu").style.display = "inline-block"
       document.getElementById("linePrestige").style.display = "inline-block"
+     
     }
     if (gameData.furthestDiceReached/Math.pow(gameData.diceDimension,2) >= 1) {
       document.getElementById("squarePrestige").style.display = "inline-block"
@@ -726,10 +873,17 @@ function squareUpgradeSquaredRootSales() {
     }
     if (gameData.linePoints >= 1) {
       gameData.stopCheckCostLineUpgrades = false
+      
+      document.getElementById("lineUpgrades").style.display = "inline-block";
       document.getElementById("linePoints").style.display = "inline-block";
       document.getElementById("onlineDiceRoller").style.display = "inline-block";
       document.getElementById("decreasedWaitingLine").style.display = "inline-block";
       document.getElementById("decreaseUpgradeCostRatios").style.display = "inline-block";
+      document.getElementById("linePointsUpgrades").style.display = "inline-block";
+      
+      
+
+      //TODO: Maybe instead of making the line upgrades visible I should make the div that contains them visible to make all of them visible in one go, do the same thing for square and cube
       if (gameData.dicePointsBoostByDicePointsActivated === false) {
       document.getElementById("dicePointsBoostByDicePoints").style.display = "inline-block"
       } else {
@@ -748,6 +902,10 @@ function squareUpgradeSquaredRootSales() {
     }
     
     if (gameData.squarePoints >= 1) {
+      document.getElementById("squarePointsUpgrades").style.display = "inline-block";
+      document.getElementById("squareUpgrades").style.display = "inline-block";
+      
+      
       gameData.stopCheckCostSquareUpgrades = false
       document.getElementById("squarePoints").style.display = "inline-block";
       if (gameData.squaredRootSalesActivated === false) {
@@ -756,7 +914,10 @@ function squareUpgradeSquaredRootSales() {
     }
 
     if (gameData.cubePoints >= 1) {
+      document.getElementById("cubePointsUpgrades").style.display = "inline-block";
       document.getElementById("cubePoints").style.display = "inline-block";
+      document.getElementById("cubeUpgrades").style.display = "inline_block";
+      
       }
     
 
@@ -814,64 +975,17 @@ tab("rollDiceMenu")
 
 function resetSave() {
   localStorage.removeItem('diceCubeSave'); // Remove the saved game data from localStorage
-  // Reset all game data to default values
-  gameData.dicePoints = 0;
-  gameData.dicePointsTotal = 0;
-  gameData.dicePointsPerClick = 1;
-  gameData.diceAmount = 1;
-  gameData.diceSides = 6;
-  gameData.dicePointsPerClickCost = 10;
-  gameData.diceSideUpgradeCost = 50;
-  gameData.diceAmountUpgradeCost = 100; //Rename this and all the other instances of it to diceAmountUpgradeCost
-  gameData.diceRollIntervalUpgradeCost = 200;
-  gameData.dicePointsPerClickCostRatio = 1.22;
-  gameData.diceSideUpgradeCostRatio = 1.22;
-  gameData.diceAmountUpgradeCostRatio = 1.22;
-  gameData.diceRollIntervalUpgradeCostRatio = 1.22;
-  //Add a way to better formulate the costratio thingies in the upgrades
-  gameData.lastTick = Date.now();
-  gameData.diceRollInterval = 1000;
-  gameData.diceRollIntervalUpgradeTimeSize = 100;
-  gameData.furthestDiceReached = 0;
-  gameData.diceDimension = 6; //Altering this can increease the size of the cube, it is the length of the cube.
-  gameData.linePoints = 0;
-  gameData.squarePoints = 0;
-  gameData.cubePoints = 0;
-  gameData.squaredRootSalesActivated = false;
-  gameData.onlineDiceRollerActivated = false;
-  gameData.diceRollIntervalDecrease = 0.50;
-  gameData.decreaseUpgradeCostRatiosCost = 1;
-  gameData.decreaseUpgradeCostRatiosCostRatio = 1.25;
-  gameData.onlineDiceRollerCost = 5;
-  gameData.onlineDiceRollerCostRatio = 1.25;
-  gameData.onlineDiceRollerCount = 0;
-  gameData.decreaseUpgradeCostRatiosCostRatio = 1.25;
-  gameData.squaredRootSalesCost = 1;
-  gameData.decreasedWaitingLineCost = 1;
-  gameData.decreasedWaitingLineCostRatio = 1.25;
-  gameData.quantity = 0;
-  gameData.diceRollIntervalLimit = 10;
-  gameData.allRatiosLimit = 1.01;
-  gameData.quantityBought = 0;
-  gameData.comboMessageLenghtLimit = 120;
-  gameData.stopCheckCostDiceRollInterval = false;
-  gameData.stopCheckCostLineUpgrades = true;
-  gameData.dicePointsBoostByDicePointsActivated = false;
-  gameData.dicePointsBoostByDicePointsCost = 3;
-  gameData.betterComboScoreCost = 3;
-  gameData.betterComboScoreActivated = false;
-  gameData.unlockedComboUpgrade = 1;
-  gameData.unlockedComboUpgradeCost = 400;
-  gameData.unlockedComboUpgradeCostRatio = 1.22;
-  gameData.stopCheckCostSquareUpgrades = false;
-  gameData.diceRollIntervalOverloadCost = 5;
-  gameData.diceRollIntervalOverloadActivated = false;
-  gameData.boughtShopMenuCurrencyType = "All"
-  gameData.boughtShopMenuUpgradeType = "All"
+  for (var key in originalGameData) {
+    if (originalGameData.hasOwnProperty(key)) {
+      gameData[key] = originalGameData[key];
+    }
+  }
+
 
   
   updateAll(); // Update the game interface to reflect the reset
 }
+
 
 function updateButtonStyles() {
   // Add this check to exclude cloned buttons from being updated
@@ -892,7 +1006,7 @@ function updateButtonStyles() {
       gameData.stopCheckCostDiceRollInterval = true; //TODO: The problem here with the special dicerollinterval look (without lined through text) not working is probably because it doesn't get checked on time or something like that? Look into how I fixed the line pupgrades showijg up too soon to figure it out.
     
     } else {
-      diceRollIntervalUpgradeButton.innerHTML = "PROTOTYPE: This will display the current overclocking of the dice roll interval. Overclocked " + gameData.diceRollIntervalOverloadAmount + " times" //TODO: Implement this
+      diceRollIntervalUpgradeButton.innerHTML = "PROTOTYPE: This will display the current overclocking of the dice roll interval. Overclocked " + gameData.diceRollIntervalOverloadAmount + " times." + (gameData.diceRollIntervalOverloadRequirement - gameData.diceRollIntervalOverload) + " of " + gameData.diceRollIntervalOverloadRequirement + " for next full overload." //TODO: Implement this
     }
     diceRollIntervalUpgradeButton.style.textDecoration = ""
 
@@ -910,6 +1024,10 @@ function updateButtonStyles() {
     checkCost("decreaseUpgradeCostRatios", "linePoints", "unlimited");
     checkCost("decreasedWaitingLine", "linePoints", "unlimited");
     checkCost("onlineDiceRoller", "linePoints", "unlimited");
+    checkCost("biggerTimeSize", "linePoints", "unlimited");
+    checkCost("blowOnDice", "linePoints", "unlimited"); //TODO: Set this to limited
+    
+    
     if (gameData.dicePointsBoostByDicePointsActivated !== true) {
     checkCost("dicePointsBoostByDicePoints", "linePoints", "oneTime")
     }
@@ -991,6 +1109,8 @@ function checkVariables() {
     textarea.value = ""
     textarea.style.display = "inline-block";
     textarea.value += compressed;
+    document.getElementById("importData").style.display = "none";
+    document.getElementById("exportToClipboard").style.display = "";
 }
  
 function lineUpgradeDicePointsBoostByDicePoints() {
@@ -1068,7 +1188,8 @@ function lineUpgradeDiceRollIntervalOverload() {
   if (gameData.linePoints >= Math.floor(gameData.diceRollIntervalOverloadCost)) {
     gameData.linePoints -= Math.floor(gameData.diceRollIntervalOverloadCost)
     gameData.diceRollIntervalOverloadActivated = true
-    gameData.diceRollIntervalOverloadTime = 1000
+    gameData.diceRollIntervalOverloadRequirement = (1000 ** 1.1);
+    gameData.diceRollIntervalOverload = gameData.diceRollIntervalOverloadRequirement
     document.getElementById("diceRollIntervalOverload").style.display = "none"
     updateAll();
 
@@ -1078,6 +1199,9 @@ function lineUpgradeDiceRollIntervalOverload() {
   function importGameDataPrompt() {
     var textarea = document.getElementById("variableChecker");
     textarea.style.display = "inline-block";
+    document.getElementById("importData").style.display = "";
+    document.getElementById("exportToClipboard").style.display = "none";
+
   }
   function importGameData() {
     var importData = document.getElementById("variableChecker").value;
@@ -1087,6 +1211,9 @@ function lineUpgradeDiceRollIntervalOverload() {
     var loaded_game_data = JSON.parse(original_json)
     console.log(loaded_game_data)
     gameData = loaded_game_data
+    document.getElementById("importData").style.display = "none";
+    document.getElementById("variableChecker").style.display = "none";
+
 
     
     
@@ -1104,13 +1231,13 @@ function lineUpgradeDiceRollIntervalOverload() {
 const upgrades = {
   unlimited: {
     dicePoints: ["diceAmountUpgrade", "diceRollIntervalUpgrade", "diceSideUpgrade", "unlockedComboUpgrade"],
-    linePoints: ["onlineDiceRoller"], //TODO decreaseUpgradeCostRatios should be a limited upgrade.
+    linePoints: ["onlineDiceRoller", "biggerTimeSize"], 
     squarePoints: [],
     cubePoints: []
   },
   limited: {
     dicePoints: [],
-    linePoints: ["decreaseUpgradeCostRatios", "decreasedWaitingLine"],
+    linePoints: ["decreaseUpgradeCostRatios", "decreasedWaitingLine", "blowOnDice"],
     squarePoints: [],
     cubePoints: []
   },
@@ -1128,7 +1255,6 @@ function listBoughtUpgrades(currencyType, upgradeType) {
   myChart.data.datasets[0].data = [];
   myChart.data.datasets[0].backgroundColor = [];
   colorIndex = 0
-  console.log('TEST1')
   // Clear all cloned elements
   const clonedButtons = document.querySelectorAll('.cloned-button');
   clonedButtons.forEach(button => button.remove());//clonedButtons.forEach(button => button.parentNode.removeChild(button));
@@ -1137,7 +1263,6 @@ function listBoughtUpgrades(currencyType, upgradeType) {
   clonedIds.clear();
   for (const type in upgrades) { //TODO: I think the problem here is that it loops over the upgrde constant three times if it isn't set to All since there ae three types? I might want to fix that.
     console.log(`Upgrades for ${type}:`);
-    console.log('TEST2')
     
     // Filter upgrades based on currencyType
     if (gameData.boughtShopMenuCurrencyType === "All") {
@@ -1181,7 +1306,6 @@ function listBoughtUpgrades(currencyType, upgradeType) {
 function appendUpgradeButtons(upgradeIds) {
   const clonedBoughtButtons = document.getElementById("clonedBoughtButtons"); // Get the container for cloned buttons
   //clonedBoughtButtons.innerHTML = ''
-  console.log(`Upgrades for TEST ${upgradeIds}:`)
   for (const elementId of upgradeIds) {
     if (!clonedIds.has(elementId)) {
       const originalElement = document.getElementById(elementId);
@@ -1239,9 +1363,95 @@ function getNextColor() {
 
 function showboughtUpgradesButton() {
   document.getElementById("myChart").style.display = "";
+  document.getElementById("showGraph").style.display = "none";
+  document.getElementById("hideGraph").style.display = "";
   myChart.update();
 }
 
 function hideboughtUpgradesButton() {
+  document.getElementById("showGraph").style.display = "";
+  document.getElementById("hideGraph").style.display = "none";
   document.getElementById("myChart").style.display = "none";
+}
+
+function limitOverloadFix() {
+  //TODO: Place all the limits here that shouldn't go above a certain number so I can more easily fix them.
+  if (gameData.diceRollIntervalDecrease >= 1) {
+    gameData.diceRollIntervalDecrease = 0.95
+  }
+}
+//TODO: Inspect the function below to see flaws.
+function dIceCubeCode() {
+  
+  
+  
+  if (gameData.diceRollIntervalOverloadHeat >= gameData.iceCubePointsNeeded) {
+    gameData.iceCubePointsNeeded *= 8
+    gameData.iceCubePointsNeeded **= 1.11
+    gameData.iceCubeNextUpgrade += 1
+    console.log("The next icecube should be melted.")
+    console.log("For the next one you'll need " + gameData.iceCubePointsNeeded + " points.")
+    
+    
+    applyUpgradeEffect(gameData.iceCubeNextUpgrade);
+  }
+
+}
+
+
+
+function applyUpgradeEffect(upgrade) {
+  // Determine current and next upgrade numbers
+  let currentUpgrade = parseInt(upgrade.number);
+  let nextUpgrade = currentUpgrade + 1;
+
+  // Display current and next upgrade
+  console.log(`You are applying Upgrade ${currentUpgrade}. The next upgrade will be Upgrade ${nextUpgrade}.`);
+
+  // Apply the effect of the upgrade
+  switch (upgrade.number) {
+    case "1":
+      // Implement effect for Upgrade 1
+      gameData.diceAmount += 5;
+      console.log("You have been given 5 additional dice!");
+      break;
+    case "2":
+      // Implement effect for Upgrade 2
+      gameData.diceSides += 10; // Example effect: Increase player's damage
+      console.log("Your dice now all have 10 extra sides!");
+      break;
+    // Add cases for more upgrades as needed
+    default:
+      if (upgrade.number % 10 === 0) {
+        console.log(`Upgrade ${upgrade.number} is divisible by 10.`);
+        gameData.diceAmount += 10
+        console.log("You have been given 10 additional dice! (The end point for each row of 10 upgrades.")
+      } else if (upgrade.number % 5 === 0) {
+        console.log('Upgrade is divisible by 5 (The halfway point for each "special" upgrade')
+        gameData.diceAmount += 5
+      } else {
+        gameData.diceSides += 4
+        console.log("Your dice now all have 4 extra sides! (This is the current failback for if no upgrades are set and you don't get any special upgrades.")
+      }
+      //Here you should code it so that this basically gives set upgrades based on a number, for example, every tenth upgrade should be something specific etc. That way I can add repeating upgrades instead of having to make thousands of upgrades.
+  }
+}
+ 
+
+function lineUpgradeBiggerTimeSize() {
+  bulkBuy("biggerTimeSize", "linePoints");
+    if (gameData.quantityBought > 0) {
+      gameData.diceRollIntervalUpgradeTimeSize *= (gameData.quantityBought * 2) //TODO: Probably change the 2 to a variable that is changeable.
+      gameData.quantityBought = 0
+      updateAll();
+    }
+}
+
+function lineUpgradeBlowOnDice() {
+  bulkBuy("blowOnDice", "linePoints");
+  if (gameData.quantityBought > 0) {
+    gameData.blowOnDiceTriggerChance += (0.01 * gameData.quantityBought) //Check to see if this is too powerful or not, might need more balancing.
+    gameData.quantityBought = 0
+    updateAll();
+  }
 }

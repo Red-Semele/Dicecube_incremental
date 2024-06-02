@@ -14,6 +14,7 @@
     <p id="diceProgress" class="dice-progress">Currently reached no dice in dicecube</p>
     <p id="diceProgress2" class="dice-progress2">Not started yet</p>
     <p id="diceComboSystem" class="dice-combosystem">No combo currently</p>
+    <p title="The dice-thermometer was invented by Rolland Dicington, one of America's finest engineers. This invention was originally intended to win the war against the metric system. Millions of copies had been produced to replace all other thermometers. Sadly even for non-metric users the dice-thermometer proved too illogical and unusable. When asked about the failure of this dice-thermometer Dicington said that he was dice-appointed his invention didn't have the winning roll in the war against the metric-system. Nowadays all copies of the thermometer are sold as novelty toys, 3 have been sold this last year. We are thinking about paying people to take them. (TODO: Make this flow better)" id="diceThermometer" class="dice-thermometer">Currently no heat</p>
     <div id="navigateButtons" class="flex-container">
       <button onclick="tab('rollDiceMenu')">Go to Roll dice</button>
       <button onclick="tab('shopMenu')">Go to Shop</button>
@@ -24,7 +25,7 @@
       
     </div>
     <div id="rollDiceMenu">
-      <button onclick="rollDice()">Roll dice</button>
+      <button onclick="rollDice('manual')" id="rollDice">Roll dice</button>
     </div>
   </div>
   <div id="boughtShopMenu">
@@ -46,8 +47,8 @@
     </div>
     <div>
       
-      <button onclick="showboughtUpgradesButton()">Show graph</button>
-      <button onclick="hideboughtUpgradesButton()">Hide graph</button>
+      <button id="showGraph" onclick="showboughtUpgradesButton()">Show graph</button>
+      <button id="hideGraph" onclick="hideboughtUpgradesButton()">Hide graph</button>
       
     </div>
     <div style="height: 300px">
@@ -67,21 +68,30 @@
       <!--<button onclick="buydicePointsPerClick()" id="perClickUpgrade">Upgrade Pickaxe (Currently Level 1) Cost: 10 dicePoints</button>-->
     
       <div id="diceUpgrades" class="upgrade-section">
-        <button onclick="upgradeDice()" id="diceSideUpgrade" class = "button">Upgrade Dice (Currently d6) Cost: 50 dicePoints</button>
-        <button onclick="buyDice()" id="diceAmountUpgrade" class = "button">Buy extra dice(Currently 1) Cost: 100 dicePoints</button>
-        <button onclick="upgradeDiceRollInterval()" id="diceRollIntervalUpgrade" class = "button"> Increase automatic dice-roll speed by 100ms (Currently 1000ms) Cost: 200 dicePoints</button>
-        <button onclick="increaseUnlockedComboUpgrade()" id="unlockedComboUpgrade" class = "button"> Unlock the ability to combo dice (starting of with a duo combo) Cost: 400 dicePoints</button>
+        <p id="dicePointsUpgrades">dicePoint Upgrades:</p> 
+        <button onclick="upgradeDice()" id="diceSideUpgrade" class = "button">Upgrade Dice (Currently d6) | Cost: 50 dicePoints</button>
+        <button onclick="buyDice()" id="diceAmountUpgrade" class = "button">Buy extra dice(Currently 1) | Cost: 100 dicePoints</button>
+        <button onclick="upgradeDiceRollInterval()" id="diceRollIntervalUpgrade" class = "button"> Increase automatic dice-roll speed by 100ms (Currently 1000ms) | Cost: 200 dicePoints</button>
+        <button onclick="increaseUnlockedComboUpgrade()" id="unlockedComboUpgrade" class = "button"> Unlock the ability to combo dice (starting of with a duo combo) | Cost: 400 dicePoints</button>
         
       </div>
       <div id="lineUpgrades" class="upgrade-section">
-        <button onclick="lineUpgradeDecreaseUpgradeCostRatios()" id="decreaseUpgradeCostRatios" title="This upgrade decreases the ratio with wich every normal upgrades' cost grows" class = "button"> Decrease the speed at which regular upgrades' cost grows Cost: 1 LP</button>
+        <p id="linePointsUpgrades">linePoint Upgrades:</p>
+        <button onclick="lineUpgradeDecreaseUpgradeCostRatios()" id="decreaseUpgradeCostRatios" title="This upgrade decreases the ratio with wich every normal upgrades' cost grows" class = "button"> Decrease the speed at which regular upgrades' cost grows | Cost: 1 LP</button>
         <button onclick="lineUpgradeOnlineDiceRoller()" id="onlineDiceRoller" title="Roll twice as many dice with the power of technology" class = "button"> On-line dice roller Cost: 5 LP</button>
-        <button onclick="lineUpgradeDecreasedWaitingLine()" id="decreasedWaitingLine" title = "Improve the formula that calculates how close you can get to 0 with the automatic dice roll interval" class = "button"> Decreased waiting line Cost: 1 LP</button>
+        <button onclick="lineUpgradeDecreasedWaitingLine()" id="decreasedWaitingLine" title = "Improve the formula that calculates how close you can get to 0 with the automatic dice roll interval" class = "button"> Decreased waiting line | Cost: 1 LP</button>
         <button onclick="lineUpgradeDicePointsBoostByDicePoints()" id="dicePointsBoostByDicePoints" title="Boost the end result of each roll by log(dice-points)" class = "button"> Dice points boost by dice points Cost: 3 LP</button>
-        <button onclick="lineUpgradeBetterComboScore()" id="betterComboScore" title="Instead of adding the combo score on to the end results, multiply it by combovalue^(amount of combo's)" class = "button"> Better Combo Score Cost: 3 LP</button>
-        <button onclick="lineUpgradeDiceRollIntervalOverload()" id="diceRollIntervalOverload" title="Enable overclocking of the dicerollintervalupgrade, you can increase the speed of it even faster, each overclocking loses efficiency." class = "button"> Diceroll-speed overload Cost: 5 LP</button>
+        <button onclick="lineUpgradeBetterComboScore()" id="betterComboScore" title="Instead of adding the combo score on to the end results, multiply it by combovalue^(amount of combo's)" class = "button"> Better Combo Score | Cost: 3 LP</button>
+        <button onclick="lineUpgradeDiceRollIntervalOverload()" id="diceRollIntervalOverload" title="Enable overclocking of the dicerollintervalupgrade, you can increase the speed of it even faster, each overclocking loses efficiency." class = "button"> Diceroll-speed overload | Cost: 5 LP</button>
+        <button onclick="lineUpgradeBiggerTimeSize()" id="biggerTimeSize" title="Increase the amount of time of the interval for rolling dice." class = "button"> Increase interval | Cost: 5 LP</button>
+        <button onclick="lineUpgradeBlowOnDice()" id="blowOnDice" title="Give each dice a repeating chance to land 1 higher than it would have, this repeats until the chance fails." class = "button"> Blow on dice | Cost: 7 LP</button>
       </div>
       <div id="squareUpgrades" class="upgrade-section">
+        <p id="squarePointsUpgrades">squarePoint Upgrades:</p>
+        <button onclick="squareUpgradeSquaredRootSales()" id="squaredRootSales" title="Apply a squared root to the price of all normal upgrades" class = "button"> Squared root sales Cost: 1 SP</button>
+      </div>
+      <div id="cubeUpgrades" class="upgrade-section">
+        <p id="cubePointsUpgrades">cubePoint Upgrades:</p>
         <button onclick="squareUpgradeSquaredRootSales()" id="squaredRootSales" title="Apply a squared root to the price of all normal upgrades" class = "button"> Squared root sales Cost: 1 SP</button>
       </div>
     </div>
@@ -98,8 +108,8 @@
         <textarea id="variableChecker" class="variable-checker" name="variableChecker" rows="15" cols="100">
         </textarea>
         <div>
-          <button onclick="importGameData()">Import</button>
-          <button onclick="exportGameDataClipboard()">Copy to clipboard</button>
+          <button onclick="importGameData()" id="importData">Import</button>
+          <button onclick="exportGameDataClipboard()" id="exportToClipboard">Copy to clipboard</button>
           
         </div>
       </div>
