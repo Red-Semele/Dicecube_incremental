@@ -6,6 +6,21 @@
   margin-bottom: 40px; /* Adjust the space between sections as needed */
 }
 
+.path-choice {
+  padding: 20px 20px; 
+  margin-right: 10px; /* Adjust the value as needed */
+  font-size: 16px; 
+  transition: transform 0.3s ease; 
+}
+
+.path-choice:last-child {
+  margin-right: 0; /* No margin for the last button */
+}
+
+.path-choice:hover {
+  transform: scale(1.1); 
+}
+
 .button:hover {
   background-color: #04AA6D; /* Green */
   color: white;

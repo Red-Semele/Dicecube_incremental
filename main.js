@@ -34,6 +34,8 @@ document.getElementById("cubePointsUpgrades").style.display = "none";
 document.getElementById("lineUpgrades").style.display = "none";
 document.getElementById("squareUpgrades").style.display = "none";
 document.getElementById("cubeUpgrades").style.display = "none";
+document.getElementById("pathChoices").style.display = "none";
+document.getElementById("board").style.display = "none";
 
 const rollButton = document.getElementById('rollDice');
 let holdTimer;
@@ -227,6 +229,7 @@ var gameData = {
   totalIceCubeDimension: 1,
   iceCubeNextUpgrade: 1,
   iceCubePointsNeeded:10, //This is how many points you need to achieve with the heat to melt the ice.
+  boardGameStackBuffs: 0
   
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
@@ -466,6 +469,7 @@ function rollDice(rollStyle) {
         comboMessageFix = true;
         if (highestComboCount == mostCommonComboCount) {
           comboMessage = "Highest And Most Common Combo: " + highestComboValue + " (x" + highestComboCount + ")";
+          rewardBoardGame ()
           //TODO: Make sure that the function gives an extra benefit to having the highest and most common combo be the same. A better formula to calculate the effect.
         } else {
           comboMessage = "Highest Combo: " + highestComboValue + " (x" + highestComboCount + ") Most Common Combo: " + mostCommonComboValue + " (x" + mostCommonComboCount + ")";
@@ -1479,11 +1483,11 @@ function clearPathsAfterChoice() {
   document.getElementById("activePath").style.display = "none";
 }
 
-function boardGameTurn() {
-  createBoard(X, pieces);     
-} 
+
+    
 
 function createBoard(size, pieces) {
+  document.getElementById("board").style.display = "inline";
   //TODO: The highlight function seems to not highlight anymore, fix this.
   boardElement.style.gridTemplateColumns = `repeat(${size}, 50px)`;
   boardElement.style.gridTemplateRows = `repeat(${size}, 50px)`;
@@ -1645,6 +1649,19 @@ function helpSystem(neededHelp) {
     default:
       systemTips = "If you are reading this, chances are I named a variable or two wrong."
   }
-  console.log(systemTips); // TODO: Later make this append in the game.
+  console.log(systemTips);
   update("helpMenuSystem", systemTips);
+}
+
+function revealPathChoices () {
+  document.getElementById("pathChoices").style.display = "inline";
+}
+
+function rewardBoardGame () { //This will handle wheter or not the boardgame with benefits shows up if you do something cool, to prevent it showing up too much.
+  if (document.getElementById("pathChoices").style.display != "none") {
+    gameData.boardGameStackBuffs += 1 //TODO: Make these boardGameStackBuffs give better effects once the board really is made.
+    console.log ("Boardgamebuffs in stock: " + gameData.boardGameStackBuffs)
+  } else {
+  createBoard(X, pieces);
+  }
 }

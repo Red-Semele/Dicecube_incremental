@@ -78,9 +78,11 @@
         <button onclick="buyDice()" id="diceAmountUpgrade" class = "button">Buy extra dice(Currently 1) | Cost: 100 dicePoints</button>
         <button onclick="upgradeDiceRollInterval()" id="diceRollIntervalUpgrade" class = "button"> Increase automatic dice-roll speed by 100ms (Currently 1000ms) | Cost: 200 dicePoints</button>
         <button onclick="increaseUnlockedComboUpgrade()" id="unlockedComboUpgrade" class = "button"> Unlock the ability to combo dice (starting of with a duo combo) | Cost: 400 dicePoints</button>
-        <button onclick="passivePath()" id="passivePath" class = "button">Passive path</button>
-        <button onclick="idlePath()" id="idlePath" class = "button">Idle path</button>
-        <button onclick="activePath()" id="activePath" class = "button">Active path</button>
+        <div id="pathChoices">
+          <button onclick="passivePath()" id="passivePath" class = "button path-choice" title= "This option is ideal for a more on and off playstyle. Where you get some of the rewards of both the active and idle paths (to a lesser extent). Great if you just want to check in on the game every now and then for fifteen minutes during your day.">Passive path</button>
+          <button onclick="idlePath()" id="idlePath" class = "button path-choice"title = "This option is great if you only have a very short amount of time you'd like to spend on this game every day or week. You get bonuses based on how long you've had the game.">Idle path</button>
+          <button onclick="activePath()" id="activePath" class = "button path-choice" title="This is option is good for those who like their incrementals a bit more hands-on. Gain huge boosts based on total clicks. Since you can spend less time like this you get rewarded better. Take breaks in between to get more bonuses.">Active path</button>
+        </div>
 
 
 
