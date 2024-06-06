@@ -37,7 +37,6 @@ document.getElementById("cubeUpgrades").style.display = "none";
 
 const rollButton = document.getElementById('rollDice');
 let holdTimer;
-
 const X = 7; // Size of the board (X x X)
 const pieces = [
     // Row 1
@@ -101,7 +100,6 @@ const pieces = [
   const boardSize = X * X;
   const boardElement = document.getElementById('board');
   let currentPlayerPosition = 0; // Player starts at the first square
-
 
 document.getElementById("diceRollIntervalOverload").style.display = "none" //TODO: For some weird reason this upgrade doesn't become visbile, will need some more testing in the future, commenting this out fixes the problem so it's probably ui based.
 const ctx = document.getElementById('myChart');
@@ -198,18 +196,11 @@ var gameData = {
   diceRollIntervalOverloadAmount: 0,
   boughtShopMenuCurrencyType: "All",
   boughtShopMenuUpgradeType: "All",
+  //TODO: Add all upgrades below and set their quantity, then put these everywhere that it is used to adnd make bulkbuy increase these with the upgradeincrement. Also make this appear in the bought button upgrades.
   diceSideUpgradeQuantity: 0, //Quantity shows you how many upgrades you have purchased.
   diceAmountUpgradeQuantity: 0,
   diceRollIntervalUpgradeQuantity: 0,
   unlockedComboUpgradeQuantity: 0,
-  chosenPath: "none",
-  manualRolls: 0,
-  pieces: [
-    { type: '+1 Jump', exits: 'LR', color: 'red' },
-    { type: '+2 Jump', exits: 'UD', color: 'blue' },
-    { type: '-1 Jump', exits: 'LRUD', color: 'green' },
-    { type: '+3 Jump', exits: 'L', color: 'purple' }
-  ],
 
   decreaseUpgradeCostRatiosQuantity: 0,
   diceRollIntervalOverloadQuantity: 0,
@@ -297,6 +288,7 @@ function updateAll() {
     document.getElementById("linePrestige").style.backgroundColor = "";
     document.getElementById("linePrestige").style.color = "";
     document.getElementById("linePrestige").classList.add('prestige-button');
+    
   } else {
     document.getElementById("linePrestige").style.backgroundColor = "#808080"; // Dark grey background color for the button
     document.getElementById("linePrestige").style.color = "#FFFFFF"; // White text color
@@ -316,20 +308,18 @@ function updateAll() {
     document.getElementById("squarePrestige").style.textDecoration = "";
     document.getElementById("squarePrestige").classList.remove('prestige-button');
   }
-   
 
-  if (gameData.furthestDiceReached >= Math.pow(gameData.diceDimension, 3)) {
+  if (gameData.furthestDiceReached >= Math.pow(gameData.diceDimension,3)) {
     update ("cubePrestige", "Cube prestige (for " + round10((gameData.furthestDiceReached/Math.pow(gameData.diceDimension,3)), -2) + "CP)");
     document.getElementById("cubePrestige").style.backgroundColor = "";
     document.getElementById("cubePrestige").style.color = "";
-    document.getElementById("cubePrestige").classList.add('prestige-button');
-    document.getElementById("squarePrestige").classList.remove('prestige-button');
+    document.getElementById("cubePrestige").classList.remove('prestige-button');
   } else {
     document.getElementById("cubePrestige").style.backgroundColor = "#808080"; // Dark grey background color for the button
     document.getElementById("cubePrestige").style.color = "#FFFFFF"; // White text color
     document.getElementById("cubePrestige").innerHTML = "You need to atleast reach dice " + Math.pow(gameData.diceDimension,3) + " of " + Math.pow(gameData.diceDimension, 3) + " to Line Prestige."
     document.getElementById("cubePrestige").style.textDecoration = ""
-    document.getElementById("squarePrestige").classList.remove('prestige-button');
+    document.getElementById("cubePrestige").classList.remove('prestige-button');
   }
   if (!gameData.stopCheckCostLineUpgrades ) {
     update("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + format(checkCost("decreaseUpgradeCostRatios", "linePoints"), "scientific") + "LP");
@@ -357,11 +347,7 @@ function getBaseLog(x, y) {
 
 function startRolling() {
   rollDice('manual');
-  if (gameData.chosenPath === "active") {
-    holdTimer = setInterval(() => rollDice('manual'), 100);
-  } else {
-    holdTimer = setInterval(() => rollDice('manual'), 333);
-  }
+  holdTimer = setInterval(() => rollDice('manual'), 333);
 }
 
 function stopRolling() {
@@ -399,7 +385,6 @@ function rollDice(rollStyle) {
     }
   } else {
     console.log("Manual roll detected")
-    gameData.manualRolls += 1;
     if (gameData.onlineDiceRollerActivated === true) {
       loopCount *= (gameData.onlineDiceRollerCount * 2); //Recently added, check if onlinediceroller only doubles the manual rollstyle
       console.log("Online diceroller boost aplied, boosted by" + (gameData.onlineDiceRollerCount * 2) + "times.")
@@ -482,11 +467,7 @@ function rollDice(rollStyle) {
     }
   }
   if (gameData.dicePointsBoostByDicePointsActivated === true) {
-    totalPoints *= getBaseLog(1000, gameData.dicePoints); //If this works properly it should multiply the totalPoints by the amount of 0's in dicePoints at that time.
-  }
-  if (gameData.chosenPath === "active" && gameData.manualRolls >= 10) {
-    console.log ("manual rolls" + gameData.manualRolls)
-    totalPoints *= (getBaseLog(10, gameData.manualRolls) + 1);
+    totalPoints *= Math.log(gameData.dicePoints); //If this works properly it should multiply the totalPoints by the amount of 0's in dicePoints at that time.
   }
   gameData.dicePoints += totalPoints;
   gameData.dicePointsTotal += totalPoints;
@@ -925,6 +906,7 @@ function squareUpgradeSquaredRootSales() {
 }
 
 function bulkBuy(upgradeType, currencyType) {
+  //TODO Check the bulkbuy, something is very wrong with it in my last changes
   gameData.quantity = parseInt(document.getElementById("quantityPicker").value); // Get selected gameData.quantity
   var upgradeCost = gameData[upgradeType + "Cost"];
   var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
@@ -1112,6 +1094,7 @@ function checkVariables() {
 }
  
 function lineUpgradeDicePointsBoostByDicePoints() {
+  //TODO: Add something in the checkcost to see if it is a one time upgrade or not, that way I can put both the square root sales and this upgrade in that function and it can then be properly striked thrpugh and made darkgrey if you can't properly update it.
   
   if (gameData.linePoints >= Math.floor(gameData.dicePointsBoostByDicePointsCost)) {
     gameData.linePoints -= Math.floor(gameData.dicePointsBoostByDicePointsCost)
@@ -1525,7 +1508,7 @@ function createBoard(size, pieces) {
   boardElement.children[currentPlayerPosition].appendChild(playerPiece);
 }
 
-function rollDice() {
+function rollBoardGameDice() {
   return Math.floor(Math.random() * 6) + 1;
 }
 
@@ -1602,7 +1585,7 @@ function handleEffect(effect) {
 }
 
 document.getElementById('rollButton').addEventListener('click', () => {
-  const roll = rollDice();
+  const roll = rollBoardGameDice();
   console.log(`Rolled: ${roll}`);
   const possibleMoves = getPossibleMoves(currentPlayerPosition, roll);
   highlightPossibleMoves(possibleMoves);
