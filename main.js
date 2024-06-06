@@ -188,6 +188,14 @@ var gameData = {
   //TODO: Still set a base cost and costratio for unlockedComboUpgrade upgrade, also properly make that button update via the update all function and put it in checkcost.
   unlockedComboUpgradeCost: 400,
   unlockedComboUpgradeCostRatio: 1.22,
+  chosenPath: "none",
+  manualRolls: 0,
+  pieces: [
+    { type: '+1 Jump', exits: 'LR', color: 'red' },
+    { type: '+2 Jump', exits: 'UD', color: 'blue' },
+    { type: '-1 Jump', exits: 'LRUD', color: 'green' },
+    { type: '+3 Jump', exits: 'L', color: 'purple' }
+  ],
   tempCurrencyType: "",
   stopCheckCostSquareUpgrades: true,
   diceRollIntervalOverloadCost: 5,
@@ -313,7 +321,7 @@ function updateAll() {
     update ("cubePrestige", "Cube prestige (for " + round10((gameData.furthestDiceReached/Math.pow(gameData.diceDimension,3)), -2) + "CP)");
     document.getElementById("cubePrestige").style.backgroundColor = "";
     document.getElementById("cubePrestige").style.color = "";
-    document.getElementById("cubePrestige").classList.remove('prestige-button');
+    document.getElementById("cubePrestige").classList.add('prestige-button');
   } else {
     document.getElementById("cubePrestige").style.backgroundColor = "#808080"; // Dark grey background color for the button
     document.getElementById("cubePrestige").style.color = "#FFFFFF"; // White text color
@@ -347,7 +355,12 @@ function getBaseLog(x, y) {
 
 function startRolling() {
   rollDice('manual');
-  holdTimer = setInterval(() => rollDice('manual'), 333);
+  
+  if (gameData.chosenPath === "active") {
+    holdTimer = setInterval(() => rollDice('manual'), 100);
+  } else {
+    holdTimer = setInterval(() => rollDice('manual'), 333);
+  }
 }
 
 function stopRolling() {
@@ -385,6 +398,7 @@ function rollDice(rollStyle) {
     }
   } else {
     console.log("Manual roll detected")
+    gameData.manualRolls += 1;
     if (gameData.onlineDiceRollerActivated === true) {
       loopCount *= (gameData.onlineDiceRollerCount * 2); //Recently added, check if onlinediceroller only doubles the manual rollstyle
       console.log("Online diceroller boost aplied, boosted by" + (gameData.onlineDiceRollerCount * 2) + "times.")
@@ -467,8 +481,15 @@ function rollDice(rollStyle) {
     }
   }
   if (gameData.dicePointsBoostByDicePointsActivated === true) {
-    totalPoints *= Math.log(gameData.dicePoints); //If this works properly it should multiply the totalPoints by the amount of 0's in dicePoints at that time.
+    totalPoints *= getBaseLog(1000, gameData.dicePoints); //If this works properly it should multiply the totalPoints by the amount of 0's in dicePoints at that time.
   }
+  if (gameData.chosenPath === "active" && gameData.manualRolls >= 10) {
+
+    console.log ("manual rolls" + gameData.manualRolls)
+
+    totalPoints *= (getBaseLog(10, gameData.manualRolls) + 1);
+  }
+  
   gameData.dicePoints += totalPoints;
   gameData.dicePointsTotal += totalPoints;
   var currentLevel = Math.floor(getBaseLog(5, gameData.dicePointsTotal)) + 1;
