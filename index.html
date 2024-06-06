@@ -7,6 +7,7 @@
     <title>Dice cube incremental</title>
   </head>
   <body>
+    
     <p id="dicePoints" class="dice-points">0 Dice points</p>
     <p id="linePoints" class="line-points">0 Line points</p>
     <p id="squarePoints" class="square-points">0 Square points</p>
@@ -16,14 +17,19 @@
     <p id="diceComboSystem" class="dice-combosystem">No combo currently</p>
     <p title="The dice-thermometer was invented by Rolland Dicington, one of America's finest engineers. This invention was originally intended to win the war against the metric system. Millions of copies had been produced to replace all other thermometers. Sadly even for non-metric users the dice-thermometer proved too illogical and unusable. When asked about the failure of this dice-thermometer Dicington said that he was dice-appointed his invention didn't have the winning roll in the war against the metric-system. Nowadays all copies of the thermometer are sold as novelty toys, 3 have been sold this last year. We are thinking about paying people to take them. (TODO: Make this flow better)" id="diceThermometer" class="dice-thermometer">Currently no heat</p>
     <div id="navigateButtons" class="flex-container">
-      <button onclick="tab('rollDiceMenu')">Go to Roll dice</button>
-      <button onclick="tab('shopMenu')">Go to Shop</button>
-      <button onclick="tab('prestigeMenu')" id="prestigeDiceMenu" title="Click here to go to Prestige menu">Go to Prestige menu</button>
-      <button onclick="tab ('saveStuffMenu')">Save options</button>
-      <button onclick="tab('boughtShopMenu')">Check bought upgrades</button>
+      <button onclick="tab('rollDiceMenu')" class="button">Go to Roll dice</button>
+      <button onclick="tab('shopMenu')" class="button">Go to Shop</button>
+      <button onclick="tab('prestigeMenu')" id="prestigeDiceMenu" title="Click here to go to Prestige menu" class="button">Go to Prestige menu</button>
+      <button onclick="tab ('saveStuffMenu')" class="button">Save options</button>
+      <button onclick="tab('boughtShopMenu')" class="button">Check bought upgrades</button>
+      <button onclick="tab('helpMenu')" class="button">Help?</button>
 
       
     </div>
+    <button id="rollButton">Roll D6</button>
+    <div id="board" class="board"></div>
+    <button onclick="boardGameDice()">Roll Die for boardgame</button>
+    <p id="dice-result"></p>
     <div id="rollDiceMenu">
       <button onclick="rollDice('manual')" id="rollDice">Roll dice</button>
     </div>
@@ -73,7 +79,13 @@
         <button onclick="buyDice()" id="diceAmountUpgrade" class = "button">Buy extra dice(Currently 1) | Cost: 100 dicePoints</button>
         <button onclick="upgradeDiceRollInterval()" id="diceRollIntervalUpgrade" class = "button"> Increase automatic dice-roll speed by 100ms (Currently 1000ms) | Cost: 200 dicePoints</button>
         <button onclick="increaseUnlockedComboUpgrade()" id="unlockedComboUpgrade" class = "button"> Unlock the ability to combo dice (starting of with a duo combo) | Cost: 400 dicePoints</button>
-        
+        <button onclick="passivePath()" id="passivePath" class = "button">Passive path</button>
+        <button onclick="idlePath()" id="idlePath" class = "button">Idle path</button>
+        <button onclick="activePath()" id="activePath" class = "button">Active path</button>
+
+
+
+
       </div>
       <div id="lineUpgrades" class="upgrade-section">
         <p id="linePointsUpgrades">linePoint Upgrades:</p>
@@ -96,9 +108,9 @@
       </div>
     </div>
     <div id="prestigeMenu">
-      <button onclick="prestigeLine()" id="linePrestige"  title="Sacrifice all your regular upgrades and dice-points to gain Line-points" class = "button">Line prestige (for 0 LP)"</button>
-      <button onclick="prestigeSquare()" id="squarePrestige"  title="Sacrifice all your regular upgrades, dice-points, line upgrades and Line-points to gain Square-points" class = "button">Square prestige (for 0 SP)</button>
-      <button onclick="prestigeCube()" id="cubePrestige" title="Sacrifice all your regular upgrades, dice-points, line upgrades and line-points and square upgrades and quare-points for Cube-points" class = "button">Cube prestige (for 0 CP)</button>
+      <button onclick="prestigeLine()" id="linePrestige"  title="Sacrifice all your regular upgrades and dice-points to gain Line-points" class = "button prestige-button">Line prestige (for 0 LP)"</button>
+      <button onclick="prestigeSquare()" id="squarePrestige"  title="Sacrifice all your regular upgrades, dice-points, line upgrades and Line-points to gain Square-points" class = "button prestige-button">Square prestige (for 0 SP)</button>
+      <button onclick="prestigeCube()" id="cubePrestige" title="Sacrifice all your regular upgrades, dice-points, line upgrades and line-points and square upgrades and quare-points for Cube-points" class = "button prestige-button">Cube prestige (for 0 CP)</button>
     </div>
     <div id="saveStuffMenu">
       <button onclick="resetSave()">Reset Save</button>
@@ -113,6 +125,10 @@
           
         </div>
       </div>
+    </div>
+    <div id="helpMenu">
+      <p id="helpMenuSystem" class="help-menuSystem"></p>
+      <button onclick="helpSystem('points')" id="pointTip">Point explanation.</button>
     </div>
   </div>
     <script src="main.js" charset="utf-8" type="text/javascript"></script>

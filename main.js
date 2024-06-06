@@ -38,6 +38,70 @@ document.getElementById("cubeUpgrades").style.display = "none";
 const rollButton = document.getElementById('rollDice');
 let holdTimer;
 
+const X = 7; // Size of the board (X x X)
+const pieces = [
+    // Row 1
+    { effect: 'Start', moves: ['right'] },
+    { effect: 'Move 1', moves: ['right'] },
+    { effect: 'Move 3', moves: ['right'] },
+    { effect: 'Move 4', moves: ['right'] },
+    { effect: 'Move 1', moves: ['right'] },
+    { effect: 'Start', moves: ['right'] },
+    { effect: 'Start', moves: ['down'] },
+    //Row 2
+    { effect: 'Move 1', moves: ['up'] },
+    { effect: 'Move 2', moves: ['down'] },
+    { effect: 'Move 3', moves: ['left'] },
+    { effect: 'Move 4', moves: ['up', 'left', 'down'] },
+    { effect: 'Move 1', moves: ['left'] },
+    { effect: 'Start', moves: ['left'] },
+    { effect: 'Move 1', moves: ['down'] },
+    //Row 3
+    { effect: 'Move 2', moves: ['up'] },
+    { effect: 'Move 3', moves: ['down'] },
+    { effect: 'Move 4', moves: ['right'] },
+    { effect: 'Move 1', moves: ['right'] },
+    { effect: 'Start', moves: ['down'] },
+    { effect: 'Move 1', moves: ['up'] },
+    { effect: 'Move 2', moves: ['down'] },
+    //Row 4
+    { effect: 'Move 3', moves: ['up', 'right'] },
+    { effect: 'Move 4', moves: ['down',] },
+    { effect: 'Move 1', moves: ['right', 'up', 'left'] },
+    { effect: 'Start', moves: ['down', 'up'] },
+    { effect: 'Move 1', moves: ['down', 'left', 'right'] },
+    { effect: 'Move 2', moves: ['up'] },
+    { effect: 'Move 3', moves: ['down', 'left'] },
+    //Row 5
+    { effect: 'Move 4', moves: ['up'] },
+    { effect: 'Move 1', moves: ['down'] },
+    { effect: 'Start', moves: ['up'] },
+    { effect: 'Move 1', moves: ['left'] },
+    { effect: 'Move 2', moves: ['left'] },
+    { effect: 'Move 3', moves: ['up'] },
+    { effect: 'Move 4', moves: ['down'] },
+    //Row 6
+    { effect: 'Move 1', moves: ['up'] },
+    { effect: 'Start', moves: ['right'] },
+    { effect: 'Move 1', moves: ['right'] },
+    { effect: 'Move 2', moves: ['right', 'down', 'up'] },
+    { effect: 'Move 3', moves: ['right'] },
+    { effect: 'Move 4', moves: ['up'] },
+    { effect: 'Move 1', moves: ['down'] },
+    //Row 7
+    { effect: '150% DP boost', moves: ['up'] },
+    { effect: 'Increase luck temporarily', moves: ['left'] },
+    { effect: 'Dice lottery', moves: ['left'] },
+    { effect: 'Gain 1 random DP upgrade', moves: ['left'] },
+    { effect: 'Gain random points', moves: ['left'] },
+    { effect: '', moves: ['left'] },
+    { effect: 'Finish', moves: ['left'] },
+    // Add more rules for the remaining squares...
+  ];
+  const boardSize = X * X;
+  const boardElement = document.getElementById('board');
+  let currentPlayerPosition = 0; // Player starts at the first square
+
 
 document.getElementById("diceRollIntervalOverload").style.display = "none" //TODO: For some weird reason this upgrade doesn't become visbile, will need some more testing in the future, commenting this out fixes the problem so it's probably ui based.
 const ctx = document.getElementById('myChart');
@@ -134,11 +198,18 @@ var gameData = {
   diceRollIntervalOverloadAmount: 0,
   boughtShopMenuCurrencyType: "All",
   boughtShopMenuUpgradeType: "All",
-  //TODO: Add all upgrades below and set their quantity, then put these everywhere that it is used to adnd make bulkbuy increase these with the upgradeincrement. Also make this appear in the bought button upgrades.
   diceSideUpgradeQuantity: 0, //Quantity shows you how many upgrades you have purchased.
   diceAmountUpgradeQuantity: 0,
   diceRollIntervalUpgradeQuantity: 0,
   unlockedComboUpgradeQuantity: 0,
+  chosenPath: "none",
+  manualRolls: 0,
+  pieces: [
+    { type: '+1 Jump', exits: 'LR', color: 'red' },
+    { type: '+2 Jump', exits: 'UD', color: 'blue' },
+    { type: '-1 Jump', exits: 'LRUD', color: 'green' },
+    { type: '+3 Jump', exits: 'L', color: 'purple' }
+  ],
 
   decreaseUpgradeCostRatiosQuantity: 0,
   diceRollIntervalOverloadQuantity: 0,
@@ -225,32 +296,40 @@ function updateAll() {
     update ("linePrestige", "Line prestige (for " + round10((gameData.furthestDiceReached/gameData.diceDimension), -2) + "LP)");
     document.getElementById("linePrestige").style.backgroundColor = "";
     document.getElementById("linePrestige").style.color = "";
+    document.getElementById("linePrestige").classList.add('prestige-button');
   } else {
     document.getElementById("linePrestige").style.backgroundColor = "#808080"; // Dark grey background color for the button
     document.getElementById("linePrestige").style.color = "#FFFFFF"; // White text color
     document.getElementById("linePrestige").innerHTML = "You need to atleast reach dice " + gameData.diceDimension + " of " + Math.pow(gameData.diceDimension, 3) + " to Line Prestige.";
     document.getElementById("linePrestige").style.textDecoration = "";
+    document.getElementById("linePrestige").classList.remove('prestige-button');
   }
   if (gameData.furthestDiceReached >= Math.pow(gameData.diceDimension,2)) {
     update ("squarePrestige", "Square prestige (for " + round10((gameData.furthestDiceReached/Math.pow(gameData.diceDimension,2)), -2) + "SP)");
     document.getElementById("squarePrestige").style.backgroundColor = "";
     document.getElementById("squarePrestige").style.color = "";
+    document.getElementById("squarePrestige").classList.add('prestige-button');
   } else {
     document.getElementById("squarePrestige").style.backgroundColor = "#808080"; // Dark grey background color for the button
     document.getElementById("squarePrestige").style.color = "#FFFFFF"; // White text color
     document.getElementById("squarePrestige").innerHTML = "You need to atleast reach dice " + Math.pow(gameData.diceDimension,2) + " of " + Math.pow(gameData.diceDimension, 3) + " to Line Prestige.";
     document.getElementById("squarePrestige").style.textDecoration = "";
+    document.getElementById("squarePrestige").classList.remove('prestige-button');
   }
+   
 
-  if (gameData.furthestDiceReached >= Math.pow(gameData.diceDimension)) {
+  if (gameData.furthestDiceReached >= Math.pow(gameData.diceDimension, 3)) {
     update ("cubePrestige", "Cube prestige (for " + round10((gameData.furthestDiceReached/Math.pow(gameData.diceDimension,3)), -2) + "CP)");
     document.getElementById("cubePrestige").style.backgroundColor = "";
     document.getElementById("cubePrestige").style.color = "";
+    document.getElementById("cubePrestige").classList.add('prestige-button');
+    document.getElementById("squarePrestige").classList.remove('prestige-button');
   } else {
     document.getElementById("cubePrestige").style.backgroundColor = "#808080"; // Dark grey background color for the button
     document.getElementById("cubePrestige").style.color = "#FFFFFF"; // White text color
     document.getElementById("cubePrestige").innerHTML = "You need to atleast reach dice " + Math.pow(gameData.diceDimension,3) + " of " + Math.pow(gameData.diceDimension, 3) + " to Line Prestige."
     document.getElementById("cubePrestige").style.textDecoration = ""
+    document.getElementById("squarePrestige").classList.remove('prestige-button');
   }
   if (!gameData.stopCheckCostLineUpgrades ) {
     update("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + format(checkCost("decreaseUpgradeCostRatios", "linePoints"), "scientific") + "LP");
@@ -278,7 +357,11 @@ function getBaseLog(x, y) {
 
 function startRolling() {
   rollDice('manual');
-  holdTimer = setInterval(() => rollDice('manual'), 333);
+  if (gameData.chosenPath === "active") {
+    holdTimer = setInterval(() => rollDice('manual'), 100);
+  } else {
+    holdTimer = setInterval(() => rollDice('manual'), 333);
+  }
 }
 
 function stopRolling() {
@@ -316,6 +399,7 @@ function rollDice(rollStyle) {
     }
   } else {
     console.log("Manual roll detected")
+    gameData.manualRolls += 1;
     if (gameData.onlineDiceRollerActivated === true) {
       loopCount *= (gameData.onlineDiceRollerCount * 2); //Recently added, check if onlinediceroller only doubles the manual rollstyle
       console.log("Online diceroller boost aplied, boosted by" + (gameData.onlineDiceRollerCount * 2) + "times.")
@@ -398,7 +482,11 @@ function rollDice(rollStyle) {
     }
   }
   if (gameData.dicePointsBoostByDicePointsActivated === true) {
-    totalPoints *= Math.log(gameData.dicePoints); //If this works properly it should multiply the totalPoints by the amount of 0's in dicePoints at that time.
+    totalPoints *= getBaseLog(1000, gameData.dicePoints); //If this works properly it should multiply the totalPoints by the amount of 0's in dicePoints at that time.
+  }
+  if (gameData.chosenPath === "active" && gameData.manualRolls >= 10) {
+    console.log ("manual rolls" + gameData.manualRolls)
+    totalPoints *= (getBaseLog(10, gameData.manualRolls) + 1);
   }
   gameData.dicePoints += totalPoints;
   gameData.dicePointsTotal += totalPoints;
@@ -607,6 +695,7 @@ function tab(tab) {
   document.getElementById("prestigeMenu").style.display = "none"
   document.getElementById("boughtShopMenu").style.display = "none"
   document.getElementById("saveStuffMenu").style.display = "none"
+  document.getElementById("helpMenu").style.display = "none"
   document.getElementById(tab).style.display = "inline-block"
 }
 function prestigeReset() { //This is used to make sure all the stuff that should be reset from the normal upgrades gets reset.
@@ -836,7 +925,6 @@ function squareUpgradeSquaredRootSales() {
 }
 
 function bulkBuy(upgradeType, currencyType) {
-  //TODO Check the bulkbuy, something is very wrong with it in my last changes
   gameData.quantity = parseInt(document.getElementById("quantityPicker").value); // Get selected gameData.quantity
   var upgradeCost = gameData[upgradeType + "Cost"];
   var upgradeCostRatio = gameData[upgradeType + "CostRatio"];
@@ -1024,7 +1112,6 @@ function checkVariables() {
 }
  
 function lineUpgradeDicePointsBoostByDicePoints() {
-  //TODO: Add something in the checkcost to see if it is a one time upgrade or not, that way I can put both the square root sales and this upgrade in that function and it can then be properly striked thrpugh and made darkgrey if you can't properly update it.
   
   if (gameData.linePoints >= Math.floor(gameData.dicePointsBoostByDicePointsCost)) {
     gameData.linePoints -= Math.floor(gameData.dicePointsBoostByDicePointsCost)
@@ -1364,4 +1451,185 @@ function lineUpgradeBlowOnDice() {
     gameData.quantityBought = 0
     updateAll();
   }
+}
+
+function passivePath() {
+  gameData.chosenPath = "passive"
+  clearPathsAfterChoice()
+}
+
+function activePath() {
+  gameData.chosenPath = "active"
+  clearPathsAfterChoice()
+  boardGameTurn() //TODO: This shouldn't be here but for now (testing) it is
+}
+
+function idlePath() {
+  gameData.chosenPath = "idle"
+  clearPathsAfterChoice()
+}
+
+function clearPathsAfterChoice() {
+  document.getElementById("passivePath").style.display = "none";
+  document.getElementById("idlePath").style.display = "none";
+  document.getElementById("activePath").style.display = "none";
+}
+
+function boardGameTurn() {
+  createBoard(X, pieces);     
+} 
+
+function createBoard(size, pieces) {
+  //TODO: The highlight function seems to not highlight anymore, fix this.
+  boardElement.style.gridTemplateColumns = `repeat(${size}, 50px)`;
+  boardElement.style.gridTemplateRows = `repeat(${size}, 50px)`;
+  console.log ("Board" + boardElement)
+
+  for (let i = 0; i < size * size; i++) {
+      const square = document.createElement('div');
+      square.classList.add('square');
+      square.dataset.index = i;
+      if (pieces[i]) {
+          const { effect, moves } = pieces[i];
+          square.innerText = effect;
+          switch(effect) {
+            case 'Start':
+                square.style.backgroundColor = 'green';
+                break;
+            case 'Move 1':
+                square.style.backgroundColor = 'blue';
+                break;
+            case 'Move 2':
+                square.style.backgroundColor = 'orange';
+                break;
+            case 'Move 3':
+                square.style.backgroundColor = 'purple';
+                break;
+            case 'Finish':
+                square.style.backgroundColor = 'red';
+                break;
+            default:
+                square.style.backgroundColor = 'lightgrey';
+        }
+          moves.forEach(move => {
+              const arrow = document.createElement('div');
+              arrow.classList.add('arrow', move);
+              square.appendChild(arrow);
+          });
+      }
+      boardElement.appendChild(square);
+  }
+
+  const playerPiece = document.createElement('div');
+  playerPiece.classList.add('player');
+  boardElement.children[currentPlayerPosition].appendChild(playerPiece);
+}
+
+function rollDice() {
+  return Math.floor(Math.random() * 6) + 1;
+}
+
+function getPossibleMoves(currentPosition, roll) {
+  const possibleMoves = [];
+  const directions = {
+      'up': -X,
+      'down': X,
+      'left': -1,
+      'right': 1
+  };
+
+  function traverse(position, remainingSteps, path) {
+      if (remainingSteps === 0) {
+          possibleMoves.push(position);
+          return;
+      }
+      const { moves } = pieces[position] || {};
+      if (!moves) return;
+
+      moves.forEach(move => {
+          const newPosition = position + directions[move];
+          if (newPosition >= 0 && newPosition < boardSize && !path.includes(newPosition)) {
+              traverse(newPosition, remainingSteps - 1, [...path, newPosition]);
+          }
+      });
+  }
+
+  traverse(currentPosition, roll, [currentPosition]);
+  return possibleMoves;
+}
+
+function highlightPossibleMoves(moves) {
+  moves.forEach(index => {
+      document.querySelector(`.square[data-index='${index}']`).classList.add('highlight');
+  });
+}
+
+function clearHighlights() {
+  document.querySelectorAll('.square.highlight').forEach(square => {
+      square.classList.remove('highlight');
+  });
+}
+
+function movePlayer(targetIndex) {
+  clearHighlights();
+  const boardElement = document.getElementById('board');
+  const playerPiece = document.querySelector('.player');
+  boardElement.children[targetIndex].appendChild(playerPiece);
+  currentPlayerPosition = targetIndex;
+  handleEffect(pieces[targetIndex]?.effect);
+}
+
+function handleEffect(effect) {
+  switch(effect) {
+      case 'Start':
+          alert('You are at the start.');
+          break;
+      case 'Move 1':
+          alert('You landed on Move 1!');
+          break;
+      case 'Move 2':
+          alert('You landed on Move 2!');
+          break;
+      case 'Move 3':
+          alert('You landed on Move 3!');
+          break;
+      case 'Finish':
+          alert('You reached the finish!');
+          break;
+      default:
+          alert('Nothing happens.');
+  }
+}
+
+document.getElementById('rollButton').addEventListener('click', () => {
+  const roll = rollDice();
+  console.log(`Rolled: ${roll}`);
+  const possibleMoves = getPossibleMoves(currentPlayerPosition, roll);
+  highlightPossibleMoves(possibleMoves);
+
+  document.querySelectorAll('.square').forEach(square => {
+      square.addEventListener('click', function handleMove() {
+          const targetIndex = parseInt(this.dataset.index);
+          if (possibleMoves.includes(targetIndex)) {
+              movePlayer(targetIndex);
+          }
+          square.removeEventListener('click', handleMove);
+      });
+  });
+});
+
+function helpSystem(neededHelp) {
+  var systemTips = "";
+  switch (neededHelp) {
+    case "points":
+      systemTips = "You have four kinds of points: basic dice-points (DP), which are unlocked by rolling normal dice either manually or automatically. " +
+                   "Then you have the prestige-based points: line-points (LP), square-points (SP), and cube-points (CP). " +
+                   "All three of these get unlocked by reaching at least a certain number of dice in your dice-cube, which happens by gaining more DP. " +
+                   "Line-points unlock after you reach one full line in the cube, square points unlock after a full square, and you'll never guess when cube points unlock.";
+      break;
+    default:
+      systemTips = "If you are reading this, chances are I named a variable or two wrong."
+  }
+  console.log(systemTips); // TODO: Later make this append in the game.
+  update("helpMenuSystem", systemTips);
 }
