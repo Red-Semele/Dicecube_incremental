@@ -1496,30 +1496,14 @@ function createBoard(size, pieces) {
       if (pieces[i]) {
           const { effect, moves } = pieces[i];
           square.innerText = effect;
-          switch(effect) {
-            case 'Start':
-                square.style.backgroundColor = 'green';
-                break;
-            case 'Move 1':
-                square.style.backgroundColor = 'blue';
-                break;
-            case 'Move 2':
-                square.style.backgroundColor = 'orange';
-                break;
-            case 'Move 3':
-                square.style.backgroundColor = 'purple';
-                break;
-            case 'Finish':
-                square.style.backgroundColor = 'red';
-                break;
-            default:
-                square.style.backgroundColor = 'lightgrey';
-        }
+          setSquareColor(square, effect);
           moves.forEach(move => {
               const arrow = document.createElement('div');
               arrow.classList.add('arrow', move);
               square.appendChild(arrow);
           });
+      } else {
+        square.style.backgroundColor = 'lightgrey';  // Default color for empty squares
       }
       boardElement.appendChild(square);
   }
@@ -1564,14 +1548,41 @@ function getPossibleMoves(currentPosition, roll) {
 
 function highlightPossibleMoves(moves) {
   moves.forEach(index => {
+      console.log("attempted to use highlight")
       document.querySelector(`.square[data-index='${index}']`).classList.add('highlight');
+      document.querySelector(`.square[data-index='${index}']`).style.backgroundColor = '';
   });
 }
 
 function clearHighlights() {
   document.querySelectorAll('.square.highlight').forEach(square => {
       square.classList.remove('highlight');
+      const index = parseInt(square.dataset.index);
+      const effect = pieces[index]?.effect;
+      setSquareColor(square, effect);  // Reset color based on effect
   });
+}
+
+function setSquareColor(square, effect) {
+  switch(effect) {
+      case 'Start':
+          square.style.backgroundColor = 'green';
+          break;
+      case 'Move 1':
+          square.style.backgroundColor = 'blue';
+          break;
+      case 'Move 2':
+          square.style.backgroundColor = 'orange';
+          break;
+      case 'Move 3':
+          square.style.backgroundColor = 'purple';
+          break;
+      case 'Finish':
+          square.style.backgroundColor = 'red';
+          break;
+      default:
+          square.style.backgroundColor = 'lightgrey';
+  }
 }
 
 function movePlayer(targetIndex) {

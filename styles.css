@@ -96,6 +96,7 @@
   }
   .square.highlight {
       background-color: yellow;
+      border: 2px solid yellow;
   }
   .arrow {
       position: absolute;
