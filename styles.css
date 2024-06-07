@@ -21,6 +21,11 @@
   transform: scale(1.1); 
 }
 
+.selected-tab {
+  background-color: #04AA6D; /* Green */
+  color: white;
+}
+
 .button:hover {
   background-color: #04AA6D; /* Green */
   color: white;
@@ -91,8 +96,13 @@
   * { /* * applies to all elements, use with caution */
     outline: none;
   }
+
   #board {
     display: grid;
+    margin-top: 20px; /* Adjust this value as needed */
+    padding-top: 20px; /* Adjust this value as needed */
+    position: relative;
+    top: 20px; /* Adjust this value as needed */
     /*gap: 5px;*/
   }
 

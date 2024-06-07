@@ -38,6 +38,12 @@ document.getElementById("pathChoices").style.display = "none";
 document.getElementById("board").style.display = "none";
 
 const rollButton = document.getElementById('rollDice');
+// Decimal round
+const round10 = (value, exp) => decimalAdjust("round", value, exp);
+// Decimal floor
+const floor10 = (value, exp) => decimalAdjust("floor", value, exp);
+// Decimal ceil
+const ceil10 = (value, exp) => decimalAdjust("ceil", value, exp);
 let holdTimer;
 const X = 7; // Size of the board (X x X)
 const pieces = [
@@ -100,8 +106,7 @@ const pieces = [
     // Add more rules for the remaining squares...
   ];
   const boardSize = X * X;
-  const boardElement = document.getElementById('board');
-  let currentPlayerPosition = 0; // Player starts at the first square
+  
 
 document.getElementById("diceRollIntervalOverload").style.display = "none" //TODO: For some weird reason this upgrade doesn't become visbile, will need some more testing in the future, commenting this out fixes the problem so it's probably ui based.
 const ctx = document.getElementById('myChart');
@@ -469,7 +474,6 @@ function rollDice(rollStyle) {
         comboMessageFix = true;
         if (highestComboCount == mostCommonComboCount) {
           comboMessage = "Highest And Most Common Combo: " + highestComboValue + " (x" + highestComboCount + ")";
-          rewardBoardGame ()
           //TODO: Make sure that the function gives an extra benefit to having the highest and most common combo be the same. A better formula to calculate the effect.
         } else {
           comboMessage = "Highest Combo: " + highestComboValue + " (x" + highestComboCount + ") Most Common Combo: " + mostCommonComboValue + " (x" + mostCommonComboCount + ")";
@@ -477,6 +481,9 @@ function rollDice(rollStyle) {
         
         
                
+      }
+      if (highestComboCount == mostCommonComboCount && gameData.diceAmount >= (mostCommonComboCount + 2)) {
+        rewardBoardGame () //The logic for when this should trigger might need a slight rework but it's good for now, it doesn't trigger with too little dice as then the player could repeatedly trigger this with 2d6.        
       }
     if (comboMessageFix === false) {
        update("diceComboSystem", comboMessage.slice(0, -2)); // Remove trailing comma and space
@@ -694,7 +701,7 @@ function format(number, type) {
 
 
 
-function tab(tab) {
+function tab(tab, button) {
   // hide all your tabs, then show the one the user selected.
   document.getElementById("rollDiceMenu").style.display = "none"
   document.getElementById("shopMenu").style.display = "none"
@@ -703,6 +710,13 @@ function tab(tab) {
   document.getElementById("saveStuffMenu").style.display = "none"
   document.getElementById("helpMenu").style.display = "none"
   document.getElementById(tab).style.display = "inline-block"
+  // Remove selected-tab class from all buttons.
+  const buttons = document.querySelectorAll('#navigateButtons .button');
+  buttons.forEach(btn => btn.classList.remove('selected-tab'));
+
+  // Add selected-tab class to the clicked button.
+  console.log ("button test " + button)
+  button.classList.add('selected-tab');
 }
 function prestigeReset() { //This is used to make sure all the stuff that should be reset from the normal upgrades gets reset.
     gameData.furthestDiceReached = 0;
@@ -976,7 +990,7 @@ function bulkBuy(upgradeType, currencyType) {
 
 
 // go to a tab for the first time, so not all show
-tab("rollDiceMenu")
+tab("rollDiceMenu", document.querySelector('#navigateButtons button[onclick^="tab(\'rollDiceMenu\'"]'))
 
 function resetSave() {
   localStorage.removeItem('diceCubeSave'); // Remove the saved game data from localStorage
@@ -1171,12 +1185,7 @@ function decimalAdjust(type, value, exp) {
   return Number(`${newMagnitude}e${+newExponent + exp}`);
 }
 
-// Decimal round
-const round10 = (value, exp) => decimalAdjust("round", value, exp);
-// Decimal floor
-const floor10 = (value, exp) => decimalAdjust("floor", value, exp);
-// Decimal ceil
-const ceil10 = (value, exp) => decimalAdjust("ceil", value, exp);
+
 
 // Round
 round10(55.55, -1); // 55.6
@@ -1485,12 +1494,15 @@ function clearPathsAfterChoice() {
 
 
     
-
+const boardElement = document.getElementById('board');
+let currentPlayerPosition = 0; // Player starts at the first square
 function createBoard(size, pieces) {
   document.getElementById("board").style.display = "inline";
-  //TODO: The highlight function seems to not highlight anymore, fix this.
-  boardElement.style.gridTemplateColumns = `repeat(${size}, 50px)`;
+  boardElement.style.display = "grid";
   boardElement.style.gridTemplateRows = `repeat(${size}, 50px)`;
+  boardElement.style.gridTemplateColumns = `repeat(${size}, 50px)`;
+  
+  
   console.log ("Board" + boardElement)
 
   for (let i = 0; i < size * size; i++) {
@@ -1569,20 +1581,17 @@ function clearHighlights() {
 
 function setSquareColor(square, effect) {
   switch(effect) {
-      case 'Start':
+      case '150% DP boost':
           square.style.backgroundColor = 'green';
           break;
-      case 'Move 1':
+      case 'Increase luck temporarily':
           square.style.backgroundColor = 'blue';
           break;
-      case 'Move 2':
+      case 'Dice lottery':
           square.style.backgroundColor = 'orange';
           break;
-      case 'Move 3':
+      case 'Gain 1 random DP upgrade':
           square.style.backgroundColor = 'purple';
-          break;
-      case 'Finish':
-          square.style.backgroundColor = 'red';
           break;
       default:
           square.style.backgroundColor = 'lightgrey';
@@ -1600,24 +1609,41 @@ function movePlayer(targetIndex) {
 
 function handleEffect(effect) {
   switch(effect) {
-      case 'Start':
-          alert('You are at the start.');
+      case '150% DP boost':
+          boardGameDPBoost()
           break;
-      case 'Move 1':
-          alert('You landed on Move 1!');
+      case 'Increase luck temporarily':
+          boardGameLuckBoost()
           break;
-      case 'Move 2':
-          alert('You landed on Move 2!');
+      case 'Dice lottery':
+          diceLottery()
           break;
-      case 'Move 3':
-          alert('You landed on Move 3!');
-          break;
-      case 'Finish':
-          alert('You reached the finish!');
+      case 'Gain 1 random DP upgrade':
+          boardGameRandomDPUpgrade()
           break;
       default:
-          alert('Nothing happens.');
+          alert('Nothing happens.');     
   }
+}
+
+function boardGameDPBoost() {
+  //TODO: Find a way to apply a bonus  to each diceroll for a limited time, probably set an interval checker or something and just multiply the dice rolls (automatic and manual) at the end with 1.5
+  alert('DPBoost.');
+}
+
+function boardGameLuckBoost() {
+  //TODO: find a way to temporarily add on to luck and then subtract it back to normal.
+  alert('Temp luck boost!');
+}
+
+function diceLottery() {
+  //TODO: Create a dice lottery system with 6 d6's, for each one you can guess right you gain ¨1.X increase on your dice-points, you lose all of them before though.
+  alert('Dice lottery.');
+}
+
+function boardGameRandomDPUpgrade() {
+  //TODO: Give a random extra DP upgrade without increasing the price.
+  alert('Random DP upgrade.');
 }
 
 document.getElementById('rollButton').addEventListener('click', () => {
@@ -1658,10 +1684,10 @@ function revealPathChoices () {
 }
 
 function rewardBoardGame () { //This will handle wheter or not the boardgame with benefits shows up if you do something cool, to prevent it showing up too much.
-  if (document.getElementById("pathChoices").style.display != "none") {
+  if (document.getElementById("board").style.display != "none") {
     gameData.boardGameStackBuffs += 1 //TODO: Make these boardGameStackBuffs give better effects once the board really is made.
     console.log ("Boardgamebuffs in stock: " + gameData.boardGameStackBuffs)
   } else {
-  createBoard(X, pieces);
+    createBoard(X, pieces);
   }
 }

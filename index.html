@@ -17,18 +17,18 @@
     <p id="diceComboSystem" class="dice-combosystem">No combo currently</p>
     <p title="The dice-thermometer was invented by Rolland Dicington, one of America's finest engineers. This invention was originally intended to win the war against the metric system. Millions of copies had been produced to replace all other thermometers. Sadly even for non-metric users the dice-thermometer proved too illogical and unusable. When asked about the failure of this dice-thermometer Dicington said that he was dice-appointed his invention didn't have the winning roll in the war against the metric-system. Nowadays all copies of the thermometer are sold as novelty toys, 3 have been sold this last year. We are thinking about paying people to take them. (TODO: Make this flow better)" id="diceThermometer" class="dice-thermometer">Currently no heat</p>
     <div id="navigateButtons" class="flex-container">
-      <button onclick="tab('rollDiceMenu')" class="button">Go to Roll dice</button>
-      <button onclick="tab('shopMenu')" class="button">Go to Shop</button>
-      <button onclick="tab('prestigeMenu')" id="prestigeDiceMenu" title="Click here to go to Prestige menu" class="button">Go to Prestige menu</button>
-      <button onclick="tab ('saveStuffMenu')" class="button">Save options</button>
-      <button onclick="tab('boughtShopMenu')" class="button">Check bought upgrades</button>
-      <button onclick="tab('helpMenu')" class="button">Help?</button>
+      <button onclick="tab('rollDiceMenu', this)" class="button">Go to Roll dice</button>
+      <button onclick="tab('shopMenu', this)" class="button">Go to Shop</button>
+      <button onclick="tab('prestigeMenu', this)" id="prestigeDiceMenu" title="Click here to go to Prestige menu" class="button">Go to Prestige menu</button>
+      <button onclick="tab ('saveStuffMenu', this)" class="button">Save options</button>
+      <button onclick="tab('boughtShopMenu', this)" class="button">Check bought upgrades</button>
+      <button onclick="tab('helpMenu', this)" class="button">Help?</button>
 
       
     </div>
-    <button id="rollButton">Roll D6</button>
-    <div id="board" class="board"></div>
-    <p id="dice-result"></p>
+    
+    
+    
     <div id="rollDiceMenu">
       <button onclick="rollDice('manual')" id="rollDice">Roll dice</button>
     </div>
@@ -131,6 +131,11 @@
       <p id="helpMenuSystem" class="help-menuSystem"></p>
       <button onclick="helpSystem('points')" id="pointTip">Point explanation.</button>
     </div>
+  </div>
+  <div>
+    <div id="board" class="board"></div>
+    <p id="dice-result"></p>
+    <button id="rollButton">Roll D6</button>
   </div>
     <script src="main.js" charset="utf-8" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
