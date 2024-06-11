@@ -23,6 +23,7 @@
       <button onclick="tab ('saveStuffMenu', this)" class="button">Save options</button>
       <button onclick="tab('boughtShopMenu', this)" class="button">Check bought upgrades</button>
       <button onclick="tab('helpMenu', this)" class="button">Help?</button>
+      <button onclick="tab('settingsMenu', this)" class="button">Settings</button>
 
       
     </div>
@@ -130,6 +131,17 @@
     <div id="helpMenu">
       <p id="helpMenuSystem" class="help-menuSystem"></p>
       <button onclick="helpSystem('points')" id="pointTip">Point explanation.</button>
+    </div>
+    <div id="settingsMenu">
+      <button onclick="settingButton('notation')" id="notation">Choose a different notation for numbers.</button>
+      <div id="notationSettings">
+        <select id="numberNotationSelect">
+          <option value="scientific">scientific</option>
+          <option value="engineering">engineering</option>
+        </select>
+      </div>
+      <button onclick="settingButton('timeLimit')" id="timeLimit">Choose a timelimit for active play per day.</button>
+      <button onclick="settingButton('visualDisplay')" id="visualDisplay">Choose between different ways to visually display the game.</button>
     </div>
   </div>
   <div>

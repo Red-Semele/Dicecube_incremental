@@ -1,6 +1,7 @@
 //TODO: Figure out how to add these: import { compress } from 'lz-string'; //RECENT import { decompress } from 'lz-string'; //RECENT
 document.addEventListener('DOMContentLoaded', function() {
   gameData.quantity = 1;
+  gameData.numberNotation = "scientific"
   
 });
 
@@ -49,52 +50,52 @@ const X = 7; // Size of the board (X x X)
 const pieces = [
     // Row 1
     { effect: 'Start', moves: ['right'] },
-    { effect: 'Move 1', moves: ['right'] },
-    { effect: 'Move 3', moves: ['right'] },
-    { effect: 'Move 4', moves: ['right'] },
-    { effect: 'Move 1', moves: ['right'] },
+    { effect: '150% DP boost', moves: ['right'] },
+    { effect: 'Dice lottery', moves: ['right'] },
+    { effect: 'Gain 1 random DP upgrade', moves: ['right'] },
+    { effect: '150% DP boost', moves: ['right'] },
     { effect: 'Start', moves: ['right'] },
     { effect: 'Start', moves: ['down'] },
     //Row 2
-    { effect: 'Move 1', moves: ['up'] },
-    { effect: 'Move 2', moves: ['down'] },
-    { effect: 'Move 3', moves: ['left'] },
-    { effect: 'Move 4', moves: ['up', 'left', 'down'] },
-    { effect: 'Move 1', moves: ['left'] },
+    { effect: '150% DP boost', moves: ['up'] },
+    { effect: 'Increase luck temporarily', moves: ['down'] },
+    { effect: 'Dice lottery', moves: ['left'] },
+    { effect: 'Gain 1 random DP upgrade', moves: ['up', 'left', 'down'] },
+    { effect: '150% DP boost', moves: ['left'] },
     { effect: 'Start', moves: ['left'] },
-    { effect: 'Move 1', moves: ['down'] },
+    { effect: '150% DP boost', moves: ['down'] },
     //Row 3
-    { effect: 'Move 2', moves: ['up'] },
-    { effect: 'Move 3', moves: ['down'] },
-    { effect: 'Move 4', moves: ['right'] },
-    { effect: 'Move 1', moves: ['right'] },
+    { effect: 'Increase luck temporarily', moves: ['up'] },
+    { effect: 'Dice lottery', moves: ['down'] },
+    { effect: 'Gain 1 random DP upgrade', moves: ['right'] },
+    { effect: '150% DP boost', moves: ['right'] },
     { effect: 'Start', moves: ['down'] },
-    { effect: 'Move 1', moves: ['up'] },
-    { effect: 'Move 2', moves: ['down'] },
+    { effect: '150% DP boost', moves: ['up'] },
+    { effect: 'Increase luck temporarily', moves: ['down'] },
     //Row 4
-    { effect: 'Move 3', moves: ['up', 'right'] },
-    { effect: 'Move 4', moves: ['down',] },
-    { effect: 'Move 1', moves: ['right', 'up', 'left'] },
+    { effect: 'Dice lottery', moves: ['up', 'right'] },
+    { effect: 'Gain 1 random DP upgrade', moves: ['down',] },
+    { effect: '150% DP boost', moves: ['right', 'up', 'left'] },
     { effect: 'Start', moves: ['down', 'up'] },
-    { effect: 'Move 1', moves: ['down', 'left', 'right'] },
-    { effect: 'Move 2', moves: ['up'] },
-    { effect: 'Move 3', moves: ['down', 'left'] },
+    { effect: '150% DP boost', moves: ['down', 'left', 'right'] },
+    { effect: 'Increase luck temporarily', moves: ['up'] },
+    { effect: 'Dice lottery', moves: ['down', 'left'] },
     //Row 5
-    { effect: 'Move 4', moves: ['up'] },
-    { effect: 'Move 1', moves: ['down'] },
+    { effect: 'Gain 1 random DP upgrade', moves: ['up'] },
+    { effect: '150% DP boost', moves: ['down'] },
     { effect: 'Start', moves: ['up'] },
-    { effect: 'Move 1', moves: ['left'] },
-    { effect: 'Move 2', moves: ['left'] },
-    { effect: 'Move 3', moves: ['up'] },
-    { effect: 'Move 4', moves: ['down'] },
+    { effect: '150% DP boost', moves: ['left'] },
+    { effect: 'Increase luck temporarily', moves: ['left'] },
+    { effect: 'Dice lottery', moves: ['up'] },
+    { effect: 'Gain 1 random DP upgrade', moves: ['down'] },
     //Row 6
-    { effect: 'Move 1', moves: ['up'] },
+    { effect: '150% DP boost', moves: ['up'] },
     { effect: 'Start', moves: ['right'] },
-    { effect: 'Move 1', moves: ['right'] },
-    { effect: 'Move 2', moves: ['right', 'down', 'up'] },
-    { effect: 'Move 3', moves: ['right'] },
-    { effect: 'Move 4', moves: ['up'] },
-    { effect: 'Move 1', moves: ['down'] },
+    { effect: '150% DP boost', moves: ['right'] },
+    { effect: 'Increase luck temporarily', moves: ['right', 'down', 'up'] },
+    { effect: 'Dice lottery', moves: ['right'] },
+    { effect: 'Gain 1 random DP upgrade', moves: ['up'] },
+    { effect: '150% DP boost', moves: ['down'] },
     //Row 7
     { effect: '150% DP boost', moves: ['up'] },
     { effect: 'Increase luck temporarily', moves: ['left'] },
@@ -234,7 +235,9 @@ var gameData = {
   totalIceCubeDimension: 1,
   iceCubeNextUpgrade: 1,
   iceCubePointsNeeded:10, //This is how many points you need to achieve with the heat to melt the ice.
-  boardGameStackBuffs: 0
+  boardGameStackBuffs: 0,
+  numberNotation: "scientific",
+  boardGameDPBoost: 1 //This will be multiplying both manual and automatic rolls, increased by the boardgame temporarily
   
 
   // Also add this for the other line and square upgrades, check code if you have to for example.
@@ -258,6 +261,12 @@ selectElementUpgrade.addEventListener('change', function() {
 var selectedValueUpgrade = selectElementUpgrade.options[selectElementUpgrade.selectedIndex].getAttribute('boughtShopMenuUpgrade');//selectElementCurrency.boughtShopMenuCurrency
   gameData.boughtShopMenuUpgradeType = selectedValueUpgrade;
 });
+var selectElementNotation = document.getElementById('numberNotationSelect');
+selectElementNotation.addEventListener('change', function() {
+var selectedValueNotation = selectElementNotation.value;
+  gameData.numberNotation = selectedValueNotation;
+  console.log ("Notation " + gameData.numberNotation)
+});
 
 
 function update(id, content) {
@@ -266,6 +275,7 @@ function update(id, content) {
 }
 
 function updateAll() {
+  //TODO: Theoretetically I can remove the gameData.notation stuff as it is now not necessary anymore
 
   if (gameData.diceRollIntervalOverloadHeat > 0) {
     document.getElementById("diceThermometer").style.display = "";
@@ -273,32 +283,32 @@ function updateAll() {
   }
   
   if (gameData.onlineDiceRollerActivated === true) { 
-    //update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "scientific") + " dicePoints");
-    update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(checkCost("diceAmountUpgrade", "dicePoints"), "scientific") + " dicePoints");
+    //update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "gameData.numberNotation") + " dicePoints");
+    update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + " x" + (gameData.onlineDiceRollerCount * 2) + " by online dice roller upgrade) Cost: " + format(checkCost("diceAmountUpgrade", "dicePoints"), "gameData.numberNotation") + " dicePoints");
   } else {
-    //update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + ") Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "scientific") + " dicePoints");
-    update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + ") Cost: " + format(checkCost("diceAmountUpgrade", "dicePoints"), "scientific") + " dicePoints");
+    //update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + ") Cost: " + format(Math.sqrt(gameData.diceAmountUpgradeCost), "gameData.numberNotation") + " dicePoints");
+    update("diceAmountUpgrade", "Buy extra dice (Currently " + gameData.diceAmount + " dice" + ") Cost: " + format(checkCost("diceAmountUpgrade", "dicePoints"), "gameData.numberNotation") + " dicePoints");
   }
 
   
   if (!gameData.stopCheckCostDiceRollInterval ) {
-    update("diceRollIntervalUpgrade", "Increase automatic dice-roll speed by " + Math.floor(gameData.diceRollIntervalUpgradeTimeSize) + "ms (Currently " + Math.floor(gameData.diceRollInterval) + "ms ) Cost: " + format(checkCost("diceRollIntervalUpgrade", "dicePoints"), "scientific") + " dicePoints");
+    update("diceRollIntervalUpgrade", "Increase automatic dice-roll speed by " + Math.floor(gameData.diceRollIntervalUpgradeTimeSize) + "ms (Currently " + Math.floor(gameData.diceRollInterval) + "ms ) Cost: " + format(checkCost("diceRollIntervalUpgrade", "dicePoints"), "gameData.numberNotation") + " dicePoints");
   }
-  update("diceSideUpgrade", "Upgrade Dice (Currently " + "d" + gameData.diceSides + ") Cost: " + format(checkCost("diceSideUpgrade", "dicePoints"), "scientific") + " dicePoints"); //Check this list to see by how much the sides need to be incremented to be a real dice: https://commons.wikimedia.org/wiki/Dice_by_number_of_sides#D9
+  update("diceSideUpgrade", "Upgrade Dice (Currently " + "d" + gameData.diceSides + ") Cost: " + format(checkCost("diceSideUpgrade", "dicePoints"), "gameData.numberNotation") + " dicePoints"); //Check this list to see by how much the sides need to be incremented to be a real dice: https://commons.wikimedia.org/wiki/Dice_by_number_of_sides#D9
   if (gameData.diceAmount >= 2) {
     document.getElementById("unlockedComboUpgrade").style.display = "inline-block";
     if (gameData.unlockedComboUpgrade === 1) {
-      update("unlockedComboUpgrade", "Unlock the ability to combo dice (2x combo) Cost: "+ format(checkCost("unlockedComboUpgrade", "dicePoints"), "scientific") + " dicePoints"); //TODO: Make this adapt more based on what combo you unlocked etc.
+      update("unlockedComboUpgrade", "Unlock the ability to combo dice (2x combo) Cost: "+ format(checkCost("unlockedComboUpgrade", "dicePoints"), "gameData.numberNotation") + " dicePoints"); //TODO: Make this adapt more based on what combo you unlocked etc.
     } else {
-      update("unlockedComboUpgrade", "Increase max combo (" + (gameData.unlockedComboUpgrade + 1) + "x combo) Cost: "+ format(checkCost("unlockedComboUpgrade", "dicePoints"), "scientific") + " dicePoints");
+      update("unlockedComboUpgrade", "Increase max combo (" + (gameData.unlockedComboUpgrade + 1) + "x combo) Cost: "+ format(checkCost("unlockedComboUpgrade", "dicePoints"), "gameData.numberNotation") + " dicePoints");
     }
   }
-  update("dicePoints", format(Math.floor(gameData.dicePoints), "scientific") + " Dice points");
+  update("dicePoints", format(Math.floor(gameData.dicePoints), "gameData.numberNotation") + " Dice points");
   update("linePoints", "Line Points: " + round10(gameData.linePoints, -2));
   update("squarePoints", "Square Points: " + round10(gameData.squarePoints, -2));
   update("cubePoints", "Cube Points: " + round10(gameData.cubePoints, -2));
-  update("diceProgress", "Currently reached dice " + format(gameData.furthestDiceReached, "scientific") + " of " + (Math.pow(gameData.diceDimension, 3)) +  " in dicecube");
-  update ("diceProgress2", "Dice " + format(gameData.furthestDiceReached, "scientific") + " currently placed on " + Math.floor(gameData.dicePointsTotal/(Math.pow(5, (gameData.furthestDiceReached - 1)))));
+  update("diceProgress", "Currently reached dice " + format(gameData.furthestDiceReached, "gameData.numberNotation") + " of " + (Math.pow(gameData.diceDimension, 3)) +  " in dicecube");
+  update ("diceProgress2", "Dice " + format(gameData.furthestDiceReached, "gameData.numberNotation") + " currently placed on " + Math.floor(gameData.dicePointsTotal/(Math.pow(5, (gameData.furthestDiceReached - 1)))));
   if (gameData.furthestDiceReached >= gameData.diceDimension) {
     update ("linePrestige", "Line prestige (for " + round10((gameData.furthestDiceReached/gameData.diceDimension), -2) + "LP)");
     document.getElementById("linePrestige").style.backgroundColor = "";
@@ -338,11 +348,11 @@ function updateAll() {
     document.getElementById("cubePrestige").classList.remove('prestige-button');
   }
   if (!gameData.stopCheckCostLineUpgrades ) {
-    update("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + format(checkCost("decreaseUpgradeCostRatios", "linePoints"), "scientific") + "LP");
-    update("decreasedWaitingLine", "Decreased waiting line Cost: " + format(checkCost("decreasedWaitingLine", "linePoints"), "scientific") + "LP");
-    update("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost: " + format(checkCost("onlineDiceRoller", "linePoints"), "scientific") + "LP");
-    update("biggerTimeSize", "Increase interval | Cost: " + format(checkCost("biggerTimeSize", "linePoints"), "scientific") + "LP");
-    update("blowOnDice", "Blow on dice | Cost: " + format(checkCost("blowOnDice", "linePoints"), "scientific") + "LP");
+    update("decreaseUpgradeCostRatios", "Decrease the speed at which regular upgrades' cost grows Cost: " + format(checkCost("decreaseUpgradeCostRatios", "linePoints"), "gameData.numberNotation") + "LP");
+    update("decreasedWaitingLine", "Decreased waiting line Cost: " + format(checkCost("decreasedWaitingLine", "linePoints"), "gameData.numberNotation") + "LP");
+    update("onlineDiceRoller", "On-line dice roller (Currently " + (gameData.onlineDiceRollerCount * 2) + "x dice) Cost: " + format(checkCost("onlineDiceRoller", "linePoints"), "gameData.numberNotation") + "LP");
+    update("biggerTimeSize", "Increase interval | Cost: " + format(checkCost("biggerTimeSize", "linePoints"), "gameData.numberNotation") + "LP");
+    update("blowOnDice", "Blow on dice | Cost: " + format(checkCost("blowOnDice", "linePoints"), "gameData.numberNotation") + "LP");
     
   }
   var clonedButtons = document.querySelectorAll(".cloned-button");
@@ -500,7 +510,7 @@ function rollDice(rollStyle) {
 
     totalPoints *= (getBaseLog(10, gameData.manualRolls) + 1);
   }
-  
+  totalPoints *= gameData.boardGameDPBoost //This multiplies the points based on the boardgamediceboostsquare, no square means it is multiplied by 1
   gameData.dicePoints += totalPoints;
   gameData.dicePointsTotal += totalPoints;
   var currentLevel = Math.floor(getBaseLog(5, gameData.dicePointsTotal)) + 1;
@@ -680,7 +690,7 @@ if (savegame !== null) {
   
 
 
-function format(number, type) {
+function format(number) {
 	let exponent = Math.floor(Math.log10(number));
 	let mantissa = number / Math.pow(10, exponent);
   if (gameData.tempCurrencyType === "dicePoints") {
@@ -693,8 +703,8 @@ function format(number, type) {
     }
   }
 	if (exponent < 3) return currencyTypeFormatLogic;
-	if (type == "scientific") return mantissa.toFixed(2) + "e" + exponent;
-	if (type == "engineering") return (Math.pow(10, exponent % 3) * mantissa).toFixed(2) + "e" + (Math.floor(exponent / 3) * 3)
+	if (gameData.numberNotation == "scientific") return mantissa.toFixed(2) + "e" + exponent;
+	if (gameData.numberNotation == "engineering") return (Math.pow(10, exponent % 3) * mantissa).toFixed(2) + "e" + (Math.floor(exponent / 3) * 3)
 }
 
 
@@ -709,6 +719,7 @@ function tab(tab, button) {
   document.getElementById("boughtShopMenu").style.display = "none"
   document.getElementById("saveStuffMenu").style.display = "none"
   document.getElementById("helpMenu").style.display = "none"
+  document.getElementById("settingsMenu").style.display = "none"
   document.getElementById(tab).style.display = "inline-block"
   // Remove selected-tab class from all buttons.
   const buttons = document.querySelectorAll('#navigateButtons .button');
@@ -1627,13 +1638,43 @@ function handleEffect(effect) {
 }
 
 function boardGameDPBoost() {
+  
+  let boostAmount = 0.50; // The amount by which luck is increased
+  let boostDuration = 50000; // The duration of the boost in milliseconds (e.g., 5000ms = 5 seconds) TODO: Make this a gameData.variable
+
+  // Increase the luck value temporarily
+  gameData.boardGameDPBoost += boostAmount;
+ 
+  alert('Temp DP boost! Multiplied by: ' + gameData.boardGameDPBoost;
+
+  // Use setTimeout to subtract the luck boost after boostDuration milliseconds
+  setTimeout(function() {
+      gameData.boardGameDPBoost -= boostAmount;
+      alert('DP boost ended.);
+  }, boostDuration);
   //TODO: Find a way to apply a bonus  to each diceroll for a limited time, probably set an interval checker or something and just multiply the dice rolls (automatic and manual) at the end with 1.5
   alert('DPBoost.');
 }
 
 function boardGameLuckBoost() {
-  //TODO: find a way to temporarily add on to luck and then subtract it back to normal.
-  alert('Temp luck boost!');
+  let boostAmount = 0.10; // The amount by which luck is increased
+  let boostDuration = 50000; // The duration of the boost in milliseconds (e.g., 5000ms = 5 seconds) TODO: Make this a gameData.variable
+
+  // Increase the luck value temporarily
+  if (gameData.blowOnDiceTriggerChance <= 0.90) {
+  gameData.blowOnDiceTriggerChance += boostAmount;
+  } else {
+    //This is in place so that if for some reason the luck factor is risking going over 1 it won't. And even more importantly so it doesn't detract too much luck afterwards.
+    boostAmount = (1 - gameData.blowOnDiceTriggerChance)
+    gameData.blowOnDiceTriggerChance += boostAmount;
+  }
+  alert('Temp luck boost! Luck is now: ' + luck);
+
+  // Use setTimeout to subtract the luck boost after boostDuration milliseconds
+  setTimeout(function() {
+      gameData.blowOnDiceTriggerChance -= boostAmount;
+      alert('Luck boost ended. Luck is now: ' + luck);
+  }, boostDuration);
 }
 
 function diceLottery() {
@@ -1663,7 +1704,7 @@ document.getElementById('rollButton').addEventListener('click', () => {
   });
 });
 
-function helpSystem(neededHelp) {
+function helpSystem (neededHelp) {
   var systemTips = "";
   switch (neededHelp) {
     case "points":
@@ -1677,6 +1718,20 @@ function helpSystem(neededHelp) {
   }
   console.log(systemTips);
   update("helpMenuSystem", systemTips);
+}
+
+function settingButton (settingSpecified) {
+  switch (settingSpecified) {  
+    case "visualDisplay":
+      alert("VisualDisplay setting activated");
+      break;
+    case "notation":
+      alert("Notation setting activated");
+      gameData.numberNotation = "scientific"
+      break;
+    default:
+      alert("No setting specified");
+  }
 }
 
 function revealPathChoices () {
