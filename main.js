@@ -1645,15 +1645,13 @@ function boardGameDPBoost() {
   // Increase the luck value temporarily
   gameData.boardGameDPBoost += boostAmount;
  
-  alert('Temp DP boost! Multiplied by: ' + gameData.boardGameDPBoost;
+  alert('Temp DP boost! Multiplied by: ' + gameData.boardGameDPBoost);
 
   // Use setTimeout to subtract the luck boost after boostDuration milliseconds
   setTimeout(function() {
       gameData.boardGameDPBoost -= boostAmount;
-      alert('DP boost ended.);
+      alert('DP boost ended.');
   }, boostDuration);
-  //TODO: Find a way to apply a bonus  to each diceroll for a limited time, probably set an interval checker or something and just multiply the dice rolls (automatic and manual) at the end with 1.5
-  alert('DPBoost.');
 }
 
 function boardGameLuckBoost() {
