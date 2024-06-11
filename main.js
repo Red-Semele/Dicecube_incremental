@@ -1676,9 +1676,54 @@ function boardGameLuckBoost() {
 }
 
 function diceLottery() {
-  //TODO: Create a dice lottery system with 6 d6's, for each one you can guess right you gain ¨1.X increase on your dice-points, you lose all of them before though.
-  alert('Dice lottery.');
+// Function to roll a single 6-sided die
+function rollLotteryDie(diceSides) {
+  return Math.floor(Math.random() * diceSides) + 1;
 }
+
+// Function to roll six 6-sided dice and return an array of results
+function rollDice() {
+  let rolls = [];
+  for (let i = 0; i < 6; i++) {
+    rolls.push(rollLotteryDie(6));
+  }
+  return rolls;
+}
+
+// Function to compare two arrays of dice rolls and count matches
+function countMatches(playerRolls, systemRolls) {
+  let matches = 0;
+  for (let i = 0; i < 6; i++) {
+    if (playerRolls[i] === systemRolls[i]) {
+      matches++;
+    }
+  }
+  return matches;
+}
+
+  // Roll dice for both player and system
+  let playerRolls = rollDice();
+  let systemRolls = rollDice();
+
+  // Calculate the number of matches
+  let matches = countMatches(playerRolls, systemRolls);
+
+  // Calculate the score based on matches
+  let scoreMultiplier = (1 + (matches/10))
+
+  // Output the results
+  alert(`Player rolls: ${playerRolls.join(', ')}`);
+  alert(`System rolls: ${systemRolls.join(', ')}`);
+  alert(`You have ${matches} matches.`);
+  alert(`Your score multiplier is: ${scoreMultiplier}`);
+  if (matches >= 1) {
+    //TODO: Probably make the minimum requirement for this to activate be 2 matches later.
+    gameData.dicePoints **= scoreMultiplier
+  } else {
+    gameData.dicePoints = 0
+  }
+}
+
 
 function boardGameRandomDPUpgrade() {
   //TODO: Give a random extra DP upgrade without increasing the price.

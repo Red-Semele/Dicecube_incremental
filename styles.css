@@ -103,6 +103,8 @@
     padding-top: 20px; /* Adjust this value as needed */
     position: relative;
     top: 20px; /* Adjust this value as needed */
+    margin-left: 20px; /* Adjust this value as needed */
+    padding-left: 20px; /* Adjust this value as needed */
     /*gap: 5px;*/
   }
 
